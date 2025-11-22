@@ -124,10 +124,13 @@ export default function Navbar() {
 
           {/* Desktop Webinar Dropdown */}
           <div className="relative group">
-            <button className="relative text-gray-800 hover:text-yellow-600 font-medium transition duration-200">
-              Webinar
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-500 transition-all duration-300 group-hover:w-full"></span>
-            </button>
+            <Link
+    to="/webinar"
+    className="relative text-gray-800 hover:text-yellow-600 font-medium transition duration-200 group"
+  >
+    Webinar
+    <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-500 transition-all duration-300 group-hover:w-full"></span>
+  </Link>
 
             <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-100 py-2 z-50 
               opacity-0 invisible group-hover:opacity-100 group-hover:visible 
