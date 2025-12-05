@@ -34,10 +34,12 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 # ✅ Include your Render backend domain here also
 ALLOWED_HOSTS = [
     "thebmacademy.com",
+    "certificate.thebmacademy.com",
     "www.thebmacademy.com",
     "82.25.85.114",
     "localhost",
-    "127.0.0.1"
+    "127.0.0.1",
+    "[2a02:4780:2d:430::1]",
 ]
 
 
