@@ -188,6 +188,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5175",
     "https://certificate.thebmacademy.com",
     "https://thebmacademy.com",
+    "http://82.25.85.114:8000",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
