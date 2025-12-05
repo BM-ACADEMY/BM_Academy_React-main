@@ -89,7 +89,7 @@ export default function Sidebar() {
       <nav className="flex-1 px-2 py-6 space-y-2">
         <SidebarLink to="/dashboard" icon={FaTachometerAlt} label="Dashboard" />
         <SidebarLink to="/courses" icon={FaBook} label="Courses" />
-        <SidebarLink to="/users" icon={FaUsers} label="Users" />
+        {/* <SidebarLink to="/users" icon={FaUsers} label="Users" /> */}
         <SidebarLink to="/certificates" icon={FaCertificate} label="Certificates" />
       </nav>
 

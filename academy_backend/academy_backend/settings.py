@@ -123,7 +123,6 @@ else:
     MONGO_URI = os.getenv("MONGO_LOCAL_URI")
 
 
-
 # ------------------------
 # Password validation
 # ------------------------
@@ -186,6 +185,9 @@ CORS_ALLOWED_ORIGINS = [
     # optional local dev
     "http://localhost:5173",
     "http://localhost:5174",
+    "http://localhost:5175",
+    "https://certificate.thebmacademy.com",
+    "https://thebmacademy.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -194,6 +196,8 @@ CSRF_TRUSTED_ORIGINS = [
     # optional local dev
     "http://localhost:5173",
     "http://localhost:5174",
+    "https://certificate.thebmacademy.com",
+    "https://thebmacademy.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -221,7 +225,6 @@ SIMPLE_JWT = {
 # ------------------------
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
-
 
 
 # Email Configuration

@@ -1,0 +1,53 @@
+.cert-root {
+  width: 1123px;
+  height: 794px;
+  position: relative;
+}
+
+.cert-bg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.cert-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  z-index: 5;
+  font-family: "Times New Roman", serif;
+}
+
+.line1 {
+  top: 330px;
+  font-size: 24px;
+}
+
+.line2a {
+  top: 380px;
+  font-size: 22px;
+}
+
+.line2b {
+  top: 420px;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.line3 {
+  top: 470px;
+  font-size: 28px;
+}
+
+.issued {
+  top: 550px;
+  font-size: 20px;
+}
+
+/* Buttons should always stay above certificate */
+.preview-btn {
+  z-index: 9999 !important;
+}

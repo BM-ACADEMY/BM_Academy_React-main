@@ -32,6 +32,7 @@ import DM from "./Routes/DM";
 import DA from "./Routes/DA";
 import FSD from "./Routes/Fsd";
 import Webinar from "./Dashboard/Webinar/Webinar";
+import CertificatePreviewPage from "./components/Certificate/CertificatePreviewPage";
 
 
 export const App = () => {
@@ -55,15 +56,15 @@ export const App = () => {
                 <Route path="/webinar/digital-marketing" element={<DM />} />
                 <Route path="/webinar/fullstack-development" element={<FSD />} />
 
-                
-               
+
+
 
 <Route
   path="/courses/*"
   element={
-    
+
       <Coursesroutes />
-          
+
   }
 />
                 <Route path="/sact" element={<SACTroutes />} />
@@ -74,6 +75,7 @@ export const App = () => {
                 <Route path="/dashboard/student" element={<StudentDashboard />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
                 <Route path="/verify" element={<Certificateroutes />} />
+                <Route path="/certificate-preview" element={<CertificatePreviewPage />} />
                 <Route path="/payments/*" element={<PaymentRoutes />} />
               </Routes>
               <Footer />
@@ -81,7 +83,7 @@ export const App = () => {
           }
         />
 
-      
+
         {/* Admin Dashboard (separate layout, no Navbar/Footer) */}
         <Route path="/dashboard/admin" element={<AdminDashboard />}>
           <Route path="courses" element={<ManageCourses />} />
@@ -91,8 +93,3 @@ export const App = () => {
     </Router>
   );
 };
-
-
-
-
-

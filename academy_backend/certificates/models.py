@@ -2,11 +2,22 @@
 from mongoengine import Document, StringField, DateTimeField
 import datetime
 
+
 class Certificate(Document):
-    user_id = StringField(required=True)  # MongoDB ObjectId as string
-    course_id = StringField(required=True)  # MongoDB ObjectId as string
+    # Automatic certificate fields
+    user_id = StringField()
+    course_id = StringField()
+
+    # Manual certificate fields
+    manual_name = StringField()
+    manual_course = StringField()
+
+    certificate_type = StringField(default="Course")
     certificate_id = StringField(required=True, unique=True)
     issue_date = DateTimeField(default=datetime.datetime.utcnow)
-    file_url = StringField()  # store PDF file URL (instead of FileField)
 
-    meta = {"collection": "certificates"}  # ensures MongoDB stores in this collection
+    # Save file path or URL (NOT FileField)
+    file_path = StringField()  # e.g., "certificates/CERT12345.pdf"
+    file_url = StringField()  # e.g., full absolute URL
+
+    meta = {"collection": "certificates"}
