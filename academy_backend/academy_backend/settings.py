@@ -9,38 +9,54 @@ from dotenv import load_dotenv
 # ------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+if not os.environ.get("RENDER"):
+    load_dotenv(BASE_DIR / ".env_local")
 # ------------------------
 # Environment file selection
 # ------------------------
-ENV_FILE = os.environ.get("ENV_FILE", ".env_local")  # default to local
-load_dotenv(BASE_DIR / ENV_FILE)
+# ENV_FILE = os.environ.get("ENV_FILE", ".env_local")  # default to local
+# load_dotenv(BASE_DIR / ENV_FILE)
 
 # ------------------------
 # PORT (for Render)
 # ------------------------
 PORT = int(os.environ.get("PORT", 8000))
+SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-local-secret")
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS if h.strip()]  # ⭐ FIXED
 # ------------------------
 # Google OAuth
 # ------------------------
 GOOGLE_CLIENT_ID = os.getenv("VITE_GOOGLE_CLIENT_ID")
+MONGO_ENV = os.getenv("MONGO_ENV", "local")
+
+if MONGO_ENV == "atlas":
+    MONGO_URI = os.getenv("MONGO_ATLAS_URI")
+else:
+    MONGO_URI = os.getenv("MONGO_LOCAL_URI")
+
+if MONGO_URI:
+    connect(host=MONGO_URI, alias="default")
+else:
+    print("❗ No MongoDB URI found")
 
 # ------------------------
 # SECURITY
 # ------------------------
-SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-local-secret")
-DEBUG = os.getenv("DEBUG", "True") == "True"
+
 
 # ✅ Include your Render backend domain here also
-ALLOWED_HOSTS = [
-    "thebmacademy.com",
-    "certificate.thebmacademy.com",
-    "www.thebmacademy.com",
-    "82.25.85.114",
-    "localhost",
-    "127.0.0.1",
-    "[2a02:4780:2d:430::1]",
-]
+# ALLOWED_HOSTS = [
+#     "thebmacademy.com",
+#     "certificate.thebmacademy.com",
+#     "www.thebmacademy.com",
+#     "82.25.85.114",
+#     "localhost",
+#     "127.0.0.1",
+#     "[2a02:4780:2d:430::1]",
+# ]
 
 
 # ------------------------
@@ -114,15 +130,21 @@ DATABASES = {
     }
 }
 
+# # ------------------------
+# # MongoDB connection
+# # ------------------------
+# MONGO_ENV = os.getenv("MONGO_ENV", "local")
+
+# if MONGO_ENV == "atlas":
+#     MONGO_URI = os.getenv("MONGO_ATLAS_URI")
+# else:
+#     MONGO_URI = os.getenv("MONGO_LOCAL_URI")
+
+# Load .env_local only when developing locally
+
 # ------------------------
 # MongoDB connection
 # ------------------------
-MONGO_ENV = os.getenv("MONGO_ENV", "local")
-
-if MONGO_ENV == "atlas":
-    MONGO_URI = os.getenv("MONGO_ATLAS_URI")
-else:
-    MONGO_URI = os.getenv("MONGO_LOCAL_URI")
 
 
 # ------------------------
@@ -179,29 +201,38 @@ REST_FRAMEWORK = {
 # ------------------------
 # ✅ LOCAL CORS CONFIG (ONLY FOR LOCAL TESTING)
 # ------------------------
-CORS_ALLOW_ALL_ORIGINS = False
+# ------------------------
+# CORS + CSRF (Dynamic for Render)
+# ------------------------
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
-CORS_ALLOWED_ORIGINS = [
-    "https://bmacademyadmin.vercel.app",
-    "https://bmacademyclient.vercel.app",
-    # optional local dev
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "https://certificate.thebmacademy.com",
-    "https://thebmacademy.com",
-    "http://82.25.85.114:8000",
-]
+# Clean empty values
+CORS_ALLOWED_ORIGINS = [o.strip() for o in CORS_ALLOWED_ORIGINS if o.strip()]
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in CSRF_TRUSTED_ORIGINS if o.strip()]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://bmacademyadmin.vercel.app",
-    "https://bmacademyclient.vercel.app",
-    # optional local dev
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "https://certificate.thebmacademy.com",
-    "https://thebmacademy.com",
-]
+
+# CORS_ALLOWED_ORIGINS = [
+#     "https://bmacademyadmin.vercel.app",
+#     "https://bmacademyclient.vercel.app",
+#     # optional local dev
+#     "http://localhost:5173",
+#     "http://localhost:5174",
+#     "http://localhost:5175",
+#     "https://certificate.thebmacademy.com",
+#     "https://thebmacademy.com",
+#     "http://82.25.85.114:8000",
+# ]
+
+# CSRF_TRUSTED_ORIGINS = [
+#     "https://bmacademyadmin.vercel.app",
+#     "https://bmacademyclient.vercel.app",
+#     # optional local dev
+#     "http://localhost:5173",
+#     "http://localhost:5174",
+#     "https://certificate.thebmacademy.com",
+#     "https://thebmacademy.com",
+# ]
 
 CORS_ALLOW_CREDENTIALS = True
 
