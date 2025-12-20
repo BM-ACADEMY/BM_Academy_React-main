@@ -1,90 +1,236 @@
-import React from "react";
-import { FaCheck, FaGraduationCap, FaLocationDot, FaHandPointRight } from "react-icons/fa6";
-import { FiTarget } from "react-icons/fi";
-import HeroImg from "../../assets/img/hero-academy.jpg";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import AOS from "aos";
+import "aos/dist/aos.css"; // Ensure AOS CSS is imported
+import {
+  FaGraduationCap,
+  FaLaptopCode,
+  FaRobot,
+  FaArrowRight
+} from "react-icons/fa6";
+import { FiTarget } from "react-icons/fi";
 
 export default function HeroSection() {
+  const [activeTab, setActiveTab] = useState("tech");
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Initialize AOS on component mount
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      easing: "ease-out-cubic",
+    });
+  }, []);
+
+  // Smooth fade effect when switching tabs
+  const handleTabChange = (tab) => {
+    if (activeTab === tab) return;
+    setIsAnimating(true);
+    setActiveTab(tab);
+    setTimeout(() => setIsAnimating(false), 300); // Remove animation class after duration
+  };
+
+  const tabContent = {
+    tech: {
+      title: "IT & Tech Courses",
+      icon: <FaLaptopCode className="text-xl" />,
+      text: "Master in-demand skills like Web Development, Data Science, and Full Stack Engineering to secure high-paying tech jobs.",
+    },
+    guidance: {
+      title: "AI Career Guidance",
+      icon: <FaRobot className="text-xl" />,
+      text: "Free career guidance via our specialized SACT AI Career Test to help you discover your true potential and perfect career path.",
+    },
+    coaching: {
+      title: "Govt. Exam Coaching",
+      icon: <FaGraduationCap className="text-xl" />,
+      text: "Comprehensive coaching for TNPSC, SSC, and other government examinations with expert faculty and proven study materials.",
+    },
+  };
+
   return (
-    <section className="relative bg-gradient-to-r from-blue-50 to-indigo-100 py-20 px-6 lg:px-20 overflow-hidden">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center gap-12">
-        {/* Left Content */}
-        <div data-aos="fade-right" data-aos-duration="1000">
-          <div className="flex items-center gap-3 mb-4">
-            <FaGraduationCap className="text-yellow-500 text-4xl" />
-            <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-              Empowering Futures with{" "}
-              <span className="text-yellow-500">Skills & Scholarships!</span>
-            </h1>
+    <section className="py-20 bg-white overflow-hidden font-sans">
+      <div className="container mx-auto px-6 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+          {/* --- LEFT COLUMN: IMAGE COLLAGE --- */}
+          <div className="relative" data-aos="fade-right">
+
+            {/* Background Pattern Dots */}
+            <div className="absolute top-0 right-0 -mr-10 -mt-10 opacity-20 animate-spin-slow">
+               <svg width="100" height="100" fill="#000">
+                 <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                   <circle cx="2" cy="2" r="2" />
+                 </pattern>
+                 <rect width="100" height="100" fill="url(#dots)" />
+               </svg>
+            </div>
+
+            {/* Main Image */}
+            <div className="relative z-10 w-[85%] transform transition-transform hover:scale-[1.02] duration-500">
+              <img
+                src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop"
+                alt="BM Academy Students"
+                className="rounded-lg shadow-2xl w-full object-cover h-[320px] lg:h-[400px]"
+              />
+            </div>
+
+            {/* Secondary Image (Floating) */}
+            <div className="absolute -bottom-10 right-0 w-[55%] z-20 border-8 border-white rounded-lg shadow-xl animate-float-delayed">
+              <img
+                src="https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=2070&auto=format&fit=crop"
+                alt="Tech Learning"
+                className="w-full object-cover h-[200px]"
+              />
+            </div>
+
+            {/* Scholarship Badge (Pulse & Float) */}
+            <div className="absolute top-[15%] right-0 lg:-right-8 z-30 bg-[#FFEA00] py-4 px-5 shadow-lg text-center animate-float"
+                 style={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 50% 85%, 0% 100%)" }}>
+              <span className="block text-3xl font-extrabold text-black leading-none">85%</span>
+              <span className="block text-xs font-bold text-black uppercase mt-1">Scholarship<br/>Available</span>
+            </div>
           </div>
 
-          <p className="mt-6 text-lg text-gray-700 leading-relaxed">
-            Unlock your potential with BM Academy&apos;s SAT Program —
-            Get up to{" "}
-            <span className="font-semibold text-yellow-500">
-              85% scholarship
-            </span>{" "}
-            on career-building courses! From government exam prep to
-            in-demand tech skills, we guide you every step of the way.
-          </p>
 
-          <ul className="mt-6 space-y-3 text-gray-800">
-            <li className="flex items-start gap-2">
-              <FaCheck className="text-yellow-500 mt-1" size={18} />
-              <span>Govt. Exam Coaching (TNPSC, SSC, etc.)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <FaCheck className="text-yellow-500 mt-1" size={18} />
-              <span>
-                IT & Tech Courses (Web Development, Data Science & more)
+          {/* --- RIGHT COLUMN: CONTENT --- */}
+          <div className="mt-12 lg:mt-0" data-aos="fade-left">
+
+            {/* Small Pill Label */}
+            <div className="flex items-center gap-2 mb-4">
+               <span className="h-2 w-2 rounded-full bg-[#FFEA00] animate-pulse"></span>
+               <span className="text-[#FFEA00] font-bold uppercase tracking-wider text-sm">
+                 Welcome to BM Academy
+               </span>
+            </div>
+
+            {/* Main Headline */}
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-[#111111] leading-tight mb-6">
+              Empowering Futures with <br />
+              <span className="text-[#d4c300] relative inline-block">
+                Skills & Scholarships!
+                {/* Animated Underline */}
+                <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#FFEA00] opacity-60" viewBox="0 0 200 9" fill="none">
+                  <path d="M2.00025 6.99997C25.7501 2.49994 132.5 -6.49991 198 3.99996" stroke="currentColor" strokeWidth="3" strokeDasharray="200" strokeDashoffset="0">
+                    <animate attributeName="stroke-dashoffset" from="200" to="0" dur="2s" fill="freeze" />
+                  </path>
+                </svg>
               </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <FaCheck className="text-yellow-500 mt-1" size={18} />
-              <span>Free Career Guidance via our SACT AI Career Test</span>
-            </li>
-          </ul>
+            </h1>
 
-          <p className="mt-6 text-sm text-gray-600 flex items-center gap-2">
-            <FaLocationDot className="text-yellow-500" size={20} />
-            Available in Pondicherry, Tamil Nadu, & Across India
-          </p>
+            {/* --- UPDATED TEXT CONTENT --- */}
+            <p className="text-gray-600 text-lg leading-relaxed mb-8" data-aos="fade-up" data-aos-delay="200">
+              Unlock your career path with BM Academy’s SAT Program — your bridge to high-growth IT opportunities and trusted government exam preparation.
+              Get up to <span className="font-bold text-black">85% scholarship</span> and gain future-ready digital skills for today’s tech-driven world.
+              Alongside, our structured government coaching helps you prepare with clarity and confidence.
+              Grow, achieve, and build your future with expert guidance at BM Academy.
+            </p>
 
-          {/* CTA Buttons */}
-          <div className="mt-10 flex flex-wrap justify-center lg:justify-start gap-4">
-            <a
-              href="https://scat-topaz.vercel.app/Sact.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 rounded-xl bg-yellow-400 text-black font-semibold shadow-md hover:bg-yellow-500 hover:shadow-lg transition-all flex items-center gap-2"
-            >
-              <FaHandPointRight size={18} />
-              Try AI Career Test (SACT)
-            </a>
+            {/* --- INTERACTIVE TABS --- */}
+            <div className="mb-8" data-aos="fade-up" data-aos-delay="400">
+              {/* Tab Navigation */}
+              <div className="flex flex-wrap gap-2 mb-4 border-b border-gray-100 pb-1">
+                {Object.keys(tabContent).map((key) => (
+                  <button
+                    key={key}
+                    onClick={() => handleTabChange(key)}
+                    className={`flex items-center gap-2 px-4 py-2 font-bold text-sm uppercase tracking-wide transition-all duration-300 rounded-t-md relative overflow-hidden
+                      ${activeTab === key
+                        ? "text-black translate-y-[1px]"
+                        : "text-gray-400 hover:text-gray-800"
+                      }`}
+                  >
+                    {/* Background slide animation for active tab */}
+                    {activeTab === key && (
+                      <span className="absolute inset-0 bg-[#FFEA00] -z-10 animate-slide-up"></span>
+                    )}
 
-            <Link
-              to="/courses"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl border border-yellow-500 text-gray-800 font-semibold hover:bg-yellow-50 transition-all"
-            >
-              <FiTarget size={18} />
-              Explore Courses
-            </Link>
+                    {tabContent[key].icon}
+                    <span className="hidden sm:inline">{tabContent[key].title}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Active Content Area */}
+              <div className={`bg-gray-50 p-6 border-l-4 border-[#FFEA00] rounded-r-lg shadow-sm transition-all duration-300 min-h-[120px] ${isAnimating ? 'opacity-50 blur-sm' : 'opacity-100 blur-0'}`}>
+                 <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                   {tabContent[activeTab].title}
+                 </h3>
+                 <p className="text-gray-600">
+                   {tabContent[activeTab].text}
+                 </p>
+              </div>
+            </div>
+
+            {/* Location Text */}
+            <div className="flex items-center gap-2 text-sm text-gray-500 font-medium mb-8">
+               <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+               Available in Pondicherry, Tamil Nadu, & Across India
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4" data-aos="fade-up" data-aos-delay="600">
+              <a
+                href="https://scat-topaz.vercel.app/Sact.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-8 py-4 bg-[#FFEA00] text-black font-bold rounded shadow-lg hover:shadow-xl hover:bg-[#ffe600] transition-all flex items-center justify-center gap-3 group transform hover:-translate-y-1"
+              >
+                Try AI Career Test
+                <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+              </a>
+
+              <Link
+                to="/courses"
+                className="px-8 py-4 border-2 border-gray-200 text-gray-800 font-bold rounded hover:border-[#FFEA00] hover:text-[#d4c300] transition-all flex items-center justify-center gap-3 transform hover:-translate-y-1"
+              >
+                <FiTarget size={20} />
+                Explore Courses
+              </Link>
+            </div>
+
           </div>
-        </div>
-
-        {/* Right Image */}
-        <div
-          className="hidden lg:flex justify-center"
-          data-aos="fade-left"
-          data-aos-duration="1000"
-        >
-          <img
-            src={HeroImg}
-            alt="BM Academy Students"
-            className="w-full h-auto max-w-[550px] rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-500"
-          />
         </div>
       </div>
+
+      {/* --- CUSTOM CSS FOR ANIMATIONS --- */}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) translate(-50%, -50%); }
+          50% { transform: translateY(-10px) translate(-50%, -50%); }
+        }
+        @keyframes float-simple {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes slide-up {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+        /* Uses simple float for items not centered with translate(-50%,-50%) */
+        .animate-float-delayed {
+          animation: float-simple 3.5s ease-in-out infinite;
+          animation-delay: 1s;
+        }
+        .animate-spin-slow {
+          animation: spin-slow 20s linear infinite;
+        }
+        .animate-slide-up {
+          animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
     </section>
   );
 }

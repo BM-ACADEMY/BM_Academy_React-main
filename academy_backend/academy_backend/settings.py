@@ -48,15 +48,15 @@ else:
 
 
 # ✅ Include your Render backend domain here also
-# ALLOWED_HOSTS = [
-#     "thebmacademy.com",
-#     "certificate.thebmacademy.com",
-#     "www.thebmacademy.com",
-#     "82.25.85.114",
-#     "localhost",
-#     "127.0.0.1",
-#     "[2a02:4780:2d:430::1]",
-# ]
+ALLOWED_HOSTS = [
+    "thebmacademy.com",
+    "certificate.thebmacademy.com",
+    "www.thebmacademy.com",
+    "82.25.85.114",
+    "localhost",
+    "127.0.0.1",
+    "[2a02:4780:2d:430::1]",
+]
 
 
 # ------------------------
@@ -204,35 +204,35 @@ REST_FRAMEWORK = {
 # ------------------------
 # CORS + CSRF (Dynamic for Render)
 # ------------------------
-CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+# CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+# CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
 # Clean empty values
-CORS_ALLOWED_ORIGINS = [o.strip() for o in CORS_ALLOWED_ORIGINS if o.strip()]
-CSRF_TRUSTED_ORIGINS = [o.strip() for o in CSRF_TRUSTED_ORIGINS if o.strip()]
+# CORS_ALLOWED_ORIGINS = [o.strip() for o in CORS_ALLOWED_ORIGINS if o.strip()]
+# CSRF_TRUSTED_ORIGINS = [o.strip() for o in CSRF_TRUSTED_ORIGINS if o.strip()]
 
 
-# CORS_ALLOWED_ORIGINS = [
-#     "https://bmacademyadmin.vercel.app",
-#     "https://bmacademyclient.vercel.app",
-#     # optional local dev
-#     "http://localhost:5173",
-#     "http://localhost:5174",
-#     "http://localhost:5175",
-#     "https://certificate.thebmacademy.com",
-#     "https://thebmacademy.com",
-#     "http://82.25.85.114:8000",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "https://bmacademyadmin.vercel.app",
+    "https://bmacademyclient.vercel.app",
+    # optional local dev
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "https://certificate.thebmacademy.com",
+    "https://thebmacademy.com",
+    "http://82.25.85.114:8000",
+]
 
-# CSRF_TRUSTED_ORIGINS = [
-#     "https://bmacademyadmin.vercel.app",
-#     "https://bmacademyclient.vercel.app",
-#     # optional local dev
-#     "http://localhost:5173",
-#     "http://localhost:5174",
-#     "https://certificate.thebmacademy.com",
-#     "https://thebmacademy.com",
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    "https://bmacademyadmin.vercel.app",
+    "https://bmacademyclient.vercel.app",
+    # optional local dev
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://certificate.thebmacademy.com",
+    "https://thebmacademy.com",
+]
 
 CORS_ALLOW_CREDENTIALS = True
 

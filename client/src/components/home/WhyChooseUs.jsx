@@ -1,103 +1,137 @@
 import React, { useState } from "react";
-import { IoIosCall } from "react-icons/io";
-import { FaCheck } from "react-icons/fa6";
-import { FaRocket } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import {
+  FaUserGraduate,
+  FaRobot,
+  FaBriefcase,
+  FaGraduationCap,
+  FaRocket,
+} from "react-icons/fa";
+import { IoIosCall } from "react-icons/io";
 
-export default function WhyChooseUs() {
-  const highlights = [
+const WhyChooseUs = () => {
+  // BM Academy Brand Colors
+  const BRAND_YELLOW = "#FFEA00";
+
+  const features = [
     {
+      id: 1,
       title: "1100+ Students Trained",
-      desc: "Proven success in coaching & career building.",
+      description: "Proven success in coaching & career building across multiple disciplines.",
+      icon: <FaUserGraduate size={24} />,
     },
     {
+      id: 2,
       title: "Free AI Career Guider",
-      desc: "Personalized guidance with our AI-powered SACT tool.",
+      description: "Personalized guidance with our AI-powered SACT tool to find your path.",
+      icon: <FaRobot size={24} />,
     },
     {
-      title: "Practical, Job-Oriented Courses",
-      desc: "Hands-on learning to make you career-ready.",
+      id: 3,
+      title: "Job-Oriented Courses",
+      description: "Hands-on practical learning designed to make you immediately career-ready.",
+      icon: <FaBriefcase size={24} />,
     },
     {
-      title: "Scholarships for Deserving Students",
-      desc: "Up to 85% off via our SAT scholarship program.",
-    },
-    {
-      title: "Flexible Learning",
-      desc: "Offline classes + Online live sessions for all learners.",
+      id: 4,
+      title: "Scholarships Available",
+      description: "Up to 85% off via our SAT scholarship program for deserving students.",
+      icon: <FaGraduationCap size={24} />,
     },
   ];
 
-  const [hoverIndex, setHoverIndex] = useState(null);
+  const [hoveredId, setHoveredId] = useState(null);
 
   return (
-    <section
-      className="relative py-20 px-6 sm:px-10 lg:px-20 text-white overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(145deg, #050b1d 0%, #081229 40%, #0a183a 100%)",
-      }}
-    >
-      {/* Optional glow overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-yellow-400/5 via-transparent to-transparent blur-3xl opacity-20 pointer-events-none"></div>
+    <section className="relative py-24 bg-slate-900 overflow-hidden font-sans">
 
-      <div className="relative max-w-7xl mx-auto text-center">
-        {/* Heading */}
-        <h2 className="text-4xl sm:text-5xl font-extrabold mb-12">
-          <span className="text-yellow-400">Why Choose</span>{" "}
-          <span className="text-white">BM Academy?</span>
-        </h2>
+      {/* Background Decoration (Subtle Static Glow) */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FFEA00]/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-        {/* Highlights Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
-          {highlights.map((item, index) => (
-            <div
-              key={index}
-              className={`relative p-6 sm:p-8 rounded-2xl bg-[#0b1735]/90 border border-transparent shadow-md backdrop-blur-sm transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 ${
-                hoverIndex === index
-                  ? "shadow-[0_0_25px_#FFD70060] border-yellow-400"
-                  : "shadow-[0_0_15px_#00000060]"
-              }`}
-              onMouseEnter={() => setHoverIndex(index)}
-              onMouseLeave={() => setHoverIndex(null)}
-            >
-              <h3
-                className={`text-lg sm:text-xl font-semibold inline-flex items-center gap-2 transition-colors ${
-                  hoverIndex === index ? "text-yellow-400" : "text-yellow-300"
-                }`}
-              >
-                <FaCheck size={20} /> {item.title}
-              </h3>
-              <p
-                className={`mt-3 text-sm sm:text-base leading-relaxed transition-colors ${
-                  hoverIndex === index ? "text-gray-200" : "text-gray-400"
-                }`}
-              >
-                {item.desc}
-              </p>
-            </div>
-          ))}
+      <div className="container mx-auto px-6 lg:px-12 relative z-10">
+
+        {/* --- HEADER --- */}
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-slate-700 mb-6">
+            <span className="h-2 w-2 rounded-full bg-[#FFEA00]"></span>
+            <span className="text-[#FFEA00] font-bold uppercase tracking-widest text-xs">
+              Why Choose Us
+            </span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+            We Are BM Academy Features
+          </h2>
         </div>
 
-        {/* CTA Buttons */}
-        <div className="mt-14 flex flex-col sm:flex-row justify-center gap-5">
+        {/* --- CARDS GRID --- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+          {features.map((feature) => {
+            // Logic: Is this specific card being hovered?
+            const isHovered = hoveredId === feature.id;
+
+            return (
+              <div
+                key={feature.id}
+                onMouseEnter={() => setHoveredId(feature.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                // STABLE LAYOUT: Fixed borders, no scaling.
+                // Border Color Change: Slate-700 (Default) -> #FFEA00 (Hover)
+                className={`relative pt-12 pb-16 px-6 text-center rounded-3xl border-2 cursor-default transition-colors duration-300
+                  ${
+                    isHovered
+                      ? "bg-slate-800 border-[#FFEA00] z-10" // Hover: Dark bg, Yellow Border
+                      : "bg-slate-800/40 border-slate-700" // Default: Transparent bg, Grey Border
+                  }`}
+              >
+                {/* Title */}
+                <h3 className={`text-lg font-bold mb-4 transition-colors duration-300 ${isHovered ? "text-white" : "text-slate-200"}`}>
+                  {feature.title}
+                </h3>
+
+                {/* Description */}
+                <p className={`text-sm leading-relaxed transition-colors duration-300 ${isHovered ? "text-slate-300" : "text-slate-500"}`}>
+                  {feature.description}
+                </p>
+
+                {/* --- ICON BUBBLE (Bottom Center) --- */}
+                <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2 z-20">
+                  <div
+                    className={`w-16 h-16 rounded-full flex items-center justify-center border-4 shadow-xl transition-colors duration-300
+                      ${
+                        isHovered
+                          ? "bg-[#FFEA00] text-black border-slate-900" // Hover: Yellow Bubble, Black Icon
+                          : "bg-slate-700 text-slate-300 border-slate-900" // Default: Grey Bubble
+                      }`}
+                  >
+                    {feature.icon}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* --- CTA BUTTONS --- */}
+        <div className="flex flex-col sm:flex-row justify-center gap-6">
           <Link
             to="/courses"
-            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-yellow-400 text-black font-semibold shadow-[0_0_20px_#FFD70060] hover:bg-yellow-500 hover:shadow-[0_0_30px_#FFD70080] transition transform active:scale-95"
+            className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-[#FFEA00] text-black font-bold uppercase text-sm tracking-wider hover:bg-white transition-colors duration-300"
           >
-            <FaRocket size={20} />
+            <FaRocket size={16} />
             Join Now
           </Link>
 
           <a
             href="tel:+918270652229"
-            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-yellow-400 text-black font-semibold shadow-[0_0_20px_#FFD70060] hover:bg-yellow-500 hover:shadow-[0_0_30px_#FFD70080] transition transform active:scale-95"
+            className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full border border-slate-600 text-white font-bold uppercase text-sm tracking-wider hover:bg-white hover:text-black hover:border-white transition-colors duration-300"
           >
-            <IoIosCall size={20} />
+            <IoIosCall size={18} />
             Call Us
           </a>
         </div>
       </div>
     </section>
   );
-}
+};
+
+export default WhyChooseUs;

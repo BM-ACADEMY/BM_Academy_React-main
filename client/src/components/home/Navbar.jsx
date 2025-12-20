@@ -9,9 +9,12 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [webinarOpen, setWebinarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // BM Academy Brand Colors
+  const BRAND_YELLOW = "#FFEA00";
+  const BRAND_BLACK = "#111111";
 
   const navLinks = [
     { name: "Courses", path: "/courses" },
@@ -86,141 +89,142 @@ export default function Navbar() {
   if (loading) return null;
 
   return (
-    <nav className="fixed w-full top-0 left-0 z-50 bg-white shadow-md">
-      <div className="flex justify-between items-center h-20 px-6 lg:px-12">
-        <Link to="/">
-          <img
-            src={Logo}
-            alt="BM Academy"
-            className="h-16 md:h-20 w-auto object-contain"
-          />
-        </Link>
+    <nav className="fixed w-full top-0 left-0 z-50 bg-white shadow-md font-sans">
+      <div className="flex justify-between items-center h-20">
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8">
-          {navLinks.map((link) =>
-            link.external ? (
-              <a
-                key={link.name}
-                href={link.external}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative text-gray-800 hover:text-yellow-600 font-medium transition duration-200 group"
-              >
-                {link.name}
-                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-500 transition-all duration-300 group-hover:w-full"></span>
-              </a>
-            ) : (
-              <Link
-                key={link.name}
-                to={link.path}
-                className="relative text-gray-800 hover:text-yellow-600 font-medium transition duration-200 group"
-              >
-                {link.name}
-                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-500 transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-            )
-          )}
+        {/* --- LEFT SECTION: SKEWED BLACK BACKGROUND (Desktop) --- */}
+        <div className="relative h-full flex items-center z-20">
+          <div
+            className="hidden md:block absolute top-0 left-0 h-full w-[120%] bg-[#111111] transform -skew-x-[20deg] origin-bottom-left border-r-8 border-[#FFEA00]"
+            style={{ left: '-40px' }}
+          ></div>
 
-          {/* Desktop Webinar Dropdown */}
-          <div className="relative group">
-            <Link
-    to="/webinar"
-    className="relative text-gray-800 hover:text-yellow-600 font-medium transition duration-200 group"
-  >
-    Webinar
-    <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-500 transition-all duration-300 group-hover:w-full"></span>
-  </Link>
-
-            <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-100 py-2 z-50 
-              opacity-0 invisible group-hover:opacity-100 group-hover:visible 
-              transition-all duration-200">
-              <Link
-                to="/webinar/digital-marketing"
-                className="block px-4 py-2 hover:bg-yellow-50 text-gray-700"
-              >
-                Digital Marketing
-              </Link>
-              <Link
-                to="/webinar/data-analyst"
-                className="block px-4 py-2 hover:bg-yellow-50 text-gray-700"
-              >
-                Data Analyst
-              </Link>
-              <Link
-                to="/webinar/fullstack-development"
-                className="block px-4 py-2 hover:bg-yellow-50 text-gray-700"
-              >
-                FullStack Development
-              </Link>
-            </div>
-          </div>
-
-          {/* Profile Only (Login Removed) */}
-          {isLoggedIn && (
-            <div className="ml-8 relative">
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center transition hover:scale-105"
-              >
-                <FaUserCircle
-                  size={30}
-                  className="text-gray-700 hover:text-yellow-500 transition-colors"
-                />
-              </button>
-
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-3 w-44 bg-white border border-gray-100 rounded-xl shadow-lg py-2 animate-fadeIn">
-                  <Link
-                    to="/dashboard/student"
-                    className="block px-4 py-2 text-gray-700 hover:bg-yellow-50 rounded-lg transition"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          <Link to="/" className="relative z-10 px-6 lg:px-12 flex items-center">
+            <img
+              src={Logo}
+              alt="BM Academy"
+              className="h-14 md:h-16 w-auto object-contain"
+            />
+          </Link>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-gray-800"
-          onClick={() => setIsOpen(true)}
-        >
-          <Menu size={28} />
-        </button>
+        {/* --- RIGHT SECTION: NAVIGATION --- */}
+        <div className="flex-1 flex justify-end px-6 lg:px-12">
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+            {navLinks.map((link) =>
+              link.external ? (
+                <a
+                  key={link.name}
+                  href={link.external}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative text-gray-800 hover:text-[#FFEA00] font-bold uppercase text-sm tracking-wide transition duration-200 group"
+                >
+                  {link.name}
+                  <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
+                </a>
+              ) : (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className="relative text-gray-800 hover:text-[#FFEA00] font-bold uppercase text-sm tracking-wide transition duration-200 group"
+                >
+                  {link.name}
+                  <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+              )
+            )}
+
+            {/* Desktop Webinar Dropdown */}
+            <div className="relative group">
+              <Link
+                to="/webinar"
+                className="relative text-gray-800 hover:text-[#FFEA00] font-bold uppercase text-sm tracking-wide transition duration-200 group"
+              >
+                Webinar
+                <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+
+              {/* FIX: Aligned right (right-0), wider (w-64), and auto height to remove scrollbar */}
+              <div className="absolute right-0 mt-4 w-64 bg-white shadow-xl rounded-b-lg border-t-4 border-[#FFEA00] py-2 z-50
+                opacity-0 invisible group-hover:opacity-100 group-hover:visible
+                transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 h-auto">
+                <Link to="/webinar/digital-marketing" className="block px-4 py-3 hover:bg-yellow-50 text-gray-700 font-medium whitespace-nowrap">
+                  Digital Marketing
+                </Link>
+                <Link to="/webinar/data-analyst" className="block px-4 py-3 hover:bg-yellow-50 text-gray-700 font-medium whitespace-nowrap">
+                  Data Analyst
+                </Link>
+                <Link to="/webinar/fullstack-development" className="block px-4 py-3 hover:bg-yellow-50 text-gray-700 font-medium whitespace-nowrap">
+                  FullStack Development
+                </Link>
+              </div>
+            </div>
+
+            {/* Profile Only (Login Removed) */}
+            {isLoggedIn && (
+              <div className="ml-6 relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center transition hover:scale-105"
+                >
+                  <FaUserCircle size={32} className="text-gray-800 hover:text-[#FFEA00] transition-colors" />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-4 w-48 bg-white border-t-4 border-[#FFEA00] shadow-xl py-2 animate-fadeIn z-50 rounded-b-lg h-auto">
+                    <Link
+                      to="/dashboard/student"
+                      className="block px-4 py-2 text-gray-700 hover:bg-yellow-50 font-medium transition"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 font-medium transition"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-gray-800 hover:text-[#FFEA00] transition-colors"
+            onClick={() => setIsOpen(true)}
+          >
+            <Menu size={30} />
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Overlay */}
+      {/* --- MOBILE LAYOUT --- */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Mobile Drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-72 bg-white shadow-xl z-50 transform transition-transform duration-300 md:hidden ${
+        className={`fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-300 md:hidden ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
+        <div className="flex items-center justify-between p-5 border-b-4 border-[#FFEA00]">
+          <h2 className="text-xl font-bold text-gray-900">MENU</h2>
           <button onClick={() => setIsOpen(false)}>
-            <X size={24} className="text-gray-600 hover:text-yellow-600" />
+            <X size={28} className="text-gray-600 hover:text-[#FFEA00]" />
           </button>
         </div>
 
-        <div className="flex flex-col space-y-4 p-5">
+        <div className="flex flex-col space-y-4 p-6 overflow-y-auto max-h-[calc(100vh-80px)]">
           {navLinks.map((link) =>
             link.external ? (
               <a
@@ -229,7 +233,7 @@ export default function Navbar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsOpen(false)}
-                className="text-gray-700 hover:text-yellow-600 font-medium"
+                className="text-gray-800 hover:text-[#d4c300] font-bold text-lg border-b border-gray-100 pb-2"
               >
                 {link.name}
               </a>
@@ -238,68 +242,62 @@ export default function Navbar() {
                 key={link.name}
                 to={link.path}
                 onClick={() => setIsOpen(false)}
-                className="text-gray-700 hover:text-yellow-600 font-medium"
+                className="text-gray-800 hover:text-[#d4c300] font-bold text-lg border-b border-gray-100 pb-2"
               >
                 {link.name}
               </Link>
             )
           )}
 
-          {/* Mobile Webinar */}
-          <div className="flex flex-col">
-            <button
-              onClick={() => setWebinarOpen(!webinarOpen)}
-              className="text-gray-700 font-medium flex justify-between items-center"
-            >
-              Webinar
-              <span>{webinarOpen ? "-" : "+"}</span>
-            </button>
-
-            {webinarOpen && (
-              <div className="flex flex-col pl-4 mt-2 space-y-2">
-                <Link
-                  to="/webinar/digital-marketing"
-                  onClick={() => setIsOpen(false)}
-                  className="text-gray-600 hover:text-yellow-600"
-                >
-                  Digital Marketing
-                </Link>
-
-                <Link
-                  to="/webinar/data-analyst"
-                  onClick={() => setIsOpen(false)}
-                  className="text-gray-600 hover:text-yellow-600"
-                >
-                  Data Analyst
-                </Link>
-              </div>
-            )}
+          {/* MOBILE WEBINAR SECTION (Flattened) */}
+          <div className="flex flex-col pt-2 pb-2">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Webinars</span>
+            <div className="flex flex-col space-y-4 pl-4 border-l-2 border-[#FFEA00]">
+              <Link to="/webinar/digital-marketing" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#FFEA00] font-medium text-base">
+                Digital Marketing
+              </Link>
+              <Link to="/webinar/data-analyst" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#FFEA00] font-medium text-base">
+                Data Analyst
+              </Link>
+              <Link to="/webinar/fullstack-development" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#FFEA00] font-medium text-base">
+                FullStack Dev
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Footer - Only Show Profile If Logged In */}
-        <div className="border-t border-gray-100 mt-4 p-5 bg-white">
-          {isLoggedIn && (
+        {/* Mobile Footer */}
+        <div className="absolute bottom-0 w-full bg-gray-50 p-6 border-t border-gray-200">
+          {isLoggedIn ? (
             <div className="flex flex-col space-y-3">
               <Link
                 to="/dashboard/student"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-yellow-600"
+                className="flex items-center space-x-3 text-gray-800 hover:text-[#d4c300] font-bold"
               >
-                <FaUserCircle size={26} />
+                <FaUserCircle size={28} />
                 <span>Dashboard</span>
               </Link>
-
               <button
                 onClick={() => {
                   handleLogout();
                   setIsOpen(false);
                 }}
-                className="text-red-500 font-medium hover:text-red-700"
+                className="text-red-600 font-bold hover:text-red-800"
               >
                 Logout
               </button>
             </div>
+          ) : (
+             <div className="text-center">
+                 <Link
+                    to="/login"
+                    className="block w-full bg-[#111111] text-[#FFEA00] font-bold py-3 rounded hover:bg-black transition"
+                    onClick={() => setIsOpen(false)}
+                 >
+                     Login
+                 </Link>
+             </div>
           )}
         </div>
       </div>
