@@ -12,7 +12,9 @@ const API = axios.create({
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("access_token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -24,6 +26,7 @@ export default function Dashboard() {
     courses: 0,
     certificates: 0,
   });
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,12 +40,22 @@ export default function Dashboard() {
           API.get("/certificates/"),
         ]);
 
+        const usersCount = Array.isArray(usersRes.data)
+          ? usersRes.data.length
+          : 0;
+
+        const coursesCount = Array.isArray(coursesRes.data)
+          ? coursesRes.data.length
+          : 0;
+
+        const certificatesCount = Array.isArray(certificatesRes.data?.data)
+          ? certificatesRes.data.data.length
+          : 0;
+
         setStats({
-          users: Array.isArray(usersRes.data) ? usersRes.data.length : 0,
-          courses: Array.isArray(coursesRes.data) ? coursesRes.data.length : 0,
-          certificates: Array.isArray(certificatesRes.data?.data)
-            ? certificatesRes.data.data.length
-            : 0, // ✅ FIX HERE
+          users: usersCount,
+          courses: coursesCount,
+          certificates: certificatesCount,
         });
       } catch (err) {
         console.error("Error fetching dashboard stats:", err);
@@ -68,31 +81,26 @@ export default function Dashboard() {
       <h2 className="text-3xl font-bold mb-6 text-gray-800">Dashboard</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-yellow-500/20 p-6 rounded-2xl flex items-center gap-4 shadow hover:shadow-lg transition">
-          <FaUsers className="text-4xl text-yellow-400" />
-          <div>
-            <h3 className="text-gray-800 text-lg font-semibold">Total Users</h3>
-            <p className="text-2xl font-bold">{stats.users}</p>
-          </div>
-        </div>
+        <StatCard
+          icon={<FaUsers />}
+          label="Total Users"
+          value={stats.users}
+          color="yellow"
+        />
 
-        <div className="bg-blue-500/20 p-6 rounded-2xl flex items-center gap-4 shadow hover:shadow-lg transition">
-          <FaBook className="text-4xl text-blue-400" />
-          <div>
-            <h3 className="text-gray-800 text-lg font-semibold">Total Courses</h3>
-            <p className="text-2xl font-bold">{stats.courses}</p>
-          </div>
-        </div>
+        <StatCard
+          icon={<FaBook />}
+          label="Total Courses"
+          value={stats.courses}
+          color="blue"
+        />
 
-        <div className="bg-green-500/20 p-6 rounded-2xl flex items-center gap-4 shadow hover:shadow-lg transition">
-          <FaCertificate className="text-4xl text-green-400" />
-          <div>
-            <h3 className="text-gray-800 text-lg font-semibold">
-              Total Certificates
-            </h3>
-            <p className="text-2xl font-bold">{stats.certificates}</p>
-          </div>
-        </div>
+        <StatCard
+          icon={<FaCertificate />}
+          label="Total Certificates"
+          value={stats.certificates}
+          color="green"
+        />
       </div>
 
       <div className="bg-white shadow-md rounded-2xl p-6 border">
@@ -119,6 +127,25 @@ export default function Dashboard() {
             Manage Certificates
           </a>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Small reusable stat card ---------- */
+function StatCard({ icon, label, value, color }) {
+  const colors = {
+    yellow: "bg-yellow-500/20 text-yellow-400",
+    blue: "bg-blue-500/20 text-blue-400",
+    green: "bg-green-500/20 text-green-400",
+  };
+
+  return (
+    <div className="p-6 rounded-2xl flex items-center gap-4 shadow hover:shadow-lg transition bg-white">
+      <div className={`text-4xl ${colors[color]}`}>{icon}</div>
+      <div>
+        <h3 className="text-gray-800 text-lg font-semibold">{label}</h3>
+        <p className="text-2xl font-bold">{value}</p>
       </div>
     </div>
   );
