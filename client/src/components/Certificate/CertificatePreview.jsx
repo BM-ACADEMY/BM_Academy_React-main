@@ -5,7 +5,7 @@ import template from "../../assets/certificate_template.png";
 import "../Certificate/certificate-preview.css";
 
 const CertificatePreview = forwardRef(
-  ({ name, course, issued_date, certificate_type }, ref) => {
+  ({ name, course, issued_date, certificate_type, certificate_id }, ref) => {
     const wrapperRef = useRef();
 
     useImperativeHandle(ref, () => ({
@@ -51,6 +51,12 @@ const CertificatePreview = forwardRef(
         </div>
 
         <div className="cert-text issued">Issued on {issued_date}</div>
+        {certificate_id && (
+  <div className="cert-text cert-id">
+    Certificate ID: <strong>{certificate_id}</strong>
+  </div>
+)}
+
       </div>
     );
   }

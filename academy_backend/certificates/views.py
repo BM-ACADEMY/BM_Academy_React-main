@@ -391,7 +391,18 @@ import os
 #  UTILITY: CREATE UNIQUE CERTIFICATE ID
 # ---------------------------------------------------------
 def generate_certificate_id():
-    return "CERT" + str(int(datetime.now().timestamp()))
+    year = datetime.now().year
+
+    # Count certificates issued in the current year
+    count = (
+        Certificate.objects(
+            issue_date__gte=datetime(year, 1, 1),
+            issue_date__lte=datetime(year, 12, 31),
+        ).count()
+        + 1
+    )
+
+    return f"BMACERT-{year}-{count:04d}"
 
 
 class CertificateViewSet(viewsets.ViewSet):

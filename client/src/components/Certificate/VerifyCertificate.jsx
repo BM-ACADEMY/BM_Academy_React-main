@@ -107,12 +107,14 @@ export default function VerifyCertificate() {
                 {/* 🔥 HIDDEN PREVIEW (Used for PDF generation) */}
                 <div style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
                   <CertificatePreview
-                    ref={previewRef}
-                    name={result.name}
-                    course={result.course}
-                    issued_date={result.issuedDate}
-                    certificate_type="Course"
-                  />
+  ref={previewRef}
+  name={result.name}
+  course={result.course}
+  issued_date={result.issuedDate}
+  certificate_type="Course"
+  certificate_id={result.certificateId}
+/>
+
                 </div>
               </div>
             ) : (

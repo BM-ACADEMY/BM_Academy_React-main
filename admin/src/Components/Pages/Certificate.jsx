@@ -357,12 +357,14 @@ export default function Certificate() {
 
       {/* Certificate Preview */}
       <CertificatePreview
-        ref={previewRef}
-        name={previewData.name}
-        course={previewData.course}
-        issued_date={previewData.issued_date}
-        certificate_type={previewData.certificate_type}
-      />
+  ref={previewRef}
+  name={previewData.name}
+  course={previewData.course}
+  issued_date={previewData.issued_date}
+  certificate_type={previewData.certificate_type}
+  certificate_id={previewData.certificate_id}
+/>
+
     </div>
 
   </div>

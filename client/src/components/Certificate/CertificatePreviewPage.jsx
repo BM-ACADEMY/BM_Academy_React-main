@@ -30,12 +30,15 @@ export default function CertificatePreviewPage() {
       </button>
 
       <CertificatePreview
-        ref={previewRef}
-        name={data.name}
-        course={data.course}
-        issued_date={data.issuedDate}
-        certificate_type="Course"
-      />
+  ref={previewRef}
+  name={data.name}
+  course={data.course}
+  issued_date={data.issuedDate}
+  certificate_type="Course"
+  certificate_id={cid}
+/>
+
+
     </div>
   );
 }
