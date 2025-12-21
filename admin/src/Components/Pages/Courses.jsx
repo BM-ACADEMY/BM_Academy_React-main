@@ -278,6 +278,13 @@ import { useAuthFetch } from "../../utils/authFetch";
 
 const apiUrl = `${import.meta.env.VITE_BASE_URI.replace(/\/$/, "")}/courses/`;
 
+// ✅ SAFE DISPLAY HELPER
+const toText = (value) => {
+  if (Array.isArray(value)) return value.join(", ");
+  if (typeof value === "string") return value;
+  return "N/A";
+};
+
 export default function Courses() {
   const authFetch = useAuthFetch();
 
@@ -310,7 +317,7 @@ export default function Courses() {
       setLoadingCourses(true);
       const res = await authFetch(apiUrl);
       const data = await res.json();
-      setCourses(data);
+      setCourses(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
       alert("Failed to load courses");
@@ -346,7 +353,8 @@ export default function Courses() {
     setNewModule("");
   };
 
-  const removeModule = (id) => setModules(modules.filter((m) => m.id !== id));
+  const removeModule = (id) =>
+    setModules(modules.filter((m) => m.id !== id));
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -369,7 +377,7 @@ export default function Courses() {
       formData.append("enrolled_status", enrolledStatus);
       formData.append("progress", progress);
 
-      // ✅ CORRECT MULTI VALUE SEND
+      // ✅ MULTI VALUE SEND
       mode.forEach((m) => formData.append("mode", m));
       duration.forEach((d) => formData.append("duration", d));
 
@@ -423,10 +431,29 @@ export default function Courses() {
         {editingId ? "Edit Course" : "Add Course"}
       </h1>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded shadow">
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" className="border p-2 rounded col-span-2" />
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="border p-2 rounded col-span-2" />
-        <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" className="border p-2 rounded" />
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded shadow"
+      >
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+          className="border p-2 rounded col-span-2"
+        />
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Description"
+          className="border p-2 rounded col-span-2"
+        />
+        <input
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Price"
+          className="border p-2 rounded"
+        />
 
         {/* MODE */}
         <div>
@@ -437,7 +464,11 @@ export default function Courses() {
                 type="checkbox"
                 checked={mode.includes(m)}
                 onChange={(e) =>
-                  setMode(e.target.checked ? [...mode, m] : mode.filter((x) => x !== m))
+                  setMode(
+                    e.target.checked
+                      ? [...mode, m]
+                      : mode.filter((x) => x !== m)
+                  )
                 }
               />{" "}
               {m}
@@ -454,7 +485,11 @@ export default function Courses() {
                 type="checkbox"
                 checked={duration.includes(d)}
                 onChange={(e) =>
-                  setDuration(e.target.checked ? [...duration, d] : duration.filter((x) => x !== d))
+                  setDuration(
+                    e.target.checked
+                      ? [...duration, d]
+                      : duration.filter((x) => x !== d)
+                  )
                 }
               />{" "}
               {d}
@@ -462,19 +497,36 @@ export default function Courses() {
           ))}
         </div>
 
-        <button disabled={saving} className="col-span-2 bg-green-600 text-white py-2 rounded">
+        <button
+          disabled={saving}
+          className="col-span-2 bg-green-600 text-white py-2 rounded"
+        >
           {saving ? "Saving..." : editingId ? "Update Course" : "Add Course"}
         </button>
       </form>
 
       <h2 className="text-2xl font-bold mt-8 mb-4">Courses</h2>
+
       {courses.map((c) => (
-        <div key={c._id?.$oid || c.id} className="bg-white p-4 rounded shadow mb-3">
+        <div
+          key={c._id?.$oid || c.id}
+          className="bg-white p-4 rounded shadow mb-3"
+        >
           <h3 className="font-bold">{c.title}</h3>
-          <p>Mode: {(c.mode || []).join(", ")}</p>
-          <p>Duration: {(c.duration || []).join(", ")}</p>
-          <button onClick={() => handleEdit(c)} className="mr-2 text-blue-600">Edit</button>
-          <button onClick={() => handleDelete(c)} className="text-red-600">Delete</button>
+          <p>Mode: {toText(c.mode)}</p>
+          <p>Duration: {toText(c.duration)}</p>
+          <button
+            onClick={() => handleEdit(c)}
+            className="mr-2 text-blue-600"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => handleDelete(c)}
+            className="text-red-600"
+          >
+            Delete
+          </button>
         </div>
       ))}
     </div>
