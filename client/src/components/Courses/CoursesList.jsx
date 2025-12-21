@@ -17,8 +17,14 @@ const CoursesList = () => {
     const fetchCourses = async () => {
       try {
         setLoading(true);
-        const data = await publicFetch(`${import.meta.env.VITE_BASE_URI}courses/`);
-        if (!Array.isArray(data)) throw new Error("Courses response is not an array");
+        const data = await publicFetch(
+          `${import.meta.env.VITE_BASE_URI}courses/`
+        );
+
+        if (!Array.isArray(data)) {
+          throw new Error("Courses response is not an array");
+        }
+
         setCourses(data);
       } catch (err) {
         console.error("Courses fetch error:", err);
@@ -31,6 +37,7 @@ const CoursesList = () => {
     fetchCourses();
   }, []);
 
+  // ✅ SAFE COURSE ID
   const getCourseId = (course) => {
     if (course._id?.$oid) return course._id.$oid;
     if (course.id) return course.id;
@@ -38,7 +45,20 @@ const CoursesList = () => {
     return null;
   };
 
-  if (loading) return <p className="text-center py-20 text-gray-500">Loading courses...</p>;
+  // ✅ NORMALIZERS (IMPORTANT)
+  const formatArrayField = (value) => {
+    if (Array.isArray(value)) return value.join(", ");
+    if (typeof value === "string") return value;
+    return "N/A";
+  };
+
+  if (loading)
+    return (
+      <p className="text-center py-20 text-gray-500">
+        Loading courses...
+      </p>
+    );
+
   if (error)
     return (
       <div className="text-center py-20 text-red-500">
@@ -52,6 +72,9 @@ const CoursesList = () => {
       {courses.map((course) => {
         const courseId = getCourseId(course);
         if (!courseId) return null;
+
+        const modeText = formatArrayField(course.mode);
+        const durationText = formatArrayField(course.duration);
 
         return (
           <div
@@ -69,15 +92,24 @@ const CoursesList = () => {
 
             {/* Course Info */}
             <div className="p-5 flex flex-col flex-grow">
-              <h3 className="text-lg font-bold mb-2 line-clamp-2">{course.title}</h3>
-              <p className="text-gray-600 text-sm mb-4 line-clamp-3">{course.description}</p>
+              <h3 className="text-lg font-bold mb-2 line-clamp-2">
+                {course.title}
+              </h3>
 
-              <div className="flex justify-between text-gray-700 text-sm mb-3">
+              <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                {course.description}
+              </p>
+
+              <div className="text-gray-700 text-sm mb-3 space-y-1">
                 <p>
-                  <strong>Mode:</strong> {course.mode || "Self-Paced"}
+                  <strong>Mode:</strong> {modeText}
                 </p>
                 <p>
-                  <strong>Price:</strong> ₹{course.price || "Free"}
+                  <strong>Duration:</strong> {durationText}
+                </p>
+                <p>
+                  <strong>Price:</strong>{" "}
+                  {course.price ? `₹${course.price}` : "Free"}
                 </p>
               </div>
 

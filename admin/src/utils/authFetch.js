@@ -1,6 +1,7 @@
+// admin/src/utils/authFetch.js
 export const useAuthFetch = () => {
   const authFetch = async (url, options = {}) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
 
     const res = await fetch(url, {
       ...options,
@@ -10,13 +11,11 @@ export const useAuthFetch = () => {
       },
     });
 
-    // Don't auto-redirect; let the component handle 401
     if (res.status === 401) {
-      // Optional: remove token if invalid
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      // return the response so component can handle it
-      return res;
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user_email");
+      window.location.href = "/login"; // hard redirect safety
     }
 
     return res;

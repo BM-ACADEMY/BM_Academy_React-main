@@ -4,18 +4,15 @@ import datetime
 class Course(Document):
     title = StringField(required=True, max_length=200)
     description = StringField()
-    mode = StringField(default="Online")
-    duration = StringField(default="Short-term")
+    mode = ListField(StringField(choices=["Online", "Offline"]), default=list)
+    duration = ListField(StringField(choices=["Short-term", "Long-term"]), default=list)
     price = FloatField(default=0.0)
     enrolled_status = StringField(default="Open")
     modules = ListField(StringField())
     image_url = StringField()  # store image URL
     created_at = DateTimeField(default=datetime.datetime.now)
-    
-
 
     meta = {"collection": "courses"}  # <- explicitly set the collection name
-
 
 
 from django.db import models
@@ -33,8 +30,8 @@ class Payment(models.Model):
         default="pending"
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    
-    
+
+
 # courses/models.py
 from mongoengine import Document, ReferenceField, StringField, DateTimeField, IntField, BooleanField
 from datetime import datetime
@@ -54,7 +51,3 @@ class EnrolledCourse(Document):
 
     def __str__(self):
         return f"{self.user.email} - {self.course.title}"
-
-
-
-

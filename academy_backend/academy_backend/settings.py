@@ -278,6 +278,9 @@ from mongoengine import connect
 from datetime import timedelta
 from dotenv import load_dotenv
 
+
+SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000")
+
 # ------------------------
 # Base directory
 # ------------------------

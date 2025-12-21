@@ -30,6 +30,7 @@ export default function Dashboard() {
     const fetchStats = async () => {
       try {
         setLoading(true);
+
         const [usersRes, coursesRes, certificatesRes] = await Promise.all([
           API.get("/users/list-with-courses/"),
           API.get("/courses/"),
@@ -37,9 +38,11 @@ export default function Dashboard() {
         ]);
 
         setStats({
-          users: usersRes.data.length || 0,
-          courses: coursesRes.data.length || 0,
-          certificates: certificatesRes.data.length || 0,
+          users: Array.isArray(usersRes.data) ? usersRes.data.length : 0,
+          courses: Array.isArray(coursesRes.data) ? coursesRes.data.length : 0,
+          certificates: Array.isArray(certificatesRes.data?.data)
+            ? certificatesRes.data.data.length
+            : 0, // ✅ FIX HERE
         });
       } catch (err) {
         console.error("Error fetching dashboard stats:", err);
@@ -52,10 +55,13 @@ export default function Dashboard() {
     fetchStats();
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="p-10 text-center text-gray-700">Loading dashboard...</div>
+      <div className="p-10 text-center text-gray-700">
+        Loading dashboard...
+      </div>
     );
+  }
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
@@ -89,9 +95,10 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Optional: Add recent courses or users */}
       <div className="bg-white shadow-md rounded-2xl p-6 border">
-        <h3 className="text-xl font-semibold mb-4 text-gray-700">Quick Links</h3>
+        <h3 className="text-xl font-semibold mb-4 text-gray-700">
+          Quick Links
+        </h3>
         <div className="flex gap-4 flex-wrap">
           <a
             href="/users"

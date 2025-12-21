@@ -1,91 +1,72 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
 import Courses from "./Components/Pages/Courses";
 import Layout from "./Components/Layout/Layout";
 import Dashboard from "./Components/Pages/Dashboard";
 import AdminLogin from "./Components/Login";
 import Users from "./Components/Pages/Users";
 import Certificate from "./Components/Pages/Certificate";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem("access_token")
-  );
-
   return (
     <Router>
       <Routes>
-        {/* Root redirect to login */}
+        {/* Root */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Login Page */}
-        <Route
-          path="/login"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <AdminLogin onLogin={() => setIsAuthenticated(true)} />
-            )
-          }
-        />
+        {/* Login */}
+        <Route path="/login" element={<AdminLogin />} />
 
-        {/* Protected Routes */}
+        {/* Dashboard */}
         <Route
           path="/dashboard"
           element={
-            isAuthenticated ? (
+            <ProtectedRoute>
               <Layout>
                 <Dashboard />
               </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            </ProtectedRoute>
           }
         />
+
+        {/* Courses */}
         <Route
           path="/courses"
           element={
-            isAuthenticated ? (
+            <ProtectedRoute>
               <Layout>
                 <Courses />
               </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            </ProtectedRoute>
           }
         />
+
+        {/* Users */}
         <Route
           path="/users"
           element={
-            isAuthenticated ? (
+            <ProtectedRoute>
               <Layout>
                 <Users />
               </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            </ProtectedRoute>
           }
         />
+
+        {/* Certificates */}
         <Route
-  path="/certificates"
-  element={
-    isAuthenticated ? (
-      <Layout>
-        <Certificate />
-      </Layout>
-    ) : (
-      <Navigate to="/login" replace />
-    )
-  }
-/>
+          path="/certificates"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Certificate />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
 
-
-        
-
-        {/* Catch-all route: redirect unknown URLs to login */}
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/login" replace />} />
-
       </Routes>
     </Router>
   );

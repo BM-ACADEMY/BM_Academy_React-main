@@ -40,9 +40,9 @@ class CourseListCreateAPIView(APIView):
             filename = default_storage.save(f'courses/{image_file.name}', image_file)
             if filename:
                 if settings.MEDIA_URL.startswith('/'):
-                    return f"http://127.0.0.1:8000{settings.MEDIA_URL}{filename}"
+                    return f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
                 else:
-                    return f"http://127.0.0.1:8000{settings.MEDIA_URL}/{filename}"
+                    return f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
         except Exception as e:
             print(f"Error generating image URL: {e}")
         return None
@@ -72,60 +72,98 @@ class CourseListCreateAPIView(APIView):
 
     def post(self, request):
         try:
-            title = request.data.get('title', '').strip()
-            description = request.data.get('description', '').strip()
-            mode = request.data.get('mode', 'Online').strip()
-            duration = request.data.get('duration', 'Short-term').strip()
-            price_str = request.data.get('price', '0').strip()
-            enrolled_status = request.data.get('enrolled_status', 'Open').strip()
+            title = request.data.get("title", "").strip()
+            description = request.data.get("description", "").strip()
 
-            # ------------------ Modules ------------------
-            modules = request.data.getlist('modules') if hasattr(request.data, 'getlist') else request.data.get('modules', [])
+            mode = (
+                request.data.getlist("mode")
+                if hasattr(request.data, "getlist")
+                else request.data.get("mode", [])
+            )
+
+            duration = (
+                request.data.getlist("duration")
+                if hasattr(request.data, "getlist")
+                else request.data.get("duration", [])
+            )
+
+            mode = [m.strip() for m in mode if m in ["Online", "Offline"]]
+            duration = [d.strip() for d in duration if d in ["Short-term", "Long-term"]]
+
+            if not mode:
+                return Response(
+                    {"mode": ["Select at least one mode"]}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if not duration:
+                return Response(
+                    {"duration": ["Select at least one duration"]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            price_str = request.data.get("price", "0").strip()
+            enrolled_status = request.data.get("enrolled_status", "Open").strip()
+
+            modules = (
+                request.data.getlist("modules")
+                if hasattr(request.data, "getlist")
+                else request.data.get("modules", [])
+            )
             modules = [str(m).strip() for m in modules if m]
 
-            # ------------------ Price Validation ------------------
             try:
                 price = float(price_str)
                 if price < 0:
-                    return Response({'price': ['Price cannot be negative']}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {"price": ["Price cannot be negative"]}, status=status.HTTP_400_BAD_REQUEST
+                    )
             except ValueError:
-                return Response({'price': ['A valid number is required']}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"price": ["A valid number is required"]}, status=status.HTTP_400_BAD_REQUEST
+                )
 
-            # ------------------ Field Validation ------------------
-            if not title: return Response({'title': ['This field is required']}, status=status.HTTP_400_BAD_REQUEST)
-            if not description: return Response({'description': ['This field is required']}, status=status.HTTP_400_BAD_REQUEST)
-            if mode not in ['Online', 'Offline']: return Response({'mode': ['Must be Online or Offline']}, status=status.HTTP_400_BAD_REQUEST)
-            if duration not in ['Short-term', 'Long-term']: return Response({'duration': ['Must be Short-term or Long-term']}, status=status.HTTP_400_BAD_REQUEST)
-            if enrolled_status not in ['Open', 'Closed', 'Ongoing']: return Response({'enrolled_status': ['Must be Open, Closed, or Ongoing']}, status=status.HTTP_400_BAD_REQUEST)
+            if not title:
+                return Response({"title": ["This field is required"]}, status=400)
 
-            # ------------------ Image ------------------
-            image_file = request.FILES.get('image')
+            if not description:
+                return Response({"description": ["This field is required"]}, status=400)
+
+            if enrolled_status not in ["Open", "Closed", "Ongoing"]:
+                return Response(
+                    {"enrolled_status": ["Must be Open, Closed, or Ongoing"]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            image_file = request.FILES.get("image")
             image_url = self.get_full_image_url(image_file) if image_file else None
 
-            # ------------------ Save ------------------
             course = Course(
-                title=title, description=description, mode=mode, duration=duration,
-                price=price, enrolled_status=enrolled_status, modules=modules, image_url=image_url
+                title=title,
+                description=description,
+                mode=mode,
+                duration=duration,
+                price=price,
+                enrolled_status=enrolled_status,
+                modules=modules,
+                image_url=image_url,
             )
             course.save()
 
-            response_data = {
-                "_id": {"$oid": str(course.id)},
-                "title": course.title,
-                "description": course.description,
-                "mode": course.mode,
-                "duration": course.duration,
-                "price": float(course.price),
-                "enrolled_status": course.enrolled_status,
-                "modules": course.modules,
-                "image_url": course.image_url,
-                "created_at": {"$date": course.created_at.isoformat() + "Z"}
-            }
-            return Response(response_data, status=status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "id": str(course.id),
+                    "title": course.title,
+                    "mode": course.mode,
+                    "duration": course.duration,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
         except Exception as e:
-            print(f"Error creating course: {e}")
-            import traceback; traceback.print_exc()
-            return Response({'error': [str(e)]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            import traceback
+
+            traceback.print_exc()
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # ----------------------- Course Detail / Update / Delete -----------------------
@@ -146,9 +184,9 @@ class CourseDetailAPIView(APIView):
             filename = default_storage.save(f'courses/{image_file.name}', image_file)
             if filename:
                 if settings.MEDIA_URL.startswith('/'):
-                    return f"http://127.0.0.1:8000{settings.MEDIA_URL}{filename}"
+                    return f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
                 else:
-                    return f"http://127.0.0.1:8000{settings.MEDIA_URL}/{filename}"
+                    return f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
         except Exception as e:
             print(f"Error generating image URL: {e}")
         return None
@@ -178,43 +216,98 @@ class CourseDetailAPIView(APIView):
     def put(self, request, pk):
         try:
             course = self.get_object(pk)
-            title = request.data.get('title', course.title).strip()
-            description = request.data.get('description', course.description).strip()
-            mode = request.data.get('mode', course.mode).strip()
-            duration = request.data.get('duration', course.duration).strip()
-            price_str = request.data.get('price', str(course.price)).strip()
-            enrolled_status = request.data.get('enrolled_status', course.enrolled_status).strip()
 
-            # Modules
-            modules = request.data.getlist('modules') if hasattr(request.data, 'getlist') else request.data.get('modules', course.modules)
+            title = request.data.get("title", course.title).strip()
+            description = request.data.get("description", course.description).strip()
+
+            # ------------------ Mode & Duration ------------------
+            mode = (
+                request.data.getlist("mode")
+                if hasattr(request.data, "getlist")
+                else request.data.get("mode", course.mode)
+            )
+
+            duration = (
+                request.data.getlist("duration")
+                if hasattr(request.data, "getlist")
+                else request.data.get("duration", course.duration)
+            )
+
+            # Normalize old data (string → list)
+            if isinstance(mode, str):
+                mode = [mode]
+
+            if isinstance(duration, str):
+                duration = [duration]
+
+            mode = [m.strip() for m in mode if m in ["Online", "Offline"]]
+            duration = [d.strip() for d in duration if d in ["Short-term", "Long-term"]]
+
+            if not mode:
+                return Response(
+                    {"mode": ["Select at least one mode"]}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if not duration:
+                return Response(
+                    {"duration": ["Select at least one duration"]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # ------------------ Price & Status ------------------
+            price_str = request.data.get("price", str(course.price)).strip()
+
+            enrolled_status = request.data.get("enrolled_status", course.enrolled_status).strip()
+
+            # ------------------ Modules ------------------
+            modules = (
+                request.data.getlist("modules")
+                if hasattr(request.data, "getlist")
+                else request.data.get("modules", course.modules)
+            )
             modules = [str(m).strip() for m in modules if m]
 
-            # Price validation
+            # ------------------ Price Validation ------------------
             try:
                 price = float(price_str)
-                if price < 0: return Response({'price': ['Price cannot be negative']}, status=status.HTTP_400_BAD_REQUEST)
+                if price < 0:
+                    return Response(
+                        {"price": ["Price cannot be negative"]}, status=status.HTTP_400_BAD_REQUEST
+                    )
             except ValueError:
-                return Response({'price': ['A valid number is required']}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"price": ["A valid number is required"]}, status=status.HTTP_400_BAD_REQUEST
+                )
 
-            # Field validation
-            if not title: return Response({'title': ['This field is required']}, status=status.HTTP_400_BAD_REQUEST)
-            if not description: return Response({'description': ['This field is required']}, status=status.HTTP_400_BAD_REQUEST)
+            # ------------------ Field Validation ------------------
+            if not title:
+                return Response(
+                    {"title": ["This field is required"]}, status=status.HTTP_400_BAD_REQUEST
+                )
 
-            if mode not in ['Online', 'Offline']: return Response({'mode': ['Must be Online or Offline']}, status=status.HTTP_400_BAD_REQUEST)
-            if duration not in ['Short-term', 'Long-term']: return Response({'duration': ['Must be Short-term or Long-term']}, status=status.HTTP_400_BAD_REQUEST)
-            if enrolled_status not in ['Open', 'Closed', 'Ongoing']: return Response({'enrolled_status': ['Must be Open, Closed, or Ongoing']}, status=status.HTTP_400_BAD_REQUEST)
+            if not description:
+                return Response(
+                    {"description": ["This field is required"]}, status=status.HTTP_400_BAD_REQUEST
+                )
 
-            # Handle image
-            image_file = request.FILES.get('image')
+            if enrolled_status not in ["Open", "Closed", "Ongoing"]:
+                return Response(
+                    {"enrolled_status": ["Must be Open, Closed, or Ongoing"]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # ------------------ Image Handling ------------------
+            image_file = request.FILES.get("image")
             if image_file:
-                # Delete old image
-                if course.image_url and course.image_url.startswith('http://127.0.0.1:8000/media/'):
-                    old_filename = course.image_url.replace('http://127.0.0.1:8000/media/', '')
+                if course.image_url and course.image_url.startswith("http://127.0.0.1:8000/media/"):
+                    old_filename = course.image_url.replace("http://127.0.0.1:8000/media/", "")
                     old_path = os.path.join(settings.MEDIA_ROOT, old_filename)
-                    if os.path.exists(old_path): os.remove(old_path)
+                    if os.path.exists(old_path):
+                        os.remove(old_path)
+
                 course.image_url = self.get_full_image_url(image_file)
 
-            # Update fields
+            # ------------------ Update ------------------
             course.title = title
             course.description = description
             course.mode = mode
@@ -224,24 +317,30 @@ class CourseDetailAPIView(APIView):
             course.modules = modules
             course.save()
 
-            return Response({
-                "_id": {"$oid": str(course.id)},
-                "title": course.title,
-                "description": course.description,
-                "mode": course.mode,
-                "duration": course.duration,
-                "price": float(course.price),
-                "enrolled_status": course.enrolled_status,
-                "modules": course.modules,
-                "image_url": course.image_url,
-                "created_at": {"$date": course.created_at.isoformat() + "Z"}
-            })
+            return Response(
+                {
+                    "_id": {"$oid": str(course.id)},
+                    "title": course.title,
+                    "description": course.description,
+                    "mode": course.mode,
+                    "duration": course.duration,
+                    "price": float(course.price),
+                    "enrolled_status": course.enrolled_status,
+                    "modules": course.modules,
+                    "image_url": course.image_url,
+                    "created_at": {"$date": course.created_at.isoformat() + "Z"},
+                }
+            )
+
         except Http404:
-            return Response({'error': ['Course not found']}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": ["Course not found"]}, status=status.HTTP_404_NOT_FOUND)
+
         except Exception as e:
             print(f"Error updating course {pk}: {e}")
-            import traceback; traceback.print_exc()
-            return Response({'error': [str(e)]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            import traceback
+
+            traceback.print_exc()
+            return Response({"error": [str(e)]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
         try:
@@ -275,28 +374,50 @@ class CourseRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         data = request.data.copy()
 
-        # Modules
-        modules = data.getlist('modules') if hasattr(data, 'getlist') else data.get('modules', [])
+        # ------------------ Modules ------------------
+        modules = data.getlist("modules") if hasattr(data, "getlist") else data.get("modules", [])
+
         if not isinstance(modules, list):
             modules = [modules]
 
-        # Update fields
-        instance.title = data.get('title', instance.title)
-        instance.description = data.get('description', instance.description)
-        instance.mode = data.get('mode', instance.mode)
-        instance.duration = data.get('duration', instance.duration)
-        instance.price = float(data.get('price', instance.price))
-        instance.enrolled_status = data.get('enrolled_status', instance.enrolled_status)
+        # ------------------ Basic Fields ------------------
+        instance.title = data.get("title", instance.title)
+        instance.description = data.get("description", instance.description)
+
+        # ------------------ Mode & Duration ------------------
+        mode = data.getlist("mode") if hasattr(data, "getlist") else data.get("mode", instance.mode)
+
+        duration = (
+            data.getlist("duration")
+            if hasattr(data, "getlist")
+            else data.get("duration", instance.duration)
+        )
+
+        if isinstance(mode, str):
+            mode = [mode]
+
+        if isinstance(duration, str):
+            duration = [duration]
+
+        instance.mode = [m for m in mode if m in ["Online", "Offline"]]
+        instance.duration = [d for d in duration if d in ["Short-term", "Long-term"]]
+
+        # ------------------ Price & Status ------------------
+        instance.price = float(data.get("price", instance.price))
+        instance.enrolled_status = data.get("enrolled_status", instance.enrolled_status)
+
         instance.modules = modules
 
-        # Image
-        if 'image' in request.FILES:
-            instance.image_url = default_storage.save(f'courses/{request.FILES["image"].name}', request.FILES['image'])
+        # ------------------ Image ------------------
+        if "image" in request.FILES:
+            instance.image_url = default_storage.save(
+                f'courses/{request.FILES["image"].name}', request.FILES["image"]
+            )
 
         instance.save()
+
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-
 
 
 from rest_framework.decorators import api_view, permission_classes
@@ -403,7 +524,6 @@ def confirm_payment(request):
         return Response({"success": False, "error": str(e)}, status=500)
 
 
-
 # views.py
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -467,19 +587,22 @@ def my_courses(request):
         for e in enrolled_list:
             try:
                 course = e.course  # may raise DoesNotExist
-                data.append({
-                    "id": str(course.id),
-                    "title": course.title,
-                    "description": course.description,
-                    "price": course.price,
-                    "image_url": course.image_url,
-                    "duration": course.duration,
-                    "modules": course.modules,
-                    "payment_id": e.payment_id,
-                    "enrolled_at": e.enrolled_at,
-                    "status": "Completed" if e.progress >= 100 else "In Progress",
-                    "progress": e.progress,
-                })
+                data.append(
+                    {
+                        "id": str(course.id),
+                        "title": course.title,
+                        "description": course.description,
+                        "price": course.price,
+                        "image_url": course.image_url,
+                        "mode": course.mode,
+                        "duration": course.duration,
+                        "modules": course.modules,
+                        "payment_id": e.payment_id,
+                        "enrolled_at": e.enrolled_at,
+                        "status": "Completed" if e.progress >= 100 else "In Progress",
+                        "progress": e.progress,
+                    }
+                )
             except Exception:
                 print(f"⚠️ Skipping missing course for enrollment {e.id}")
                 continue  # skip this record
@@ -489,7 +612,6 @@ def my_courses(request):
         import traceback
         print("❌ ERROR in my_courses:", traceback.format_exc())
         return Response({"error": str(e)}, status=500)
-
 
 
 from rest_framework.decorators import api_view, permission_classes
