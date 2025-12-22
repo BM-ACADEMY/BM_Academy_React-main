@@ -139,28 +139,19 @@ export default function Navbar() {
 
             {/* Desktop Webinar Dropdown */}
             <div className="relative group">
-              <Link
-                to="/webinar"
-                className="relative text-gray-800 hover:text-[#FFEA00] font-bold uppercase text-sm tracking-wide transition duration-200 group"
-              >
-                Webinar
-                <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
-              </Link>
+              <a
+  href="https://webinar-lake.vercel.app/"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="relative text-gray-800 hover:text-[#FFEA00] font-bold uppercase text-sm tracking-wide transition duration-200 group"
+>
+  Webinar
+  <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
+</a>
+
 
               {/* FIX: Aligned right (right-0), wider (w-64), and auto height to remove scrollbar */}
-              <div className="absolute right-0 mt-4 w-64 bg-white shadow-xl rounded-b-lg border-t-4 border-[#FFEA00] py-2 z-50
-                opacity-0 invisible group-hover:opacity-100 group-hover:visible
-                transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 h-auto">
-                <Link to="/webinar/digital-marketing" className="block px-4 py-3 hover:bg-yellow-50 text-gray-700 font-medium whitespace-nowrap">
-                  Digital Marketing
-                </Link>
-                <Link to="/webinar/data-analyst" className="block px-4 py-3 hover:bg-yellow-50 text-gray-700 font-medium whitespace-nowrap">
-                  Data Analyst
-                </Link>
-                <Link to="/webinar/fullstack-development" className="block px-4 py-3 hover:bg-yellow-50 text-gray-700 font-medium whitespace-nowrap">
-                  FullStack Development
-                </Link>
-              </div>
+
             </div>
 
             {/* Profile Only (Login Removed) */}
@@ -251,18 +242,16 @@ export default function Navbar() {
 
           {/* MOBILE WEBINAR SECTION (Flattened) */}
           <div className="flex flex-col pt-2 pb-2">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Webinars</span>
-            <div className="flex flex-col space-y-4 pl-4 border-l-2 border-[#FFEA00]">
-              <Link to="/webinar/digital-marketing" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#FFEA00] font-medium text-base">
-                Digital Marketing
-              </Link>
-              <Link to="/webinar/data-analyst" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#FFEA00] font-medium text-base">
-                Data Analyst
-              </Link>
-              <Link to="/webinar/fullstack-development" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#FFEA00] font-medium text-base">
-                FullStack Dev
-              </Link>
-            </div>
+<a
+  href="https://webinar-lake.vercel.app/"
+  target="_blank"
+  rel="noopener noreferrer"
+  onClick={() => setIsOpen(false)}
+  className="text-gray-800 hover:text-[#d4c300] font-bold text-lg border-b border-gray-100 pb-2"
+>
+  Webinar
+</a>
+
           </div>
         </div>
 
