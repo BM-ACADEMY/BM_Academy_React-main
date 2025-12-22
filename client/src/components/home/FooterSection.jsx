@@ -120,8 +120,8 @@ const Footer = () => {
                 <div className="text-[#FFEA00]">
                   <FaPhoneAlt size={18} />
                 </div>
-                <a href="tel:+919876543210" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  +91 98765 43210
+                <a href="tel:+919944940051" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  +91 99449 40051
                 </a>
               </li>
               <li className="flex items-center gap-4">
@@ -135,7 +135,7 @@ const Footer = () => {
 
               <li className="pt-2">
                 <a
-                  href="https://wa.me/919876543210"
+                  href="https://wa.me/919944940051"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2 bg-green-600 text-white text-sm font-bold rounded-full hover:bg-green-500 transition-colors shadow-lg"
@@ -150,15 +150,24 @@ const Footer = () => {
         </div>
 
         {/* --- FOOTER BOTTOM --- */}
-        <div className="border-t border-gray-800 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
-          <p>© {currentYear} BM Academy. All Rights Reserved.</p>
+<div className="border-t border-gray-800 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+  <p>
+    © {currentYear}{" "}
+    <a
+      href="https://bmtechx.in/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-[#FFEA00] transition-colors font-medium"
+    >
+      BMTECHX
+    </a>
+    . All Rights Reserved.
+  </p>
           <div className="flex gap-6 mt-4 md:mt-0">
              <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
              <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
           </div>
-          <p className="mt-4 md:mt-0 opacity-70">
-            Powered by <span className="text-[#FFEA00] font-bold">ABM GROUPS</span>
-          </p>
+
         </div>
       </div>
     </footer>
