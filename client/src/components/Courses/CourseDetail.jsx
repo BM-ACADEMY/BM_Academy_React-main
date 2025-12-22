@@ -222,7 +222,7 @@ export default function CourseDetail() {
 
                 <div className="space-y-3">
                   <button
-                    onClick={() => navigate('/contact')}
+                    onClick={() => navigate('/contacts')}
                     className="w-full py-4 bg-[#FFEA00] text-black font-bold uppercase tracking-wider rounded shadow hover:bg-yellow-400 transition-colors flex items-center justify-center gap-2"
                   >
                     <FaPhoneAlt /> Enquire Admission
@@ -311,7 +311,7 @@ export default function CourseDetail() {
 
                  <div className="mt-8 text-center">
                     <button
-                      onClick={() => navigate('/contact')}
+                      onClick={() => navigate('/contacts')}
                       className="px-6 py-2 bg-black text-white text-sm font-bold rounded hover:bg-[#FFEA00] hover:text-black transition-colors"
                     >
                       Enquire for Full Details
