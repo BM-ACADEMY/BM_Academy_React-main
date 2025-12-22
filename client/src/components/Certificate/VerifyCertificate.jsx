@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
 import API from "../../api";
 import { toast } from "react-toastify";
-import CertificatePreview from "./CertificatePreview"; // <-- IMPORT
+import CertificatePreview from "./CertificatePreview";
+import { FaCheckCircle, FaTimesCircle, FaDownload, FaSearch, FaCertificate } from "react-icons/fa";
 import "./certificate-preview.css";
 
 export default function VerifyCertificate() {
@@ -9,7 +10,7 @@ export default function VerifyCertificate() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔥 REF for hidden PDF preview
+  // REF for hidden PDF preview
   const previewRef = useRef();
 
   const handleVerify = async (e) => {
@@ -40,7 +41,6 @@ export default function VerifyCertificate() {
     }
   };
 
-  // 🔥 DOWNLOAD HANDLER
   const handleDownload = () => {
     if (previewRef?.current?.downloadPdf) {
       previewRef.current.downloadPdf();
@@ -50,81 +50,118 @@ export default function VerifyCertificate() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-100 flex flex-col items-center justify-center px-4 py-10">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-lg w-full text-center border-t-4 border-yellow-400">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-20 font-sans">
 
-        <h1 className="text-3xl font-bold text-gray-800 mb-3">
+      {/* --- MAIN CARD --- */}
+      <div className="bg-white shadow-2xl rounded-2xl p-8 md:p-12 max-w-lg w-full text-center relative overflow-hidden border border-gray-100">
+
+        {/* Decorative Top Bar */}
+        <div className="absolute top-0 left-0 w-full h-2 bg-[#FFEA00]"></div>
+
+        {/* Header Icon */}
+        <div className="w-16 h-16 bg-black text-[#FFEA00] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+          <FaCertificate size={32} />
+        </div>
+
+        <h1 className="text-3xl font-extrabold text-[#111111] mb-3">
           Verify Certificate
         </h1>
 
-        <p className="text-gray-600 mb-6">
-          Enter your certificate ID to check its authenticity.
+        <p className="text-gray-500 mb-8">
+          Enter your unique certificate ID below to verify its authenticity and download a digital copy.
         </p>
 
-        {/* Form */}
-        <form onSubmit={handleVerify} className="flex flex-col space-y-4">
-          <input
-            type="text"
-            value={certificateId}
-            onChange={(e) => setCertificateId(e.target.value)}
-            placeholder="Enter Certificate ID (e.g., CERT12345)"
-            className="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-yellow-400 outline-none text-gray-800"
-            disabled={loading}
-          />
+        {/* --- FORM --- */}
+        <form onSubmit={handleVerify} className="flex flex-col space-y-4 relative z-10">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+              <FaSearch />
+            </div>
+            <input
+              type="text"
+              value={certificateId}
+              onChange={(e) => setCertificateId(e.target.value)}
+              placeholder="Enter ID (e.g., BM-CERT-2024)"
+              className="w-full border-2 border-gray-200 bg-gray-50 rounded-lg pl-10 pr-4 py-4 focus:ring-0 focus:border-[#FFEA00] focus:bg-white outline-none text-[#111111] font-bold transition-all placeholder-gray-400"
+              disabled={loading}
+            />
+          </div>
 
           <button
             type="submit"
-            className={`px-6 py-3 bg-yellow-400 text-black font-semibold rounded-xl shadow-md hover:bg-yellow-500 transition ${
+            className={`w-full py-4 bg-[#111111] text-white font-bold uppercase tracking-wider rounded-lg shadow-lg hover:bg-[#FFEA00] hover:text-black transition-all duration-300 flex items-center justify-center gap-2 ${
               loading && "opacity-70 cursor-not-allowed"
             }`}
             disabled={loading}
           >
-            {loading ? "Verifying..." : "Verify"}
+            {loading ? (
+              <span className="animate-pulse">Verifying...</span>
+            ) : (
+              <>Verify Now</>
+            )}
           </button>
         </form>
 
-        {/* Result Box */}
+        {/* --- RESULT AREA --- */}
         {result && (
-          <div className="mt-6 p-4 rounded-xl border bg-gray-50 text-left">
+          <div className={`mt-8 p-6 rounded-xl border-l-4 text-left transition-all duration-500 transform translate-y-0 opacity-100 ${
+            result.valid
+              ? "bg-green-50 border-green-500 shadow-sm"
+              : "bg-red-50 border-red-500 shadow-sm"
+          }`}>
+
             {result.valid ? (
               <div>
-                <h2 className="text-green-600 font-bold text-lg">
-                  ✅ Certificate Verified
-                </h2>
+                <div className="flex items-center gap-3 mb-4 border-b border-green-100 pb-4">
+                  <FaCheckCircle className="text-green-500 text-xl" />
+                  <h2 className="text-green-800 font-bold text-lg">
+                    Certificate Verified
+                  </h2>
+                </div>
 
-                <p className="mt-2"><strong>Name:</strong> {result.name}</p>
-                <p><strong>Course:</strong> {result.course}</p>
-                <p><strong>Issued Date:</strong> {result.issuedDate}</p>
+                <div className="space-y-2 text-sm text-gray-700 mb-6">
+                  <p><span className="font-bold text-gray-900 w-24 inline-block">Name:</span> {result.name}</p>
+                  <p><span className="font-bold text-gray-900 w-24 inline-block">Course:</span> {result.course}</p>
+                  <p><span className="font-bold text-gray-900 w-24 inline-block">Issued On:</span> {result.issuedDate}</p>
+                </div>
 
-                {/* 🔥 DOWNLOAD BUTTON */}
+                {/* Download Button */}
                 <button
                   onClick={handleDownload}
-                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
+                  className="w-full py-3 bg-white border border-gray-200 text-[#111111] font-bold rounded-lg shadow-sm hover:border-[#FFEA00] hover:bg-yellow-50 transition-all flex items-center justify-center gap-2"
                 >
-                  📄 Download Certificate
+                  <FaDownload className="text-sm" /> Download Copy
                 </button>
 
-                {/* 🔥 HIDDEN PREVIEW (Used for PDF generation) */}
+                {/* HIDDEN PREVIEW (Used for PDF generation) */}
                 <div style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
                   <CertificatePreview
-  ref={previewRef}
-  name={result.name}
-  course={result.course}
-  issued_date={result.issuedDate}
-  certificate_type="Course"
-  certificate_id={result.certificateId}
-/>
-
+                    ref={previewRef}
+                    name={result.name}
+                    course={result.course}
+                    issued_date={result.issuedDate}
+                    certificate_type="Course"
+                    certificate_id={result.certificateId}
+                  />
                 </div>
               </div>
             ) : (
-              <p className="text-red-600 font-semibold text-center">
-                ❌ Invalid Certificate ID
-              </p>
+              <div className="flex flex-col items-center text-center py-2">
+                <FaTimesCircle className="text-red-500 text-3xl mb-2" />
+                <p className="text-red-800 font-bold">Invalid Certificate ID</p>
+                <p className="text-red-600 text-sm mt-1">Please check the ID and try again.</p>
+              </div>
             )}
           </div>
         )}
+
       </div>
+
+      {/* Footer Text */}
+      <p className="mt-8 text-gray-400 text-sm">
+        Protected by BM Academy Verification System
+      </p>
+
     </div>
   );
 }
