@@ -274,11 +274,22 @@
 import React, { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useAuthFetch } from "../../utils/authFetch";
+// 1. Import Toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// --- ICONS & UI HELPERS ---
-const XIcon = () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>;
-const ChevronDown = ({ isOpen }) => <svg className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>;
-const DragHandle = () => <svg className="w-5 h-5 text-gray-400 cursor-grab active:cursor-grabbing" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" /></svg>;
+// Import Icons
+import {
+  FaPlus,
+  FaTimes,
+  FaEdit,
+  FaTrash,
+  FaChevronDown,
+  FaChevronUp,
+  FaGripVertical,
+  FaImage,
+  FaLayerGroup
+} from "react-icons/fa";
 
 const apiUrl = `${import.meta.env.VITE_BASE_URI.replace(/\/$/, "")}/courses/`;
 
@@ -313,7 +324,7 @@ export default function CoursesTableLayout() {
   const [editingId, setEditingId] = useState(null);
 
   // Accordion State
-  const [activeSection, setActiveSection] = useState("basic"); // basic, modules, settings
+  const [activeSection, setActiveSection] = useState("basic");
 
   // ------------------ FETCH ------------------
   const fetchCourses = async () => {
@@ -324,7 +335,7 @@ export default function CoursesTableLayout() {
       setCourses(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
-      alert("Failed to load courses");
+      toast.error("Failed to load courses");
     } finally {
       setLoadingCourses(false);
     }
@@ -432,12 +443,14 @@ export default function CoursesTableLayout() {
       const res = await authFetch(url, { method, body: formData });
       if (!res.ok) throw new Error("Save failed");
 
-      // alert(editingId ? "Course updated" : "Course created");
+      // Success Notification
+      toast.success(editingId ? "Course updated successfully!" : "New course created!");
+
       closeModal();
       fetchCourses();
     } catch (err) {
       console.error(err);
-      alert("Error saving course");
+      toast.error("Error saving course. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -446,33 +459,47 @@ export default function CoursesTableLayout() {
   const handleDelete = async (course) => {
     const id = course._id?.$oid || course.id;
     if (!window.confirm(`Are you sure you want to delete "${course.title}"?`)) return;
-    await authFetch(`${apiUrl}${id}/`, { method: "DELETE" });
-    fetchCourses();
+
+    try {
+      await authFetch(`${apiUrl}${id}/`, { method: "DELETE" });
+      toast.success("Course deleted successfully");
+      fetchCourses();
+    } catch (error) {
+      toast.error("Failed to delete course");
+    }
   };
+
+  // --- STYLES HELPER ---
+  const inputClass = "w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 transition-colors outline-none";
+  const labelClass = "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2";
 
   // ------------------ UI ------------------
   return (
-    <div className="p-6 bg-gray-50 min-h-screen font-sans text-gray-800">
+    <div className="space-y-6 relative">
 
-      {/* Top Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+      {/* 2. Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
+
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Courses Directory</h1>
-          <p className="text-gray-500 text-sm">Manage all educational programs from one place.</p>
+          <h2 className="text-2xl font-bold text-slate-800">Courses Directory</h2>
+          <p className="text-slate-500 text-sm mt-1">Manage all educational programs from one place.</p>
         </div>
         <button
           onClick={() => openModal()}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition flex items-center gap-2"
         >
-          <span>+ Add Course</span>
+          <FaPlus size={14} />
+          <span>Add Course</span>
         </button>
       </div>
 
       {/* Table Section */}
-      <div className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100 text-gray-600 uppercase font-semibold">
+          <table className="w-full text-left text-sm text-slate-600">
+            <thead className="bg-slate-50 text-slate-500 uppercase font-semibold text-xs border-b border-slate-200">
               <tr>
                 <th className="px-6 py-4">Title</th>
                 <th className="px-6 py-4">Status</th>
@@ -481,43 +508,70 @@ export default function CoursesTableLayout() {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {loadingCourses ? (
-                <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">Loading data...</td></tr>
+                <tr><td colSpan="5" className="px-6 py-12 text-center text-slate-400">Loading data...</td></tr>
               ) : courses.length === 0 ? (
-                <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">No courses found.</td></tr>
+                <tr><td colSpan="5" className="px-6 py-12 text-center text-slate-400">No courses found.</td></tr>
               ) : (
                 courses.map((course) => (
-                  <tr key={course._id?.$oid || course.id} className="hover:bg-gray-50 transition">
+                  <tr key={course._id?.$oid || course.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded bg-gray-200 flex-shrink-0 overflow-hidden">
-                          {course.image_url && <img src={course.image_url} alt="" className="w-full h-full object-cover" />}
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-lg bg-slate-100 flex-shrink-0 overflow-hidden border border-slate-200 flex items-center justify-center text-slate-300">
+                          {course.image_url ? (
+                            <img src={course.image_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <FaImage size={20} />
+                          )}
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{course.title}</div>
-                          <div className="text-xs text-gray-500 truncate w-48">{course.description}</div>
+                          <div className="font-bold text-slate-800 text-base">{course.title}</div>
+                          <div className="text-xs text-slate-500 truncate max-w-[200px]">{course.description}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        course.enrolled_status === 'Open' ? 'bg-green-100 text-green-800' :
-                        course.enrolled_status === 'Closed' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                        course.enrolled_status === 'Open' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                        course.enrolled_status === 'Closed' ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                        'bg-amber-50 text-amber-700 border-amber-200'
                       }`}>
                         {course.enrolled_status || 'Open'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-mono text-gray-600">${course.price || '0'}</td>
+                    <td className="px-6 py-4 font-medium text-slate-700">
+                        {course.price ? `$${course.price}` : <span className="text-slate-400">Free</span>}
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1 text-xs">
-                         <span className="text-gray-600">Mode: {toText(course.mode)}</span>
-                         <span className="text-gray-600">Dur: {toText(course.duration)}</span>
+                          <span className="flex items-center gap-1.5 text-slate-600">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            {toText(course.mode)}
+                          </span>
+                          <span className="flex items-center gap-1.5 text-slate-500">
+                             <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                             {toText(course.duration)}
+                          </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button onClick={() => openModal(course)} className="text-indigo-600 hover:text-indigo-900 font-medium mr-4">Edit</button>
-                      <button onClick={() => handleDelete(course)} className="text-red-500 hover:text-red-700 font-medium">Delete</button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                            onClick={() => openModal(course)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit"
+                        >
+                            <FaEdit />
+                        </button>
+                        <button
+                            onClick={() => handleDelete(course)}
+                            className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Delete"
+                        >
+                            <FaTrash />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -529,136 +583,174 @@ export default function CoursesTableLayout() {
 
       {/* --- MODAL --- */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
+          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-5 border-b">
-              <h2 className="text-xl font-bold text-gray-800">{editingId ? "Edit Course" : "Create New Course"}</h2>
-              <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 transition"><XIcon /></button>
+            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100">
+              <h2 className="text-lg font-bold text-slate-800">
+                {editingId ? "Edit Course Details" : "Create New Course"}
+              </h2>
+              <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 transition p-1 hover:bg-slate-100 rounded-full">
+                <FaTimes size={18} />
+              </button>
             </div>
 
             {/* Modal Body (Scrollable) */}
-            <div className="overflow-y-auto p-5 space-y-4 flex-1">
-              <form id="courseForm" onSubmit={handleSubmit}>
+            <div className="overflow-y-auto p-6 space-y-4 flex-1 bg-slate-50/50">
+              <form id="courseForm" onSubmit={handleSubmit} className="space-y-4">
 
                 {/* 1. Basic Info Section */}
-                <div className="border rounded-lg overflow-hidden">
-                   <button type="button" onClick={() => setActiveSection(activeSection === 'basic' ? '' : 'basic')} className="w-full flex justify-between items-center p-4 bg-gray-50 font-semibold text-gray-700">
-                     <span>Basic Information</span>
-                     <ChevronDown isOpen={activeSection === 'basic'} />
+                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                   <button
+                    type="button"
+                    onClick={() => setActiveSection(activeSection === 'basic' ? '' : 'basic')}
+                    className="w-full flex justify-between items-center p-4 bg-white hover:bg-slate-50 transition-colors font-semibold text-slate-700 text-sm"
+                   >
+                     <span className="flex items-center gap-2"><FaLayerGroup className="text-blue-500"/> Basic Information</span>
+                     {activeSection === 'basic' ? <FaChevronUp /> : <FaChevronDown />}
                    </button>
+
                    {activeSection === 'basic' && (
-                     <div className="p-4 space-y-4 bg-white">
-                        <div>
-                          <label className="label">Course Title</label>
-                          <input required value={title} onChange={e => setTitle(e.target.value)} className="input-field" placeholder="e.g. Masterclass in Design" />
-                        </div>
-                        <div>
-                          <label className="label">Description</label>
-                          <textarea rows="3" value={description} onChange={e => setDescription(e.target.value)} className="input-field" placeholder="Brief summary..." />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                             <label className="label">Price ($)</label>
-                             <input type="number" value={price} onChange={e => setPrice(e.target.value)} className="input-field" />
+                     <div className="p-4 pt-0 border-t border-slate-100 space-y-4 mt-2">
+                       <div>
+                         <label className={labelClass}>Course Title</label>
+                         <input required value={title} onChange={e => setTitle(e.target.value)} className={inputClass} placeholder="e.g. Masterclass in Design" />
+                       </div>
+                       <div>
+                         <label className={labelClass}>Description</label>
+                         <textarea rows="3" value={description} onChange={e => setDescription(e.target.value)} className={inputClass} placeholder="Brief summary..." />
+                       </div>
+                       <div className="grid grid-cols-2 gap-4">
+                         <div>
+                            <label className={labelClass}>Price ($)</label>
+                            <input type="number" value={price} onChange={e => setPrice(e.target.value)} className={inputClass} />
+                         </div>
+                         <div>
+                            <label className={labelClass}>Enrollment Status</label>
+                            <select value={enrolledStatus} onChange={e => setEnrolledStatus(e.target.value)} className={inputClass}>
+                              <option value="Open">Open</option>
+                              <option value="Closed">Closed</option>
+                              <option value="Coming Soon">Coming Soon</option>
+                            </select>
+                         </div>
+                       </div>
+                       {/* Image Upload */}
+                       <div>
+                          <label className={labelClass}>Course Image</label>
+                          <div className="flex items-center gap-4 mt-1">
+                            <div className="w-20 h-20 bg-slate-100 rounded-lg border border-slate-200 border-dashed flex items-center justify-center overflow-hidden">
+                              {imagePreview ? <img src={imagePreview} className="w-full h-full object-cover" /> : <FaImage className="text-slate-300" size={24} />}
+                            </div>
+                            <label className="cursor-pointer bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                                Upload Image
+                                <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                            </label>
                           </div>
-                          <div>
-                             <label className="label">Enrollment Status</label>
-                             <select value={enrolledStatus} onChange={e => setEnrolledStatus(e.target.value)} className="input-field">
-                               <option value="Open">Open</option>
-                               <option value="Closed">Closed</option>
-                               <option value="Coming Soon">Coming Soon</option>
-                             </select>
-                          </div>
-                        </div>
-                        {/* Image Upload inside Basic Info */}
-                        <div>
-                           <label className="label">Course Image</label>
-                           <div className="flex items-center gap-3 mt-1">
-                             <div className="w-16 h-16 bg-gray-100 rounded border flex items-center justify-center overflow-hidden">
-                               {imagePreview ? <img src={imagePreview} className="w-full h-full object-cover" /> : <span className="text-xs text-gray-400">No Img</span>}
-                             </div>
-                             <input type="file" accept="image/*" onChange={handleImageChange} className="text-sm text-gray-500 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-                           </div>
-                        </div>
+                       </div>
                      </div>
                    )}
                 </div>
 
                 {/* 2. Attributes Section */}
-                <div className="border rounded-lg overflow-hidden mt-3">
-                   <button type="button" onClick={() => setActiveSection(activeSection === 'settings' ? '' : 'settings')} className="w-full flex justify-between items-center p-4 bg-gray-50 font-semibold text-gray-700">
-                     <span>Settings & Attributes</span>
-                     <ChevronDown isOpen={activeSection === 'settings'} />
+                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                   <button
+                    type="button"
+                    onClick={() => setActiveSection(activeSection === 'settings' ? '' : 'settings')}
+                    className="w-full flex justify-between items-center p-4 bg-white hover:bg-slate-50 transition-colors font-semibold text-slate-700 text-sm"
+                   >
+                     <span className="flex items-center gap-2"><FaEdit className="text-purple-500"/> Settings & Attributes</span>
+                     {activeSection === 'settings' ? <FaChevronUp /> : <FaChevronDown />}
                    </button>
+
                    {activeSection === 'settings' && (
-                     <div className="p-4 space-y-4 bg-white">
-                        <div>
-                           <label className="label mb-2 block">Mode</label>
-                           <div className="flex gap-2">
-                              {["Online", "Offline"].map(m => (
-                                <button key={m} type="button" onClick={() => toggleSelection(mode, setMode, m)}
-                                  className={`badge-btn ${mode.includes(m) ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-gray-600 border-gray-300"}`}>
-                                  {m}
-                                </button>
-                              ))}
-                           </div>
-                        </div>
-                        <div>
-                           <label className="label mb-2 block">Duration</label>
-                           <div className="flex gap-2">
-                              {["Short-term", "Long-term"].map(d => (
-                                <button key={d} type="button" onClick={() => toggleSelection(duration, setDuration, d)}
-                                  className={`badge-btn ${duration.includes(d) ? "bg-purple-600 text-white border-purple-600" : "bg-white text-gray-600 border-gray-300"}`}>
-                                  {d}
-                                </button>
-                              ))}
-                           </div>
-                        </div>
-                        <div>
-                           <label className="label">Course Progress ({progress}%)</label>
-                           <input type="range" className="w-full mt-2 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" min="0" max="100" value={progress} onChange={e => setProgress(e.target.value)} />
-                        </div>
+                     <div className="p-4 pt-0 border-t border-slate-100 space-y-4 mt-2">
+                       <div>
+                          <label className={labelClass}>Mode</label>
+                          <div className="flex gap-2">
+                             {["Online", "Offline"].map(m => (
+                               <button key={m} type="button" onClick={() => toggleSelection(mode, setMode, m)}
+                                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                                    mode.includes(m)
+                                    ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200"
+                                    : "bg-white text-slate-600 border-slate-300 hover:border-slate-400"
+                                 }`}>
+                                 {m}
+                               </button>
+                             ))}
+                          </div>
+                       </div>
+                       <div>
+                          <label className={labelClass}>Duration</label>
+                          <div className="flex gap-2">
+                             {["Short-term", "Long-term"].map(d => (
+                               <button key={d} type="button" onClick={() => toggleSelection(duration, setDuration, d)}
+                                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                                    duration.includes(d)
+                                    ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-200"
+                                    : "bg-white text-slate-600 border-slate-300 hover:border-slate-400"
+                                 }`}>
+                                 {d}
+                               </button>
+                             ))}
+                          </div>
+                       </div>
+                       <div>
+                          <label className={labelClass}>Course Progress ({progress}%)</label>
+                          <input type="range" className="w-full mt-2 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" min="0" max="100" value={progress} onChange={e => setProgress(e.target.value)} />
+                       </div>
                      </div>
                    )}
                 </div>
 
                 {/* 3. Curriculum Section */}
-                <div className="border rounded-lg overflow-hidden mt-3">
-                   <button type="button" onClick={() => setActiveSection(activeSection === 'modules' ? '' : 'modules')} className="w-full flex justify-between items-center p-4 bg-gray-50 font-semibold text-gray-700">
-                     <span>Curriculum Modules</span>
+                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                   <button
+                    type="button"
+                    onClick={() => setActiveSection(activeSection === 'modules' ? '' : 'modules')}
+                    className="w-full flex justify-between items-center p-4 bg-white hover:bg-slate-50 transition-colors font-semibold text-slate-700 text-sm"
+                   >
                      <div className="flex items-center gap-2">
-                       <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">{modules.length}</span>
-                       <ChevronDown isOpen={activeSection === 'modules'} />
+                        <span className="flex items-center gap-2"><FaLayerGroup className="text-emerald-500"/> Curriculum Modules</span>
+                        <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">{modules.length}</span>
                      </div>
+                     {activeSection === 'modules' ? <FaChevronUp /> : <FaChevronDown />}
                    </button>
+
                    {activeSection === 'modules' && (
-                     <div className="p-4 bg-white">
-                        <div className="flex gap-2 mb-3">
+                     <div className="p-4 pt-0 border-t border-slate-100 space-y-4 mt-2">
+                        <div className="flex gap-2">
                           <input
                             value={newModule}
                             onChange={e => setNewModule(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && addModule(e)}
                             placeholder="Type module name..."
-                            className="input-field flex-1"
+                            className={inputClass}
                           />
-                          <button type="button" onClick={addModule} className="bg-gray-800 text-white px-4 rounded-lg font-medium hover:bg-black">Add</button>
+                          <button type="button" onClick={addModule} className="bg-slate-800 hover:bg-black text-white px-4 rounded-lg font-medium transition-colors">Add</button>
                         </div>
 
                         <DragDropContext onDragEnd={handleDragEnd}>
                           <Droppable droppableId="modal-modules-list">
                             {(provided) => (
-                              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
                                 {modules.map((m, index) => (
                                   <Draggable key={m.id} draggableId={m.id} index={index}>
                                     {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps} className={`flex items-center justify-between p-3 rounded border bg-white ${snapshot.isDragging ? "shadow-lg border-indigo-400" : "border-gray-200"}`}>
+                                      <div ref={provided.innerRef} {...provided.draggableProps}
+                                        className={`flex items-center justify-between p-3 rounded-lg border bg-white transition-shadow ${
+                                            snapshot.isDragging ? "shadow-lg border-blue-400 ring-1 ring-blue-100 z-50" : "border-slate-200"
+                                        }`}
+                                      >
                                         <div className="flex items-center gap-3">
-                                          <div {...provided.dragHandleProps}><DragHandle /></div>
-                                          <span className="text-sm font-medium text-gray-700">{m.name}</span>
+                                          <div {...provided.dragHandleProps} className="text-slate-400 cursor-grab active:cursor-grabbing hover:text-slate-600">
+                                            <FaGripVertical />
+                                          </div>
+                                          <span className="text-sm font-medium text-slate-700">{m.name}</span>
                                         </div>
-                                        <button type="button" onClick={() => removeModule(m.id)} className="text-red-400 hover:text-red-600 text-xl font-bold leading-none">&times;</button>
+                                        <button type="button" onClick={() => removeModule(m.id)} className="text-slate-400 hover:text-rose-500 transition-colors">
+                                            <FaTrash size={14}/>
+                                        </button>
                                       </div>
                                     )}
                                   </Draggable>
@@ -676,12 +768,12 @@ export default function CoursesTableLayout() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-5 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
-              <button onClick={closeModal} className="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition">Cancel</button>
+            <div className="p-4 border-t border-slate-100 bg-white flex justify-end gap-3">
+              <button onClick={closeModal} className="px-5 py-2.5 text-slate-600 font-medium hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors text-sm">Cancel</button>
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 shadow-md"
+                className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-blue-200 text-sm"
               >
                 {saving ? "Saving..." : editingId ? "Save Changes" : "Create Course"}
               </button>
@@ -690,16 +782,6 @@ export default function CoursesTableLayout() {
           </div>
         </div>
       )}
-
-      <style>{`
-        .input-field { width: 100%; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.625rem; outline: none; transition: border-color 0.2s; }
-        .input-field:focus { border-color: #4f46e5; ring: 2px solid #e0e7ff; }
-        .label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 0.25rem; display: block; }
-        .badge-btn { padding: 0.375rem 1rem; border-radius: 9999px; border-width: 1px; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-      `}</style>
     </div>
   );
 }

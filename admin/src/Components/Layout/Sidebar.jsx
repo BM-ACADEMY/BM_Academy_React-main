@@ -1,33 +1,17 @@
-import React, { useState, useEffect } from "react";
+// src/Components/Sidebar.jsx
+import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
-  FaUsers,
   FaBook,
   FaSignOutAlt,
-  FaBars,
   FaCertificate,
+  FaLayerGroup
 } from "react-icons/fa";
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed }) {
   const navigate = useNavigate();
   const email = localStorage.getItem("user_email");
-
-  // Collapsed state persists in localStorage
-  const [collapsed, setCollapsed] = useState(
-    JSON.parse(localStorage.getItem("sidebar_collapsed")) || false
-  );
-
-  useEffect(() => {
-    localStorage.setItem("sidebar_collapsed", JSON.stringify(collapsed));
-  }, [collapsed]);
-
-  // Only collapse automatically on mobile (<768px) initially
-  useEffect(() => {
-    if (window.innerWidth < 768 && !collapsed) {
-      setCollapsed(true);
-    }
-  }, []); // run once on mount
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
@@ -36,27 +20,25 @@ export default function Sidebar() {
     navigate("/login");
   };
 
-  // Sidebar Link Component
   const SidebarLink = ({ to, icon: Icon, label }) => (
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `relative flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 group
+        `relative flex items-center gap-3 px-3 py-2.5 mx-3 rounded-md transition-all duration-200 group font-medium text-sm
         ${
           isActive
-            ? "bg-yellow-500/20 text-yellow-400 font-semibold shadow-sm"
-            : "text-gray-300 hover:bg-gray-700 hover:text-yellow-400"
+            ? "bg-blue-50 text-blue-600" // Light Blue Active State
+            : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
         }`
       }
     >
-      <Icon className="text-lg" />
+      <Icon className={`text-lg ${collapsed ? "mx-auto" : ""} ${({ isActive }) => isActive ? "text-blue-600" : "text-slate-400"}`} />
+
       {!collapsed && <span>{label}</span>}
+
+      {/* Tooltip for collapsed state */}
       {collapsed && (
-        <span
-          className="absolute left-14 px-2 py-1 text-xs bg-gray-900 text-white rounded-md shadow-lg
-                     opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0
-                     transition-all duration-200"
-        >
+        <span className="fixed left-14 ml-2 px-2 py-1 text-xs bg-slate-900 text-white rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none whitespace-nowrap">
           {label}
         </span>
       )}
@@ -65,57 +47,73 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen flex flex-col transition-all duration-300 shadow-lg border-r border-gray-700 z-50 ${
+      className={`fixed top-0 left-0 h-screen flex flex-col bg-white border-r border-slate-200 transition-all duration-300 z-50 ${
         collapsed ? "w-20" : "w-64"
       }`}
-      style={{ backgroundColor: "rgb(30, 41, 57)" }}
     >
-      {/* Top - Logo + Toggle */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-gray-700">
-        {!collapsed && (
-          <h1 className="text-xl font-bold text-white tracking-wide">
-            BM <span className="text-yellow-400">Admin</span>
-          </h1>
-        )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="p-2 text-gray-300 hover:text-white rounded-md hover:bg-gray-700 transition"
-        >
-          <FaBars />
-        </button>
+      {/* Top - Logo */}
+      <div className="h-16 flex items-center px-6 border-b border-slate-100">
+        <div className={`flex items-center gap-2 ${collapsed ? "justify-center w-full" : ""}`}>
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shrink-0 shadow-sm shadow-blue-200">
+            <FaLayerGroup />
+          </div>
+          {!collapsed && (
+            <span className="text-lg font-bold text-slate-800 tracking-tight">
+              Bm_Admin
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-2 py-6 space-y-2">
+      <nav className="flex-1 py-6 space-y-1 overflow-y-auto">
+        {!collapsed && (
+           <div className="px-6 mb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+             Main Menu
+           </div>
+        )}
         <SidebarLink to="/dashboard" icon={FaTachometerAlt} label="Dashboard" />
         <SidebarLink to="/courses" icon={FaBook} label="Courses" />
-        {/* <SidebarLink to="/users" icon={FaUsers} label="Users" /> */}
         <SidebarLink to="/certificates" icon={FaCertificate} label="Certificates" />
       </nav>
 
-      {/* Bottom - User + Logout */}
-      <div className="px-4 py-4 border-t border-gray-700">
-        {!collapsed && (
-          <span className="block text-gray-400 text-sm mb-3 truncate">
-            {email}
-          </span>
-        )}
-        <button
-          onClick={handleLogout}
-          className="relative flex items-center gap-2 px-4 py-2 text-red-400 rounded-lg hover:bg-red-500/10 transition-all group"
-        >
-          <FaSignOutAlt className="text-lg" />
-          {!collapsed && <span>Logout</span>}
-          {collapsed && (
-            <span
-              className="absolute left-14 px-2 py-1 text-xs bg-gray-900 text-white rounded-md shadow-lg
-                         opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 
-                         transition-all duration-200"
-            >
-              Logout
-            </span>
+      {/* Bottom - User Profile */}
+      <div className="p-4 border-t border-slate-100">
+        <div className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${!collapsed ? "hover:bg-slate-50 cursor-pointer" : "justify-center"}`}>
+          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs">
+            {email ? email.charAt(0).toUpperCase() : "A"}
+          </div>
+
+          {!collapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-slate-900 truncate">Admin</p>
+              <p className="text-xs text-slate-500 truncate">{email}</p>
+            </div>
           )}
-        </button>
+
+          {!collapsed && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLogout();
+              }}
+              className="text-slate-400 hover:text-red-500 transition-colors p-1"
+              title="Logout"
+            >
+              <FaSignOutAlt />
+            </button>
+          )}
+        </div>
+
+        {/* Logout button for collapsed state */}
+        {collapsed && (
+            <button
+                onClick={handleLogout}
+                className="w-full mt-2 flex justify-center text-slate-400 hover:text-red-500"
+            >
+                <FaSignOutAlt />
+            </button>
+        )}
       </div>
     </aside>
   );
