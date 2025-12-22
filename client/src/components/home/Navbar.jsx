@@ -25,6 +25,7 @@ export default function Navbar() {
     { name: "Contact", path: "/contacts" },
   ];
 
+  // ... (Your useEffect logic remains exactly the same) ...
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -86,20 +87,33 @@ export default function Navbar() {
     navigate("/login");
   };
 
+  // --- NEW FUNCTION: Scroll to Top ---
+  const handleLogoClick = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // Makes the scrolling smooth
+    });
+  };
+
   if (loading) return null;
 
   return (
     <nav className="fixed w-full top-0 left-0 z-50 bg-white shadow-md font-sans">
       <div className="flex justify-between items-center h-20">
 
-        {/* --- LEFT SECTION: SKEWED BLACK BACKGROUND (Desktop) --- */}
+        {/* --- LEFT SECTION: LOGO --- */}
         <div className="relative h-full flex items-center z-20">
           <div
             className="hidden md:block absolute top-0 left-0 h-full w-[120%] bg-[#111111] transform -skew-x-[20deg] origin-bottom-left border-r-8 border-[#FFEA00]"
             style={{ left: '-40px' }}
           ></div>
 
-          <Link to="/" className="relative z-10 px-6 lg:px-12 flex items-center">
+          {/* UPDATED LINK: Added onClick handler */}
+          <Link
+            to="/"
+            className="relative z-10 px-6 lg:px-12 flex items-center"
+            onClick={handleLogoClick}
+          >
             <img
               src={Logo}
               alt="BM Academy"
@@ -130,6 +144,7 @@ export default function Navbar() {
                   key={link.name}
                   to={link.path}
                   className="relative text-gray-800 hover:text-[#FFEA00] font-bold uppercase text-sm tracking-wide transition duration-200 group"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} // Added to nav links too for better UX
                 >
                   {link.name}
                   <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
@@ -140,21 +155,17 @@ export default function Navbar() {
             {/* Desktop Webinar Dropdown */}
             <div className="relative group">
               <a
-  href="https://webinar-lake.vercel.app/"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="relative text-gray-800 hover:text-[#FFEA00] font-bold uppercase text-sm tracking-wide transition duration-200 group"
->
-  Webinar
-  <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
-</a>
-
-
-              {/* FIX: Aligned right (right-0), wider (w-64), and auto height to remove scrollbar */}
-
+                href="https://webinar-lake.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative text-gray-800 hover:text-[#FFEA00] font-bold uppercase text-sm tracking-wide transition duration-200 group"
+              >
+                Webinar
+                <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
+              </a>
             </div>
 
-            {/* Profile Only (Login Removed) */}
+            {/* Profile Only */}
             {isLoggedIn && (
               <div className="ml-6 relative">
                 <button
@@ -232,7 +243,10 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 to={link.path}
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top on mobile nav too
+                }}
                 className="text-gray-800 hover:text-[#d4c300] font-bold text-lg border-b border-gray-100 pb-2"
               >
                 {link.name}
@@ -240,18 +254,17 @@ export default function Navbar() {
             )
           )}
 
-          {/* MOBILE WEBINAR SECTION (Flattened) */}
+          {/* MOBILE WEBINAR SECTION */}
           <div className="flex flex-col pt-2 pb-2">
-<a
-  href="https://webinar-lake.vercel.app/"
-  target="_blank"
-  rel="noopener noreferrer"
-  onClick={() => setIsOpen(false)}
-  className="text-gray-800 hover:text-[#d4c300] font-bold text-lg border-b border-gray-100 pb-2"
->
-  Webinar
-</a>
-
+            <a
+              href="https://webinar-lake.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsOpen(false)}
+              className="text-gray-800 hover:text-[#d4c300] font-bold text-lg border-b border-gray-100 pb-2"
+            >
+              Webinar
+            </a>
           </div>
         </div>
 
@@ -278,15 +291,15 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-             <div className="text-center">
-                 <Link
-                    to="/login"
-                    className="block w-full bg-[#111111] text-[#FFEA00] font-bold py-3 rounded hover:bg-black transition"
-                    onClick={() => setIsOpen(false)}
-                 >
-                     Login
-                 </Link>
-             </div>
+            <div className="text-center">
+              <Link
+                to="/login"
+                className="block w-full bg-[#111111] text-[#FFEA00] font-bold py-3 rounded hover:bg-black transition"
+                onClick={() => setIsOpen(false)}
+              >
+                Login
+              </Link>
+            </div>
           )}
         </div>
       </div>

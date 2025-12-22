@@ -26,36 +26,42 @@ export default function Testimonials() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // --- UPDATED DATA WITH TAMIL NADU / INDIAN DEMOGRAPHICS ---
   const testimonials = [
     {
-      quote: "Cleared Group 2 with strong guidance.",
-      name: "Priya S.",
-      role: "Aspirant",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300&auto=format&fit=crop",
+      quote: "Cleared TNPSC Group 2 with strong guidance.",
+      name: "Lakshmi P.",
+      role: "Govt Officer",
+      // Image: Indian female in saree/formal
+      avatar: "https://images.unsplash.com/photo-1653379671055-a20ff0f7ae12?q=80&w=679&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      quote: "Web Dev course got me a job in Bangalore!",
-      name: "Rahul V.",
-      role: "Developer",
-      avatar: "https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=300&auto=format&fit=crop",
+      quote: "Web Dev course got me a job in Chennai!",
+      name: "Karthik R.",
+      role: "Software Engineer",
+      // Image: Indian male professional
+      avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?q=80&w=300&auto=format&fit=crop",
     },
     {
       quote: "SACT Test found my true career path.",
-      name: "Aditi K.",
-      role: "Designer",
-      avatar: "https://images.unsplash.com/photo-1619380061814-58f03700243a?q=80&w=300&auto=format&fit=crop",
+      name: "Anitha S.",
+      role: "UI/UX Designer",
+      // Image: Indian female student/professional
+      avatar: "https://images.unsplash.com/photo-1615022702095-ff2c036f3360?q=80&w=300&auto=format&fit=crop",
     },
     {
-      quote: "Best coaching for govt exams in TN.",
-      name: "Sanjay M.",
-      role: "Student",
-      avatar: "https://images.unsplash.com/photo-1614813038286-9a25992982d6?q=80&w=300&auto=format&fit=crop",
+      quote: "Best coaching for banking exams in TN.",
+      name: "Surya G.",
+      role: "Bank PO",
+      // Image: Indian male student
+      avatar: "https://images.unsplash.com/photo-1729824186684-eaff43f7d1d9?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       quote: "Flexible online classes helped me a lot.",
-      name: "Meena L.",
-      role: "Professional",
-      avatar: "https://images.unsplash.com/photo-1589386417686-0d34b5903d23?q=80&w=300&auto=format&fit=crop",
+      name: "Naresh",
+      role: "Teacher",
+      // Image: Indian female professional
+      avatar: "https://images.unsplash.com/photo-1717672135036-e070da303832?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
   ];
 
@@ -111,7 +117,7 @@ export default function Testimonials() {
         <Slider ref={sliderRef} {...settings} className="testimonial-slider relative z-10 pb-12">
           {testimonials.map((t, index) => {
              return (
-              <div key={index} className="px-4 pb-4 pt-4 text-center group cursor-default">
+              <div key={index} className="px-4 pb-4 pt-4 text-center group cursor-default outline-none">
 
                 {/* --- CIRCULAR AVATAR WRAPPER --- */}
                 <div className="relative inline-block mb-8 transition-transform duration-300 transform group-hover:-translate-y-2">
@@ -140,12 +146,15 @@ export default function Testimonials() {
                      {t.name}
                    </h3>
                    <div className="flex justify-center gap-1 opacity-80">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} className="text-yellow-400 fill-current" />
-                      ))}
+                     {[...Array(5)].map((_, i) => (
+                       <Star key={i} size={14} className="text-[#FFEA00] fill-current" />
+                     ))}
                    </div>
                    <p className="text-gray-500 text-sm leading-relaxed max-w-[200px] mx-auto">
                      "{t.quote}"
+                   </p>
+                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                     {t.role}
                    </p>
                 </div>
 
@@ -167,6 +176,7 @@ export default function Testimonials() {
 
         .slick-track {
           display: flex !important;
+          align-items: center;
         }
       `}</style>
     </section>

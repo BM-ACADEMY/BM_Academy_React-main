@@ -1,75 +1,120 @@
-import React from "react";
-import { FiTarget } from "react-icons/fi";
+import React, { useEffect } from "react";
+import { FiTarget, FiArrowRight } from "react-icons/fi";
 import { FaFileAlt, FaCheckCircle } from "react-icons/fa";
+import { HiOutlineLightBulb } from "react-icons/hi"; // Icon for How It Works
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const SACTBanner = () => {
+  useEffect(() => {
+    AOS.init({ duration: 1000, once: true });
+  }, []);
+
   return (
-    <section className="relative bg-gradient-to-r from-yellow-50 via-yellow-100 to-yellow-50 py-16 px-4 md:px-16 rounded-2xl mt-12 shadow-lg overflow-hidden">
-      <div className="relative flex flex-col md:flex-row items-center justify-between gap-10">
+    // REMOVED: 'border-t-4 border-[#FFEA00]' class
+    <section className="relative py-20 bg-gray-50 overflow-hidden">
 
-        {/* Text Section */}
-        <div className="md:w-2/3" data-aos="fade-right">
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900">
-            Free Career Guidance with{" "}
-            <span className="text-yellow-500">SACT</span>
-          </h2>
+      <div className="container mx-auto px-6 lg:px-12">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-16">
 
-          <p className="text-gray-700 mb-6 text-lg md:text-xl leading-relaxed">
-            Confused about your future career? Our AI-powered{" "}
-            <span className="font-semibold text-yellow-600">SACT Test</span> helps
-            students and job seekers discover the right career path—based on
-            skills, interests, and aptitude.
-          </p>
+          {/* --- LEFT COLUMN: CONTENT --- */}
+          <div className="md:w-3/5" data-aos="fade-right">
 
-          <ul className="space-y-3 mb-8 text-gray-700">
-            <li className="flex items-center gap-3">
-              <FiTarget className="text-yellow-600" size={20} />
-              <span>
-                Identify your strengths, interests & best-fit career options
+            {/* BRAND EYEBROW LABEL */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-[2px] w-12 bg-[#FFEA00]"></div>
+              <span className="text-[#111111] font-bold tracking-[0.2em] uppercase text-sm">
+                AI Career Guidance
               </span>
-            </li>
-            <li className="flex items-center gap-3">
-              <FaFileAlt className="text-yellow-600" size={20} />
-              <span>
-                Get an instant personalized PDF report with guidance & scholarships
-              </span>
-            </li>
-            <li className="flex items-center gap-3">
-              <FaCheckCircle className="text-green-600" size={20} />
-              <span>
-                100% Free • No course selling • Pure career clarity
-              </span>
-            </li>
-          </ul>
+            </div>
 
-          <div className="flex flex-wrap gap-4">
-            <a
-              href="https://scat-topaz.vercel.app/Sact.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-black hover:bg-gray-900 text-yellow-400 font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-[0_0_15px_rgba(255,215,0,0.5)] transition-all duration-300"
-            >
-              Take SACT Test Now
-            </a>
+            {/* HEADLINE */}
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-[#111111] leading-tight">
+              Free Career Guidance with{" "}
+              <span className="relative inline-block">
+                <span className="relative z-10">SACT</span>
+                <span className="absolute bottom-1 left-0 w-full h-3 bg-[#FFEA00] -z-0 opacity-60"></span>
+              </span>
+            </h2>
 
-            <a
-              href="/how-it-works"
-              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-[0_0_10px_rgba(0,0,0,0.3)] transition-all duration-300"
-            >
-              How It Works
-            </a>
+            {/* SUBHEADLINE & DESCRIPTION */}
+            <h3 className="text-xl font-bold text-gray-800 mb-3">
+              Not sure what career suits you? Try our AI-powered SACT Test!
+            </h3>
+            <p className="text-gray-600 mb-8 text-lg leading-relaxed max-w-xl">
+              Take the <span className="font-bold text-black">SACT – Smart Aptitude & Career Test</span> and get your free personalized career report in minutes.
+            </p>
+
+            {/* BENEFITS LIST */}
+            <ul className="space-y-5 mb-10">
+              <li className="flex items-start gap-4">
+                <div className="p-2 bg-yellow-50 rounded-full text-[#d4c300] mt-1 shrink-0">
+                  <FiTarget size={20} />
+                </div>
+                <span className="text-gray-700 font-medium text-lg">
+                  Understand your interests, strengths & best-fit careers
+                </span>
+              </li>
+
+              <li className="flex items-start gap-4">
+                <div className="p-2 bg-yellow-50 rounded-full text-[#d4c300] mt-1 shrink-0">
+                  <FaFileAlt size={20} />
+                </div>
+                <span className="text-gray-700 font-medium text-lg">
+                  Get instant PDF report + scholarship info
+                </span>
+              </li>
+
+              <li className="flex items-start gap-4">
+                <div className="p-2 bg-green-50 rounded-full text-green-600 mt-1 shrink-0">
+                  <FaCheckCircle size={20} />
+                </div>
+                <span className="text-gray-700 font-medium text-lg">
+                  100% Free | No Course Selling | Just Career Clarity
+                </span>
+              </li>
+            </ul>
+
+            {/* --- UPDATED BUTTONS --- */}
+            <div className="flex flex-col sm:flex-row gap-5">
+
+              {/* Button 1: Primary (Yellow) */}
+              <a
+                href="https://scat-topaz.vercel.app/Sact.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group px-8 py-4 bg-[#FFEA00] text-black font-bold uppercase tracking-wider rounded shadow-md hover:bg-black hover:text-[#FFEA00] transition-all duration-300 flex items-center justify-center gap-2 min-w-[200px]"
+              >
+                <span>Take Free Career Test</span>
+                <FiArrowRight className="text-xl group-hover:translate-x-1 transition-transform" />
+              </a>
+
+              {/* Button 2: Secondary (Black) - Matches CallToAction style */}
+              <a
+                href="/how-it-works"
+                className="group px-8 py-4 bg-[#111111] text-white font-bold uppercase tracking-wider rounded shadow-md border-2 border-[#111111] hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-2 min-w-[200px]"
+              >
+                <HiOutlineLightBulb className="text-xl group-hover:scale-110 transition-transform" />
+                <span>How It Works</span>
+              </a>
+
+            </div>
+            {/* --- END BUTTONS --- */}
+
           </div>
-        </div>
 
-        {/* Image Section */}
-        <div className="md:w-1/3 flex justify-center items-center" data-aos="fade-left">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-            alt="Career Guidance Illustration"
-            className="w-64 md:w-80 h-auto rounded-2xl shadow-xl transform hover:scale-105 transition-transform duration-500"
-          />
-        </div>
+          {/* --- RIGHT COLUMN: IMAGE --- */}
+          <div className="md:w-2/5 flex justify-center relative" data-aos="fade-left">
+            <div className="absolute inset-0 bg-[#FFEA00] opacity-20 rounded-full blur-3xl transform translate-x-4 translate-y-4"></div>
 
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+              alt="SACT Career Guidance"
+              className="relative z-10 w-full max-w-xs md:max-w-sm drop-shadow-2xl transform hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+
+        </div>
       </div>
     </section>
   );
