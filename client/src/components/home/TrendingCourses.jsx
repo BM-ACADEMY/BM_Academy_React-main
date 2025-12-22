@@ -237,18 +237,29 @@ export default function TrendingCourses() {
 
         {/* --- HEADER --- */}
         <div className="text-center mb-16" data-aos="fade-down">
-          <div className="inline-block px-4 py-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 mb-6 backdrop-blur-sm">
-             <span className="text-sm font-bold tracking-widest uppercase" style={{ color: THEME.yellow }}>
-                Top Rated
-             </span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
-            Trending <span style={{ color: THEME.yellow }}>Courses</span>
-          </h2>
-          <p className="max-w-2xl mx-auto text-lg leading-relaxed" style={{ color: THEME.textMuted }}>
-            Explore our most popular programs designed to help you master in-demand skills and advance your career.
-          </p>
-        </div>
+  <div className="inline-block px-4 py-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 mb-6 backdrop-blur-sm">
+    <span
+      className="text-sm font-bold tracking-widest uppercase"
+      style={{ color: THEME.yellow }}
+    >
+      Top Trending
+    </span>
+  </div>
+
+  <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
+    Top <span style={{ color: THEME.yellow }}>Trending Courses</span> for{" "}
+    <span className="whitespace-nowrap">Students & Job Seekers</span>
+  </h1>
+
+  <p
+    className="max-w-2xl mx-auto text-lg leading-relaxed"
+    style={{ color: THEME.textMuted }}
+  >
+    Highlighting our most in-demand courses with quick navigation to help you
+    choose the right path faster.
+  </p>
+</div>
+
 
         {/* --- COURSES GRID --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

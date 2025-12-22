@@ -279,8 +279,6 @@ from datetime import timedelta
 from dotenv import load_dotenv
 
 
-SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000")
-
 # ------------------------
 # Base directory
 # ------------------------
@@ -299,6 +297,7 @@ elif ENV == "prod":
 else:
     load_dotenv(BASE_DIR / ".env_local")
 
+SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000")
 # ------------------------
 # Core settings
 # ------------------------
@@ -493,13 +492,17 @@ RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 
 # ------------------------
-# Email (Zoho)
+# Email (Gmail SMTP)
 # ------------------------
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.zoho.in"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_PORT = 465
 
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", EMAIL_HOST_USER)
+
+if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+    raise RuntimeError("❌ Email credentials not loaded from .env")

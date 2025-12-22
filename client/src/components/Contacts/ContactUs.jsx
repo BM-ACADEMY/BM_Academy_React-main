@@ -78,7 +78,7 @@ const ContactUs = () => {
             <p>
               📧 Email:{" "}
               <a
-                href="mailto:admin@abmgroups.org"
+                href="mailto:mdarsath.bmtechx@gmail.com"
                 className="text-yellow-600 font-semibold"
               >
                 admin@abmgroups.org

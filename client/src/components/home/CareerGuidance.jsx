@@ -6,30 +6,39 @@ const SACTBanner = () => {
   return (
     <section className="relative bg-gradient-to-r from-yellow-50 via-yellow-100 to-yellow-50 py-16 px-4 md:px-16 rounded-2xl mt-12 shadow-lg overflow-hidden">
       <div className="relative flex flex-col md:flex-row items-center justify-between gap-10">
+
         {/* Text Section */}
         <div className="md:w-2/3" data-aos="fade-right">
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900">
             Free Career Guidance with{" "}
             <span className="text-yellow-500">SACT</span>
           </h2>
+
           <p className="text-gray-700 mb-6 text-lg md:text-xl leading-relaxed">
-            Not sure what career suits you? Try our AI-powered{" "}
-            <span className="font-semibold text-yellow-600">SACT Test</span> and
-            discover your perfect path!
+            Confused about your future career? Our AI-powered{" "}
+            <span className="font-semibold text-yellow-600">SACT Test</span> helps
+            students and job seekers discover the right career path—based on
+            skills, interests, and aptitude.
           </p>
 
           <ul className="space-y-3 mb-8 text-gray-700">
             <li className="flex items-center gap-3">
               <FiTarget className="text-yellow-600" size={20} />
-              <span>Understand your interests, strengths & best-fit careers</span>
+              <span>
+                Identify your strengths, interests & best-fit career options
+              </span>
             </li>
             <li className="flex items-center gap-3">
               <FaFileAlt className="text-yellow-600" size={20} />
-              <span>Get instant PDF report + scholarship info</span>
+              <span>
+                Get an instant personalized PDF report with guidance & scholarships
+              </span>
             </li>
             <li className="flex items-center gap-3">
               <FaCheckCircle className="text-green-600" size={20} />
-              <span>100% Free | No Course Selling | Just Career Clarity</span>
+              <span>
+                100% Free • No course selling • Pure career clarity
+              </span>
             </li>
           </ul>
 
@@ -60,6 +69,7 @@ const SACTBanner = () => {
             className="w-64 md:w-80 h-auto rounded-2xl shadow-xl transform hover:scale-105 transition-transform duration-500"
           />
         </div>
+
       </div>
     </section>
   );
