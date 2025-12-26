@@ -67,17 +67,19 @@ export default function CourseDetail() {
 
   // --- DESTRUCTURE DATA ---
   const {
-    title,
-    description,
-    price,
-    image_url,
-    mode = "Online",
-    duration = "Short-term",
-    enrollmentStatus = "Open",
-    modules = []
-  } = course;
+  title,
+  description,
+  price,
+  image_url,
+  mode = "Online",
+  duration = "Short-term",
+  enrolled_status = "Open",
+  modules = []
+} = course;
 
-  const displayStatus = course.enrollment_status || enrollmentStatus;
+const displayStatus = enrolled_status;
+const isOpen = displayStatus === "Open";
+
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-20">
@@ -93,11 +95,23 @@ export default function CourseDetail() {
           </button>
 
           <div className="max-w-3xl">
-            <span className={`inline-block px-3 py-1 text-xs font-bold uppercase rounded mb-4 ${
-              displayStatus === "Open" ? "bg-green-500/20 text-green-400 border border-green-500/50" : "bg-red-500/20 text-red-400 border border-red-500/50"
-            }`}>
-              {displayStatus} for Enrollment
-            </span>
+            <span
+  className={`inline-block px-3 py-1 text-xs font-bold uppercase rounded mb-4 border
+    ${
+      displayStatus === "Open"
+        ? "bg-green-500/20 text-green-400 border-green-500/50"
+        : displayStatus === "Coming Soon"
+        ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/50"
+        : "bg-red-500/20 text-red-400 border-red-500/50"
+    }`}
+>
+  {displayStatus === "Open"
+    ? "Open for Enrollment"
+    : displayStatus === "Coming Soon"
+    ? "Coming Soon"
+    : "Enrollment Closed"}
+</span>
+
 
             <h1 className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">
               {title}
@@ -153,9 +167,18 @@ export default function CourseDetail() {
             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center gap-2">
                <FaDoorOpen className="text-2xl text-[#FFEA00]" />
                <span className="font-bold text-sm">Status</span>
-               <span className={`text-xs font-bold ${displayStatus === 'Open' ? 'text-green-600' : 'text-red-600'}`}>
-                 {displayStatus}
-               </span>
+               <span
+  className={`text-xs font-bold ${
+    displayStatus === "Open"
+      ? "text-green-600"
+      : displayStatus === "Coming Soon"
+      ? "text-yellow-600"
+      : "text-red-600"
+  }`}
+>
+  {displayStatus}
+</span>
+
             </div>
              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center gap-2">
                <IoIosInfinite className="text-2xl text-[#FFEA00]" />
@@ -222,11 +245,19 @@ export default function CourseDetail() {
 
                 <div className="space-y-3">
                   <button
-                    onClick={() => navigate('/contacts')}
-                    className="w-full py-4 bg-[#FFEA00] text-black font-bold uppercase tracking-wider rounded shadow hover:bg-yellow-400 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <FaPhoneAlt /> Enquire Admission
-                  </button>
+  onClick={() => isOpen && navigate('/contacts')}
+  disabled={!isOpen}
+  className={`w-full py-4 font-bold uppercase tracking-wider rounded shadow flex items-center justify-center gap-2
+    ${
+      isOpen
+        ? "bg-[#FFEA00] text-black hover:bg-yellow-400"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+    }`}
+>
+  <FaPhoneAlt />
+  {isOpen ? "Enquire Admission" : "Admissions Closed"}
+</button>
+
 
                   <button
                     onClick={() => setShowPreview(true)}

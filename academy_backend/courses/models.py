@@ -1,18 +1,24 @@
 from mongoengine import Document, StringField, FloatField, ListField, DateTimeField
 import datetime
 
+
 class Course(Document):
+    STATUS_CHOICES = ("Open", "Closed", "Coming Soon")
+
     title = StringField(required=True, max_length=200)
     description = StringField()
     mode = ListField(StringField(choices=["Online", "Offline"]), default=list)
     duration = ListField(StringField(choices=["Short-term", "Long-term"]), default=list)
     price = FloatField(default=0.0)
-    enrolled_status = StringField(default="Open")
-    modules = ListField(StringField())
-    image_url = StringField()  # store image URL
-    created_at = DateTimeField(default=datetime.datetime.now)
 
-    meta = {"collection": "courses"}  # <- explicitly set the collection name
+    # ✅ FIXED
+    enrolled_status = StringField(choices=STATUS_CHOICES, default="Open", required=True)
+
+    modules = ListField(StringField())
+    image_url = StringField()
+    created_at = DateTimeField(default=datetime.datetime.utcnow)
+
+    meta = {"collection": "courses"}
 
 
 from django.db import models

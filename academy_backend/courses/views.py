@@ -128,9 +128,9 @@ class CourseListCreateAPIView(APIView):
             if not description:
                 return Response({"description": ["This field is required"]}, status=400)
 
-            if enrolled_status not in ["Open", "Closed", "Ongoing"]:
+            if enrolled_status not in ["Open", "Closed", "Coming Soon"]:
                 return Response(
-                    {"enrolled_status": ["Must be Open, Closed, or Ongoing"]},
+                    {"enrolled_status": ["Must be Open, Closed, or Coming Soon"]},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -290,9 +290,9 @@ class CourseDetailAPIView(APIView):
                     {"description": ["This field is required"]}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if enrolled_status not in ["Open", "Closed", "Ongoing"]:
+            if enrolled_status not in ["Open", "Closed", "Coming Soon"]:
                 return Response(
-                    {"enrolled_status": ["Must be Open, Closed, or Ongoing"]},
+                    {"enrolled_status": ["Must be Open, Closed, or Coming Soon"]},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
