@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+from django.utils.timezone import now
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -50,6 +52,33 @@ class CourseListCreateAPIView(APIView):
     def get(self, request):
         try:
             courses = Course.objects.all()
+
+            range_param = request.query_params.get("range")
+            from_date = request.query_params.get("from")
+            to_date = request.query_params.get("to")
+
+            now_dt = now()
+
+            # 🔹 TODAY
+            if range_param == "today":
+                start = now_dt.replace(hour=0, minute=0, second=0, microsecond=0)
+                end = start + timedelta(days=1)
+                courses = courses.filter(created_at__gte=start, created_at__lt=end)
+
+            # 🔹 LAST 7 DAYS
+            elif range_param == "7":
+                courses = courses.filter(created_at__gte=now_dt - timedelta(days=7))
+
+            # 🔹 LAST 30 DAYS
+            elif range_param == "30":
+                courses = courses.filter(created_at__gte=now_dt - timedelta(days=30))
+
+            # 🔹 CUSTOM RANGE
+            elif from_date and to_date:
+                start = datetime.fromisoformat(from_date)
+                end = datetime.fromisoformat(to_date) + timedelta(days=1)
+                courses = courses.filter(created_at__gte=start, created_at__lt=end)
+
             data = []
             for course in courses:
                 data.append({
@@ -62,13 +91,25 @@ class CourseListCreateAPIView(APIView):
                     "enrolled_status": course.enrolled_status,
                     "modules": course.modules or [],
                     "image_url": course.image_url,
-                    "created_at": {"$date": (course.created_at.isoformat() + "Z") if course.created_at else datetime.now().isoformat() + "Z"}
+                    "created_at": {
+                        "$date": (
+                            course.created_at.isoformat() + "Z"
+                            if course.created_at
+                            else now_dt.isoformat() + "Z"
+                        )
+                    }
                 })
+
             return Response(data)
+
         except Exception as e:
-            print(f"Error fetching courses: {e}")
-            import traceback; traceback.print_exc()
-            return Response({'error': ['Failed to fetch courses']}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print("❌ Course dashboard filter error:", e)
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {"error": ["Failed to fetch courses"]},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def post(self, request):
         try:

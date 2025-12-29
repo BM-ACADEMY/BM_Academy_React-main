@@ -43,7 +43,7 @@ const CertificatePreview = forwardRef(
         <div className="cert-text line2a">successful completion of</div>
 
         <div className="cert-text line2b">
-          <strong>Professional certificate in {course}</strong>
+          <strong>Professional Certificate in {course}</strong>
         </div>
 
         <div className="cert-text line3">

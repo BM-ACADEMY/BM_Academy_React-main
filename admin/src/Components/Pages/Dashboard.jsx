@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   // 🔹 NEW: Date Filter State
-  const [filter, setFilter] = useState("30");
+  const [filter, setFilter] = useState("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
@@ -110,23 +110,33 @@ export default function Dashboard() {
         {/* 🔹 Filters */}
         <div className="flex flex-wrap gap-2 items-center">
           {[
+            { label: "All Time", value: "all" },
             { label: "Today", value: "today" },
             { label: "Last 7 Days", value: "7" },
             { label: "Last 30 Days", value: "30" },
             { label: "Custom", value: "custom" },
           ].map((f) => (
             <button
-              key={f.value}
-              onClick={() => setFilter(f.value)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium border shadow-sm
-                ${
-                  filter === f.value
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                }`}
-            >
-              {f.label}
-            </button>
+  key={f.value}
+  onClick={() => {
+    setFilter(f.value);
+
+    // 🔹 Reset custom dates when switching away
+    if (f.value !== "custom") {
+      setFromDate("");
+      setToDate("");
+    }
+  }}
+  className={`px-3 py-1.5 rounded-lg text-sm font-medium border shadow-sm
+    ${
+      filter === f.value
+        ? "bg-blue-600 text-white border-blue-600"
+        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+    }`}
+>
+  {f.label}
+</button>
+
           ))}
 
           {filter === "custom" && (
