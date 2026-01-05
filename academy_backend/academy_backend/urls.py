@@ -9,14 +9,13 @@ from django.contrib import admin
 
 urlpatterns = [
     # Courses API
-    path('api/', include('courses.urls')),
-
+    path("api/", include("courses.urls")),
     # Users API (signup, login, google-login, profile, admin login)
-    path('admin/', admin.site.urls),
-    path('api/users/', include('users.urls')),
-    path('api/contact/', include('contact.urls')),
-    path('api/', include('certificates.urls')),
-
+    path("admin/", admin.site.urls),
+    path("api/users/", include("users.urls")),
+    path("api/contact/", include("contact.urls")),
+    path("api/", include("certificates.urls")),
+    path("api/blogs/", include("blog.urls")),
 ]
 
 # Serve media files in development

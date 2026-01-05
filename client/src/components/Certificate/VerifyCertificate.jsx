@@ -68,7 +68,7 @@ export default function VerifyCertificate() {
         </h1>
 
         <p className="text-gray-500 mb-8">
-          Enter your unique certificate ID below to verify its authenticity and download a digital copy.
+          Enter your unique certificate ID to check authenticity and download your digital copy.
         </p>
 
         {/* --- FORM --- */}

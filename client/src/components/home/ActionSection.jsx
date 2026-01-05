@@ -1,6 +1,7 @@
 import React from "react";
 import { IoIosCall } from "react-icons/io";
 import { HiArrowRightStartOnRectangle } from "react-icons/hi2";
+import { Link } from "react-router-dom";
 
 const CallToAction = () => {
   return (
@@ -15,20 +16,21 @@ const CallToAction = () => {
 
         {/* Subtext */}
         <p className="text-base sm:text-lg md:text-xl mb-8 text-gray-700">
-          Join 1000+ students who chose BM Academy for skills, scholarships, and success.
+          Join 1000+ successful students who built their skills and future with BM Academy.
+
         </p>
 
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-5">
 
           {/* Primary Button: Join Now (Yellow) */}
-          <a
-            href="/apply"
+          <Link
+            to="/courses"
             className="group px-8 py-4 bg-[#FFEA00] text-black font-bold uppercase tracking-wider rounded shadow-md hover:bg-black hover:text-[#FFEA00] transition-all duration-300 flex items-center justify-center gap-2 min-w-[200px]"
           >
             <span>Join Now</span>
             <HiArrowRightStartOnRectangle className="text-xl group-hover:translate-x-1 transition-transform" />
-          </a>
+          </Link>
 
           {/* Secondary Button: Call Us (Black) */}
           <a

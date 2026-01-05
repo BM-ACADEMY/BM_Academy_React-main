@@ -15,7 +15,7 @@ import {
   FaCopy
 } from "react-icons/fa";
 
-import CertificatePreview from "./CertificatePreview"; // Adjust path as needed
+import CertificatePreview from "../Pages/Certificatepreview"; // Adjust path as needed
 
 // API Configuration (Kept same as your code)
 const API = axios.create({

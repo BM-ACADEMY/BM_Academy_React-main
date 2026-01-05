@@ -17,14 +17,15 @@ const HomeRoutes = () => {
         <div>
             <WelcomeBanner />
             <HeroSection />
-            <WhyChooseUs />
-            <CEOsMessage />
-            <Testimonials />
             <TrendingCourses />
+
+            <CEOsMessage />
+            <WhyChooseUs />
+            <Testimonials />
             <SACTBanner />
             <CallToAction />
             <FloatingWhatsAppButton />
-            
+
 
         </div>
     )

@@ -120,12 +120,15 @@ const CertificatePreview = forwardRef(
                 </div>
 
                 <div className="cert-text line2b">
-                  <strong>Professional certificate in {course}</strong>
-                </div>
+  <strong>
+    {`Professional Certificate in ${course} ${certificate_type}.`}
+  </strong>
+</div>
 
-                <div className="cert-text line3">
+
+                {/* <div className="cert-text line3">
                   <strong>{certificate_type}</strong>
-                </div>
+                </div> */}
 
                 <div className="cert-text issued">
                   Issued on {issued_date}

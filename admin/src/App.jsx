@@ -6,6 +6,7 @@ import AdminLogin from "./Components/Login";
 import Users from "./Components/Pages/Users";
 import Certificate from "./Components/Pages/Certificate";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import Blog from "./Components/Pages/Blog";
 
 function App() {
   return (
@@ -64,6 +65,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/blogs"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Blog />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/login" replace />} />

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { FaUserCircle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "../../assets/img/Bm Academy logo .png";
+import Logo from "../../assets/img/BM_ACADEMY1.png";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +22,6 @@ export default function Navbar() {
     { name: "SAT Exam", external: "https://sample-sat.vercel.app/" },
     { name: "About", path: "/about" },
     { name: "Verify Certificate", path: "/verify" },
-    { name: "Contact", path: "/contacts" },
   ];
 
   // ... (Your useEffect logic remains exactly the same) ...
@@ -125,6 +124,8 @@ export default function Navbar() {
         {/* --- RIGHT SECTION: NAVIGATION --- */}
         <div className="flex-1 flex justify-end px-6 lg:px-12">
 
+
+
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
             {navLinks.map((link) =>
@@ -164,6 +165,15 @@ export default function Navbar() {
                 <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
               </a>
             </div>
+            {/* Desktop Contact – LAST */}
+<Link
+  to="/contacts"
+  className="relative text-gray-800 hover:text-[#FFEA00] font-bold uppercase text-sm tracking-wide transition duration-200 group"
+  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+>
+  Contact
+  <span className="absolute left-0 -bottom-1 w-0 h-[3px] bg-[#FFEA00] transition-all duration-300 group-hover:w-full"></span>
+</Link>
 
             {/* Profile Only */}
             {isLoggedIn && (
@@ -265,8 +275,20 @@ export default function Navbar() {
             >
               Webinar
             </a>
-          </div>
+          </div><Link
+  to="/contacts"
+  onClick={() => {
+    setIsOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }}
+  className="text-gray-800 hover:text-[#d4c300] font-bold text-lg border-b border-gray-100 pb-2"
+>
+  Contact
+</Link>
         </div>
+        {/* MOBILE CONTACT – LAST */}
+
+
 
         {/* Mobile Footer */}
         <div className="absolute bottom-0 w-full bg-gray-50 p-6 border-t border-gray-200">

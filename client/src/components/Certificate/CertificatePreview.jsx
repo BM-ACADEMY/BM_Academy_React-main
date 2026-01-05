@@ -37,18 +37,20 @@ const CertificatePreview = forwardRef(
         <img src={template} className="cert-bg" alt="Certificate Template" />
 
         <div className="cert-text line1">
-          This certificate is awarded to Mr./Ms. <strong>{name}</strong> for the
+          This certificate is proudly awarded to Mr./Ms. <strong>{name}</strong> for the
         </div>
 
         <div className="cert-text line2a">successful completion of</div>
 
         <div className="cert-text line2b">
-          <strong>Professional Certificate in {course}</strong>
-        </div>
+  <strong>
+    {`Professional Certificate in ${course} ${certificate_type}.`}
+  </strong>
+</div>
 
-        <div className="cert-text line3">
+        {/* <div className="cert-text line3">
           <strong>{certificate_type}</strong>
-        </div>
+        </div> */}
 
         <div className="cert-text issued">Issued on {issued_date}</div>
         {certificate_id && (

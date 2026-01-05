@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { FiTarget, FiArrowRight } from "react-icons/fi";
-import { FaFileAlt, FaCheckCircle } from "react-icons/fa";
-import { HiOutlineLightBulb } from "react-icons/hi"; // Icon for How It Works
+import { FaFileAlt, FaCheckCircle, FaGraduationCap } from "react-icons/fa"; // Added FaGraduationCap
+import { HiOutlineLightBulb } from "react-icons/hi";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -11,7 +11,6 @@ const SACTBanner = () => {
   }, []);
 
   return (
-    // REMOVED: 'border-t-4 border-[#FFEA00]' class
     <section className="relative py-20 bg-gray-50 overflow-hidden">
 
       <div className="container mx-auto px-6 lg:px-12">
@@ -39,43 +38,64 @@ const SACTBanner = () => {
 
             {/* SUBHEADLINE & DESCRIPTION */}
             <h3 className="text-xl font-bold text-gray-800 mb-3">
-              Not sure what career suits you? Try our AI-powered SACT Test!
+              Not sure which career suits you best? Take our AI-powered SACT Test and get a personalized career report — 100% free.
             </h3>
             <p className="text-gray-600 mb-8 text-lg leading-relaxed max-w-xl">
-              Take the <span className="font-bold text-black">SACT – Smart Aptitude & Career Test</span> and get your free personalized career report in minutes.
+              With <span className="font-bold text-black">SACT – Smart Aptitude & Career Test</span> you’ll receive guidance that helps you choose the right path confidently.
             </p>
 
-            {/* BENEFITS LIST */}
-            <ul className="space-y-5 mb-10">
-              <li className="flex items-start gap-4">
-                <div className="p-2 bg-yellow-50 rounded-full text-[#d4c300] mt-1 shrink-0">
+            {/* --- NEW BENEFITS LIST --- */}
+
+            {/* List Title */}
+            <h4 className="text-xl font-extrabold text-[#111111] mb-5">
+              What You Get:
+            </h4>
+
+            <ul className="space-y-4 mb-10">
+
+              {/* Item 1 */}
+              <li className="flex items-center gap-4">
+                <div className="p-2 bg-yellow-50 rounded-full text-[#d4c300] shrink-0 flex items-center justify-center">
                   <FiTarget size={20} />
                 </div>
-                <span className="text-gray-700 font-medium text-lg">
-                  Understand your interests, strengths & best-fit careers
+                <span className="text-gray-700 font-medium text-lg leading-snug">
+                  Know your interests, strengths & best-fit career paths
                 </span>
               </li>
 
-              <li className="flex items-start gap-4">
-                <div className="p-2 bg-yellow-50 rounded-full text-[#d4c300] mt-1 shrink-0">
+              {/* Item 2 */}
+              <li className="flex items-center gap-4">
+                <div className="p-2 bg-yellow-50 rounded-full text-[#d4c300] shrink-0 flex items-center justify-center">
                   <FaFileAlt size={20} />
                 </div>
-                <span className="text-gray-700 font-medium text-lg">
-                  Get instant PDF report + scholarship info
+                <span className="text-gray-700 font-medium text-lg leading-snug">
+                  Instant PDF career report with insights
                 </span>
               </li>
 
-              <li className="flex items-start gap-4">
-                <div className="p-2 bg-green-50 rounded-full text-green-600 mt-1 shrink-0">
+              {/* Item 3 */}
+              <li className="flex items-center gap-4">
+                <div className="p-2 bg-yellow-50 rounded-full text-[#d4c300] shrink-0 flex items-center justify-center">
+                  <FaGraduationCap size={20} />
+                </div>
+                <span className="text-gray-700 font-medium text-lg leading-snug">
+                  Scholarship eligibility details included
+                </span>
+              </li>
+
+              {/* Item 4 */}
+              <li className="flex items-center gap-4">
+                <div className="p-2 bg-green-50 rounded-full text-green-600 shrink-0 flex items-center justify-center">
                   <FaCheckCircle size={20} />
                 </div>
-                <span className="text-gray-700 font-medium text-lg">
-                  100% Free | No Course Selling | Just Career Clarity
+                <span className="text-gray-700 font-medium text-lg leading-snug">
+                  No selling — just clarity for your future
                 </span>
               </li>
+
             </ul>
 
-            {/* --- UPDATED BUTTONS --- */}
+            {/* --- BUTTONS --- */}
             <div className="flex flex-col sm:flex-row gap-5">
 
               {/* Button 1: Primary (Yellow) */}
@@ -89,9 +109,11 @@ const SACTBanner = () => {
                 <FiArrowRight className="text-xl group-hover:translate-x-1 transition-transform" />
               </a>
 
-              {/* Button 2: Secondary (Black) - Matches CallToAction style */}
+              {/* Button 2: Secondary (Black) */}
               <a
-                href="/how-it-works"
+                href="https://scat-topaz.vercel.app/Sact.html"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group px-8 py-4 bg-[#111111] text-white font-bold uppercase tracking-wider rounded shadow-md border-2 border-[#111111] hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-2 min-w-[200px]"
               >
                 <HiOutlineLightBulb className="text-xl group-hover:scale-110 transition-transform" />
@@ -99,7 +121,6 @@ const SACTBanner = () => {
               </a>
 
             </div>
-            {/* --- END BUTTONS --- */}
 
           </div>
 

@@ -35,17 +35,17 @@ export default function HeroSection() {
     tech: {
       title: "IT & Tech Courses",
       icon: <FaLaptopCode className="text-xl" />,
-      text: "Master in-demand skills like Web Development, Data Science, and Full Stack Engineering to secure high-paying tech jobs.",
+      text: "Master in-demand skills like Web Development, Data Science, and Full Stack Engineering to land high-paying tech jobs."
     },
     guidance: {
       title: "AI Career Guidance",
       icon: <FaRobot className="text-xl" />,
-      text: "Free career guidance via our specialized SACT AI Career Test to help you discover your true potential and perfect career path.",
+      text: "Get free career guidance with our SACT AI Career Test to uncover your true potential and ideal career path.",
     },
     coaching: {
       title: "Govt. Exam Coaching",
       icon: <FaGraduationCap className="text-xl" />,
-      text: "Comprehensive coaching for TNPSC, SSC, and other government examinations with expert faculty and proven study materials.",
+      text: "Prepare for TNPSC, SSC, and other government exams with expert faculty and proven study materials for success.",
     },
   };
 
@@ -57,15 +57,7 @@ export default function HeroSection() {
           {/* --- LEFT COLUMN: IMAGE COLLAGE --- */}
           <div className="relative" data-aos="fade-right">
 
-            {/* Background Pattern Dots */}
-            <div className="absolute top-0 right-0 -mr-10 -mt-10 opacity-20 animate-spin-slow">
-               <svg width="100" height="100" fill="#000">
-                 <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                   <circle cx="2" cy="2" r="2" />
-                 </pattern>
-                 <rect width="100" height="100" fill="url(#dots)" />
-               </svg>
-            </div>
+
 
             {/* Main Image */}
             <div className="relative z-10 w-[85%] transform transition-transform hover:scale-[1.02] duration-500">
@@ -97,19 +89,13 @@ export default function HeroSection() {
           {/* --- RIGHT COLUMN: CONTENT --- */}
           <div className="mt-12 lg:mt-0" data-aos="fade-left">
 
-            {/* Small Pill Label */}
-            <div className="flex items-center gap-2 mb-4">
-               <span className="h-2 w-2 rounded-full bg-[#FFEA00] animate-pulse"></span>
-               <span className="text-[#FFEA00] font-bold uppercase tracking-wider text-sm">
-                 Welcome to BM Academy
-               </span>
-            </div>
+
 
             {/* Main Headline */}
             <h1 className="text-4xl lg:text-5xl font-extrabold text-[#111111] leading-tight mb-6">
-              Empowering Futures with <br />
+              Launch Your Career with  <br />
               <span className="text-[#d4c300] relative inline-block">
-                Skills & Scholarships!
+                Top IT Skills & Scholarships!
                 {/* Animated Underline */}
                 <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#FFEA00] opacity-60" viewBox="0 0 200 9" fill="none">
                   <path d="M2.00025 6.99997C25.7501 2.49994 132.5 -6.49991 198 3.99996" stroke="currentColor" strokeWidth="3" strokeDasharray="200" strokeDashoffset="0">
@@ -120,12 +106,18 @@ export default function HeroSection() {
             </h1>
 
             {/* --- UPDATED TEXT CONTENT --- */}
-            <p className="text-gray-600 text-lg leading-relaxed mb-8" data-aos="fade-up" data-aos-delay="200">
-              Unlock your career path with BM Academy’s SAT Program — your bridge to high-growth IT opportunities and trusted government exam preparation.
-              Get up to <span className="font-bold text-black">85% scholarship</span> and gain future-ready digital skills for today’s tech-driven world.
-              Alongside, our structured government coaching helps you prepare with clarity and confidence.
-              Grow, achieve, and build your future with expert guidance at BM Academy.
-            </p>
+            <p
+  className="text-gray-600 text-lg leading-relaxed mb-8"
+  data-aos="fade-up"
+  data-aos-delay="200"
+>
+  Jumpstart your career with BM Academy’s SAT Program and unlock
+  <span className="font-bold text-black"> high-growth IT opportunities</span>.
+  Build <span className="font-bold text-black">future-ready digital skills</span> and secure up to
+  <span className="font-bold text-black"> 85% scholarship</span>.
+  Excel in exams with expert-led government coaching and step confidently into your dream career.
+</p>
+
 
             {/* --- INTERACTIVE TABS --- */}
             <div className="mb-8" data-aos="fade-up" data-aos-delay="400">

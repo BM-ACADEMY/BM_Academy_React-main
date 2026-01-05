@@ -18,8 +18,9 @@ export default function AboutWelcomeBanner() {
     <section className="relative w-full overflow-hidden bg-white">
 
       {/* --- BACKGROUND SKEW EFFECT --- */}
-      <div className="absolute top-0 right-0 w-full md:w-2/3 h-full bg-[#111111] transform -skew-x-12 translate-x-20 md:translate-x-32 z-0"></div>
-      <div className="absolute top-0 right-0 w-full md:w-2/3 h-full bg-[#111111] transform -skew-x-12 translate-x-24 md:translate-x-40 opacity-50 z-0 border-l-8 border-[#FFEA00]"></div>
+      {/* Adjusted translation to push the black background slightly more to the right to give text breathing room */}
+      <div className="absolute top-0 right-0 w-full md:w-2/3 h-full bg-[#111111] transform -skew-x-12 translate-x-20 md:translate-x-40 z-0"></div>
+      <div className="absolute top-0 right-0 w-full md:w-2/3 h-full bg-[#111111] transform -skew-x-12 translate-x-24 md:translate-x-48 opacity-50 z-0 border-l-8 border-[#FFEA00]"></div>
 
       <div className="relative z-10 container mx-auto px-6 lg:px-12 py-24 flex flex-col md:flex-row items-center">
 
@@ -40,9 +41,10 @@ export default function AboutWelcomeBanner() {
           </h1>
 
           {/* Subtext */}
-          <p className="text-gray-600 text-lg font-medium leading-relaxed mb-8">
-            Empowering students with career clarity, real-world skills & scholarships
-            across Tamil Nadu and India.
+          {/* Added 'max-w-lg' to force the text to wrap before hitting the black background */}
+          <p className="text-gray-600 text-lg font-medium leading-relaxed mb-8 max-w-lg">
+            Empowering Students With Career Clarity, Real-World Skills & Scholarships
+            Across Tamil Nadu And India.
           </p>
         </div>
 
@@ -60,7 +62,7 @@ export default function AboutWelcomeBanner() {
 
           {/* Button 2: Contact Us */}
           <a
-            href="/contact"
+            href="/contacts"
             className="flex items-center gap-3 px-8 py-4 bg-[#111111] border-2 border-[#FFEA00] text-[#FFEA00] font-bold uppercase tracking-wider rounded shadow-xl hover:bg-[#FFEA00] hover:text-black hover:scale-105 transform transition-all duration-300 group"
           >
             <FaPhoneAlt className="text-lg group-hover:shake" />

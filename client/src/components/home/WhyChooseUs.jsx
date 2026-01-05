@@ -23,13 +23,13 @@ const WhyChooseUs = () => {
     {
       id: 2,
       title: "Free AI Career Guider",
-      description: "Personalized guidance with our AI-powered SACT tool to find your path.",
+      description: " Personalized guidance with our AI-powered SACT tool to discover your best career path.",
       icon: <FaRobot size={24} />,
     },
     {
       id: 3,
       title: "Job-Oriented Courses",
-      description: "Hands-on practical learning designed to make you immediately career-ready.",
+      description: "Hands-on learning designed to make you career-ready from day one.",
       icon: <FaBriefcase size={24} />,
     },
     {
@@ -55,12 +55,10 @@ const WhyChooseUs = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-slate-700 mb-6">
             <span className="h-2 w-2 rounded-full bg-[#FFEA00]"></span>
             <span className="text-[#FFEA00] font-bold uppercase tracking-widest text-xs">
-              Why Choose Us
+              Why Choose BM Academy
             </span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-            We Are BM Academy Features
-          </h2>
+
         </div>
 
         {/* --- CARDS GRID --- */}

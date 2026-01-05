@@ -6,7 +6,8 @@ import {
   FaBook,
   FaSignOutAlt,
   FaCertificate,
-  FaLayerGroup
+  FaLayerGroup,
+  FaNewspaper
 } from "react-icons/fa";
 
 export default function Sidebar({ collapsed }) {
@@ -75,6 +76,9 @@ export default function Sidebar({ collapsed }) {
         <SidebarLink to="/dashboard" icon={FaTachometerAlt} label="Dashboard" />
         <SidebarLink to="/courses" icon={FaBook} label="Courses" />
         <SidebarLink to="/certificates" icon={FaCertificate} label="Certificates" />
+        <SidebarLink to="/blogs" icon={FaNewspaper} label="Blogs" />
+
+
       </nav>
 
       {/* Bottom - User Profile */}

@@ -350,6 +350,7 @@ INSTALLED_APPS = [
     "users",
     "contact",
     "certificates",
+    "blog",
 ]
 
 # ------------------------

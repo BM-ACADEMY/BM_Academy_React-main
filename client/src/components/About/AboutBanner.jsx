@@ -44,7 +44,7 @@ const AboutFeatures = () => {
               What Makes Us <span className="text-[#FFEA00] bg-black px-2">Different?</span>
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              We combine technology, affordability, and expert mentorship to deliver education that actually works.
+              We Combine Technology, Affordability, and Expert Mentorship to Deliver Education That Truly Works.
             </p>
           </div>
 
@@ -146,7 +146,7 @@ const AboutFeatures = () => {
                   "Reach Across Tamil Nadu, Pondicherry & India",
                   "Launched SACT Test – First AI Career Tool",
                   "Facilitated Lakhs in Scholarships (SAT)",
-                  "Collaborated with industry experts"
+                  "Collaborated with Industry Experts"
                 ].map((item, i) => (
                   <li
                     key={i}

@@ -64,14 +64,14 @@ const WelcomeBanner = () => {
     {
       title: "Shape Your Future With Excellence",
       description:
-        "SACT – Smart Aptitude & Career Test matches your skills with careers & courses. Your roadmap in minutes.",
+        "SACT – Smart Aptitude & Career Test That Matches Your Skills With Careers & Courses. Your Roadmap Starts Here.",
       // Image: Group of Indian students collaborating
       image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop",
     },
     {
-      title: "Scholarships up to 85%",
+      title: "Scholarships Up To 85%",
       description:
-        "Access quality education without barriers. BM Academy supports deserving students with massive scholarship opportunities.",
+        "Access Quality Education Without Barriers. BM Academy Supports Deserving Students With Massive Scholarship Opportunities.",
       // Image: Indian female student holding books in a campus setting
       image: "https://images.unsplash.com/photo-1629904853026-234541317275?q=80&w=2070&auto=format&fit=crop",
     },

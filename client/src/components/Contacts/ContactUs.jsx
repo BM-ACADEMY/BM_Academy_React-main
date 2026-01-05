@@ -73,7 +73,7 @@ const ContactUs = () => {
 
           {/* --- 1. LEFT SIDE: THE FORM --- */}
           <div className="w-full lg:w-3/5 p-10 md:p-14 bg-white" id="contact-form">
-            <h3 className="text-2xl font-bold mb-6 text-[#111111]">Send us a message</h3>
+            <h3 className="text-2xl font-bold mb-6 text-[#111111]">Send Us a Message</h3>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
@@ -121,7 +121,7 @@ const ContactUs = () => {
                   required
                   rows="5"
                   className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg px-4 py-3 focus:bg-white focus:border-[#FFEA00] outline-none transition-all font-medium placeholder-gray-400 resize-none"
-                  placeholder="Tell us how we can help..."
+                  placeholder="Tell us how we can help you..."
                 ></textarea>
               </div>
 
@@ -179,7 +179,7 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-lg mb-1">Phone Number</h4>
-                    <p className="text-gray-400 text-sm mb-1">Mon-Sat from 10am to 7pm</p>
+                    <p className="text-gray-400 text-sm mb-1">Mon–Sat, 10 AM – 7 PM</p>
                     <a href="tel:+919944940051" className="text-white font-bold hover:text-[#FFEA00] transition-colors">
                       +91 99449 40051
                     </a>
@@ -210,7 +210,7 @@ const ContactUs = () => {
                  rel="noopener noreferrer"
                  className="flex items-center gap-3 text-[#FFEA00] font-bold uppercase text-sm tracking-wider hover:text-white transition-colors"
                >
-                 Chat on WhatsApp <FaArrowRight />
+                 Chat With Us on WhatsApp <FaArrowRight />
                </a>
             </div>
 

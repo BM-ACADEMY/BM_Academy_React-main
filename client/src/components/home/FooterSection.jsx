@@ -10,13 +10,29 @@ import {
   FaYoutube
 } from "react-icons/fa";
 import { HiArrowRight } from "react-icons/hi2";
-import Logo from "../../assets/img/Bm Academy logo .png";
+import Logo from "../../assets/img/BM_ACADEMY1.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
+  // Social Media Data Configuration
+  const socialLinks = [
+    {
+      icon: FaFacebookF,
+      link: "https://www.facebook.com/people/BM-Academy/61566753898165/"
+    },
+
+    {
+      icon: FaLinkedinIn,
+      link: "https://www.linkedin.com/company/bm-academypondy/about/?viewAsMember=true"
+    },
+    {
+      icon: FaYoutube,
+      link: "https://www.youtube.com/@bmacademypondy"
+    }
+  ];
+
   return (
-    // REMOVED: 'border-t-4 border-[#FFEA00]' class
     <footer className="bg-[#050505] text-white pt-16 pb-8 font-sans relative overflow-hidden">
 
       {/* Decorative Yellow Glow */}
@@ -40,10 +56,12 @@ const Footer = () => {
             </p>
 
             <div className="flex gap-4">
-              {[FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube].map((Icon, idx) => (
+              {socialLinks.map(({ icon: Icon, link }, idx) => (
                 <a
                   key={idx}
-                  href="#"
+                  href={link}
+                  target={link !== "#" ? "_blank" : "_self"}
+                  rel="noopener noreferrer"
                   className="w-10 h-10 rounded bg-gray-900 flex items-center justify-center text-gray-400 hover:bg-[#FFEA00] hover:text-black transition-all duration-300"
                 >
                   <Icon size={18} />
@@ -128,14 +146,15 @@ const Footer = () => {
                 <div className="text-[#FFEA00]">
                   <FaEnvelope size={18} />
                 </div>
-                <a href="mailto:info@bmacademy.in" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  info@bmacademy.in
+                <a href="mailto:admin@abmgroups.org" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  admin@abmgroups.org
                 </a>
               </li>
 
               <li className="pt-2">
                 <a
-                  href="https://wa.me/919944940051"
+                  /* Updated link with auto-filled message */
+                  href="https://wa.me/919944940051?text=Hi%20BM%20Academy,%20I%20am%20interested%20in%20courses%20and%20scholarships.%20Please%20share%20details."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2 bg-green-600 text-white text-sm font-bold rounded-full hover:bg-green-500 transition-colors shadow-lg"
@@ -150,24 +169,23 @@ const Footer = () => {
         </div>
 
         {/* --- FOOTER BOTTOM --- */}
-<div className="border-t border-gray-800 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
-  <p>
-    © {currentYear}{" "}
-    <a
-      href="https://bmtechx.in/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="hover:text-[#FFEA00] transition-colors font-medium"
-    >
-      BMTECHX
-    </a>
-    . All Rights Reserved.
-  </p>
+        <div className="border-t border-gray-800 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+          <p>
+            © {currentYear}{" "}
+            <a
+              href="https://bmtechx.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#FFEA00] transition-colors font-medium"
+            >
+              BMTECHX
+            </a>
+            . All Rights Reserved.
+          </p>
           <div className="flex gap-6 mt-4 md:mt-0">
              <span className="hover:text-white cursor-pointer transition-colors">Privacy Policy</span>
              <span className="hover:text-white cursor-pointer transition-colors">Terms of Service</span>
           </div>
-
         </div>
       </div>
     </footer>
