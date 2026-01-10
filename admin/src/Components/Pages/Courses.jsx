@@ -123,7 +123,7 @@ export default function Courses() {
       const formData = new FormData();
 
       // Basic Fields
-      formData.append("sub_category", subCategoryId);
+      formData.append("sub_category_id", subCategoryId);
       formData.append("title", title.trim());
       formData.append("description", description.trim());
       formData.append("duration", duration.trim());
