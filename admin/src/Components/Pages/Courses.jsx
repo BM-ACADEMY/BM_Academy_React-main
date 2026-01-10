@@ -41,7 +41,7 @@ export default function Courses() {
   const [image, setImage] = useState(null);
   const [mode, setMode] = useState([]);
 
-  // ✅ Modules State (Start with one empty string so input shows)
+  // ✅ Initialize with one empty string so the input box appears
   const [modules, setModules] = useState([""]);
 
   /* ---------------- FETCH ---------------- */
@@ -50,7 +50,8 @@ export default function Courses() {
       setLoading(true);
       const res = await authFetch(COURSE_API);
       const data = await res.json();
-      setCourses(Array.isArray(data) ? data : []);
+      const items = Array.isArray(data) ? data : (data.data || []);
+      setCourses(items);
     } catch {
       toast.error("Failed to load courses");
     } finally {
@@ -62,8 +63,8 @@ export default function Courses() {
     try {
       const res = await authFetch(SUB_CATEGORY_API);
       const data = await res.json();
-      // Handle various response structures
-      const items = Array.isArray(data) ? data : (data.data || []);
+      // Handle different API response structures
+      const items = Array.isArray(data) ? data : (data.data || data.results || []);
       setSubCategories(items);
     } catch {
       toast.error("Failed to load sub categories");
@@ -78,6 +79,15 @@ export default function Courses() {
   }, [activeView]);
 
   /* ---------------- HELPERS ---------------- */
+  // Safe ID Extractor
+  const getSafeId = (item) => {
+      if (!item) return null;
+      if (typeof item !== 'object') return item;
+      return item.id || item._id || item.pk || item.uid;
+  };
+
+  const usedSubCategoryIds = courses.map(c => getSafeId(c.sub_category)).filter(Boolean);
+
   const toggleMode = (value) => {
     setMode((prev) =>
       prev.includes(value)
@@ -86,16 +96,21 @@ export default function Courses() {
     );
   };
 
-  const addModule = () => setModules((prev) => [...prev, ""]);
+  // ✅ FIXED: Module State Helpers
+  const addModule = () => {
+    setModules([...modules, ""]);
+  };
 
-  const removeModule = (index) => setModules((prev) => prev.filter((_, i) => i !== index));
+  const removeModule = (index) => {
+    const newModules = [...modules];
+    newModules.splice(index, 1);
+    setModules(newModules);
+  };
 
   const updateModule = (index, value) => {
-    setModules((prev) => {
-      const copy = [...prev];
-      copy[index] = value;
-      return copy;
-    });
+    const newModules = [...modules];
+    newModules[index] = value;
+    setModules(newModules);
   };
 
   const resetForm = () => {
@@ -104,12 +119,12 @@ export default function Courses() {
     setDescription("");
     setDuration("");
     setMode([]);
-    setModules([""]); // Reset to one empty input
+    setModules([""]); // Always reset to one empty input
     setImage(null);
     setEditingId(null);
   };
 
-  /* ---------------- SUBMIT (FIXED MODULES) ---------------- */
+  /* ---------------- SUBMIT (FIXED FOR MODULES) ---------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -123,22 +138,25 @@ export default function Courses() {
       const formData = new FormData();
 
       // Basic Fields
-      formData.append("sub_category_id", subCategoryId);
+      formData.append("sub_category", String(subCategoryId));
       formData.append("title", title.trim());
       formData.append("description", description.trim());
       formData.append("duration", duration.trim());
 
       mode.forEach((m) => formData.append("mode", m));
 
-      // ✅ FIX: Robust Module Appending
-      // 1. Convert to string, 2. Trim whitespace, 3. Filter out empty lines
-      const cleanModules = modules
+      // ✅ FIXED: Module Logic
+      // 1. Filter out completely empty strings to avoid sending blank data
+      // 2. Trim whitespace
+      // 3. Append with key "modules" (Standard Django)
+      const validModules = modules
         .map(m => String(m).trim())
-        .filter(m => m !== "");
+        .filter(m => m.length > 0);
 
-      console.log("Sending Modules:", cleanModules); // 🔍 Debug: Check Console
+      // Debug: Check console to ensure modules are captured
+      console.log("Submitting Modules:", validModules);
 
-      cleanModules.forEach((m) => {
+      validModules.forEach((m) => {
           formData.append("modules", m);
       });
 
@@ -167,7 +185,7 @@ export default function Courses() {
       try {
           const parsed = JSON.parse(err.message);
           if (parsed.sub_category) msg = `Sub-Category: ${parsed.sub_category[0]}`;
-          else if (parsed.modules) msg = `Modules: ${parsed.modules[0]}`; // Catch module errors
+          else if (parsed.modules) msg = `Modules: ${parsed.modules[0]}`;
           else if (parsed.detail) msg = parsed.detail;
       } catch (e) {
           msg = err.message;
@@ -178,28 +196,20 @@ export default function Courses() {
     }
   };
 
-  /* ---------------- EDIT (FIXED MODULES) ---------------- */
+  /* ---------------- EDIT ---------------- */
   const handleEdit = (c) => {
-    // Handle IDs
-    setEditingId(c.id || c._id);
-
-    // Handle SubCategory (Object vs ID)
-    let scId = "";
-    if (c.sub_category) {
-        scId = (typeof c.sub_category === 'object') ? (c.sub_category.id || c.sub_category._id) : c.sub_category;
-    }
-    setSubCategoryId(scId || "");
-
+    setEditingId(getSafeId(c));
+    setSubCategoryId(getSafeId(c.sub_category) || "");
     setTitle(c.title || "");
     setDescription(c.description || "");
     setDuration(c.duration || "");
     setMode(c.mode || []);
 
-    // ✅ FIX: Ensure modules are always Strings for the input fields
+    // ✅ FIXED: Safely load existing modules
     let safeModules = [""];
     if (Array.isArray(c.modules) && c.modules.length > 0) {
         safeModules = c.modules.map(m => {
-            // If backend sends [{title: "A"}], extract "A". If ["A"], keep "A".
+            // If it's an object {title: "A"}, get "A". If string "A", get "A".
             if (typeof m === 'object' && m !== null) {
                 return m.title || m.name || JSON.stringify(m);
             }
@@ -290,7 +300,7 @@ export default function Courses() {
                             <tr><td colSpan="5" className="text-center py-10 text-gray-400">No courses found. Create one above.</td></tr>
                         ) : (
                             courses.map((c) => (
-                            <tr key={c.id || c._id} className="hover:bg-gray-50/50 transition-colors group">
+                            <tr key={getSafeId(c)} className="hover:bg-gray-50/50 transition-colors group">
                                 <td className="px-6 py-4 font-bold text-gray-900">{c.title}</td>
                                 <td className="px-6 py-4 text-gray-600">
                                     <span className="text-xs font-bold text-gray-400 uppercase mr-1">{c.category?.name || "N/A"}</span>
@@ -312,7 +322,7 @@ export default function Courses() {
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button onClick={() => handleEdit(c)} className="p-2 text-gray-400 hover:text-black hover:bg-gray-100 rounded transition-colors" title="Edit"><FaEdit /></button>
-                                        <button onClick={() => handleDelete(c.id || c._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete"><FaTrash /></button>
+                                        <button onClick={() => handleDelete(getSafeId(c))} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete"><FaTrash /></button>
                                     </div>
                                 </td>
                             </tr>
@@ -337,7 +347,7 @@ export default function Courses() {
             <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[80vh] overflow-y-auto">
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Sub-Category Dropdown */}
+                  {/* Dropdown */}
                   <div className="space-y-1 md:col-span-2">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Select Program (Sub-Category)</label>
                     <select
@@ -347,22 +357,14 @@ export default function Courses() {
                     >
                         <option value="">-- Choose Sub-Category --</option>
                         {subCategories.map((s) => {
-                            const sId = s.id || s._id || s.uid;
-                            const currentSubCatId = editingId
-                                ? (courses.find(c => (c.id || c._id) === editingId)?.sub_category?.id || courses.find(c => (c.id || c._id) === editingId)?.sub_category)
-                                : null;
-                            const used = courses.some(c => (c.sub_category?.id === sId || c.sub_category === sId)) && String(sId) !== String(currentSubCatId);
-
-                            return (
-                                <option key={sId} value={sId} disabled={used}>
-                                    {s.category_name ? `${s.category_name} / ` : ""}{s.name} {used ? "(Linked)" : ""}
-                                </option>
-                            );
+                            const sId = getSafeId(s);
+                            const currentSubCatId = editingId ? getSafeId(courses.find(c => getSafeId(c) === editingId)?.sub_category) : null;
+                            const used = usedSubCategoryIds.includes(sId) && String(sId) !== String(currentSubCatId);
+                            return <option key={sId} value={sId} disabled={used}>{s.category_name ? `${s.category_name} / ` : ""}{s.name} {used ? "(Linked)" : ""}</option>;
                         })}
                     </select>
                   </div>
 
-                  {/* Title & Duration */}
                   <div className="space-y-1 md:col-span-2">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Course Title</label>
                     <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" />
@@ -383,13 +385,12 @@ export default function Courses() {
                   </div>
               </div>
 
-              {/* Description */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Description</label>
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="3" className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none resize-none" />
               </div>
 
-              {/* Syllabus Builder (Inputs Fixed) */}
+              {/* ✅ FIXED: Modules Inputs */}
               <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <div className="flex justify-between items-center"><label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Syllabus Modules</label><button type="button" onClick={addModule} className="text-xs font-bold text-blue-600 hover:underline">+ Add Module</button></div>
                 {modules.map((m, index) => (
@@ -406,7 +407,6 @@ export default function Courses() {
                 ))}
               </div>
 
-              {/* Image Upload */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Cover Image</label>
                 <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-gray-400 transition-colors cursor-pointer relative bg-gray-50">
