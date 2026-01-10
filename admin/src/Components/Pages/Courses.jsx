@@ -1,784 +1,412 @@
-// import React, { useState, useEffect } from "react";
-// import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-// import { useAuthFetch } from "../../utils/authFetch";
-
-// const apiUrl = `${import.meta.env.VITE_BASE_URI.replace(/\/$/, "")}/courses/`;
-
-// export default function Courses() {
-//   const authFetch = useAuthFetch();
-//   const [courses, setCourses] = useState([]);
-//   const [loadingCourses, setLoadingCourses] = useState(true);
-//   const [saving, setSaving] = useState(false);
-
-//   const [title, setTitle] = useState("");
-//   const [description, setDescription] = useState("");
-//   const [price, setPrice] = useState("");
-//   const [mode, setMode] = useState("Online");
-//   const [duration, setDuration] = useState("Short-term");
-//   const [enrolledStatus, setEnrolledStatus] = useState("Open");
-//   const [progress, setProgress] = useState(0); // ✅ New progress field
-//   const [modules, setModules] = useState([]);
-//   const [newModule, setNewModule] = useState("");
-//   const [imageFile, setImageFile] = useState(null);
-//   const [imagePreview, setImagePreview] = useState(null);
-//   const [editingId, setEditingId] = useState(null);
-
-//   // ------------------ Fetch Courses ------------------
-//   const fetchCourses = async () => {
-//     try {
-//       setLoadingCourses(true);
-//       const res = await authFetch(apiUrl);
-//       const data = await res.json();
-//       setCourses(data);
-//     } catch (err) {
-//       console.error("Error fetching courses:", err);
-//       alert("Error fetching courses! Check console.");
-//     } finally {
-//       setLoadingCourses(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchCourses();
-//   }, []);
-
-//   // ------------------ Reset Form ------------------
-//   const resetForm = () => {
-//     setTitle("");
-//     setDescription("");
-//     setPrice("");
-//     setMode("Online");
-//     setDuration("Short-term");
-//     setEnrolledStatus("Open");
-//     setProgress(0);
-//     setModules([]);
-//     setNewModule("");
-//     setImageFile(null);
-//     setImagePreview(null);
-//     setEditingId(null);
-//   };
-
-//   // ------------------ Modules ------------------
-//   const addModule = () => {
-//     if (newModule.trim()) {
-//       setModules([...modules, { id: Date.now().toString(), name: newModule.trim() }]);
-//       setNewModule("");
-//     }
-//   };
-//   const removeModule = (id) => setModules(modules.filter((m) => m.id !== id));
-//   const handleDragEnd = (result) => {
-//     if (!result.destination) return;
-//     const reordered = Array.from(modules);
-//     const [moved] = reordered.splice(result.source.index, 1);
-//     reordered.splice(result.destination.index, 0, moved);
-//     setModules(reordered);
-//   };
-
-//   // ------------------ Submit Form ------------------
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setSaving(true);
-
-//     try {
-//       const formData = new FormData();
-//       formData.append("title", title);
-//       formData.append("description", description);
-//       formData.append("price", price);
-//       formData.append("mode", mode);
-//       formData.append("duration", duration);
-//       formData.append("enrolled_status", enrolledStatus);
-//       formData.append("progress", progress); // ✅ Include progress
-//       if (imageFile) formData.append("image", imageFile);
-//       modules.forEach((m) => formData.append("modules", m.name));
-
-//       const url = editingId ? `${apiUrl}${editingId}/` : apiUrl;
-//       const method = editingId ? "PUT" : "POST";
-
-//       const res = await authFetch(url, { method, body: formData });
-//       if (!res.ok) {
-//         const data = await res.json();
-//         throw new Error(data.detail || "Failed to save course");
-//       }
-
-//       alert(editingId ? "Course updated successfully!" : "Course added successfully!");
-//       resetForm();
-//       fetchCourses();
-//     } catch (err) {
-//       console.error("Error saving course:", err);
-//       alert("Error saving course! Check console.");
-//     } finally {
-//       setSaving(false);
-//     }
-//   };
-
-//   // ------------------ Edit & Delete ------------------
-//   const handleEdit = (course) => {
-//     const id = course._id?.$oid || course.id;
-//     setEditingId(id);
-//     setTitle(course.title);
-//     setDescription(course.description);
-//     setPrice(course.price);
-//     setMode(course.mode);
-//     setDuration(course.duration);
-//     setEnrolledStatus(course.enrolled_status);
-//     setProgress(course.progress || 0); // ✅ Load progress
-//     setModules((course.modules || []).map((m, i) => ({ id: `${i}-${m}`, name: m })));
-//     setImagePreview(course.image_url || null);
-//     setImageFile(null);
-//   };
-
-//   const handleDelete = async (course) => {
-//     const id = course._id?.$oid || course.id;
-//     if (!window.confirm("Are you sure you want to delete this course?")) return;
-//     try {
-//       const res = await authFetch(`${apiUrl}${id}/`, { method: "DELETE" });
-//       if (!res.ok) {
-//         const data = await res.json();
-//         throw new Error(data.detail || "Failed to delete course");
-//       }
-//       alert("Course deleted successfully!");
-//       fetchCourses();
-//     } catch (err) {
-//       console.error("Error deleting course:", err);
-//       alert("Error deleting course! Check console.");
-//     }
-//   };
-
-//   // ------------------ Render ------------------
-//   return (
-//     <div className="max-w-6xl mx-auto p-6">
-//       <h1 className="text-3xl font-bold mb-6 text-center">{editingId ? "Edit Course" : "Add Course"}</h1>
-
-//       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white shadow-lg rounded-lg p-6 mb-8">
-//         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" required className="border p-2 rounded col-span-2" />
-//         <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="border p-2 rounded col-span-2" rows={3} />
-//         <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" required className="border p-2 rounded" />
-//         <select value={mode} onChange={(e) => setMode(e.target.value)} className="border p-2 rounded">
-//           <option value="Online">Online</option>
-//           <option value="Offline">Offline</option>
-//         </select>
-//         <select value={duration} onChange={(e) => setDuration(e.target.value)} className="border p-2 rounded">
-//           <option value="Short-term">Short-term</option>
-//           <option value="Long-term">Long-term</option>
-//         </select>
-//         <select value={enrolledStatus} onChange={(e) => setEnrolledStatus(e.target.value)} className="border p-2 rounded">
-//           <option value="Open">Open</option>
-//           <option value="Closed">Closed</option>
-//           <option value="Ongoing">Ongoing</option>
-//         </select>
-
-//         {/* Progress input */}
-//         <input
-//           type="number"
-//           min="0"
-//           max="100"
-//           value={progress}
-//           onChange={(e) => setProgress(e.target.value)}
-//           placeholder="Progress %"
-//           className="border p-2 rounded"
-//         />
-
-//         {/* Image Upload */}
-//         <div className="col-span-2">
-//           <input type="file" onChange={(e) => {
-//             const file = e.target.files[0];
-//             setImageFile(file);
-//             if (file) {
-//               const reader = new FileReader();
-//               reader.onloadend = () => setImagePreview(reader.result);
-//               reader.readAsDataURL(file);
-//             } else setImagePreview(null);
-//           }} className="border p-2 rounded w-full" />
-//           {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 w-40 h-40 object-cover rounded shadow" />}
-//         </div>
-
-//         {/* Modules */}
-//         <div className="col-span-2">
-//           <div className="flex gap-2">
-//             <input value={newModule} onChange={(e) => setNewModule(e.target.value)}
-//               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addModule())}
-//               onBlur={() => newModule.trim() && addModule()}
-//               placeholder="Add module" className="border p-2 rounded flex-1" />
-//             <button type="button" onClick={addModule} className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">+</button>
-//           </div>
-
-//           <DragDropContext onDragEnd={handleDragEnd}>
-//             <Droppable droppableId="modules">
-//               {(provided) => (
-//                 <div {...provided.droppableProps} ref={provided.innerRef} className="mt-3 flex flex-col gap-2">
-//                   {modules.map((mod, i) => (
-//                     <Draggable key={mod.id} draggableId={mod.id} index={i}>
-//                       {(provided) => (
-//                         <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="bg-gray-100 px-3 py-2 rounded flex justify-between items-center shadow-sm">
-//                           <span>{mod.name}</span>
-//                           <button type="button" onClick={() => removeModule(mod.id)} className="text-red-500 font-bold hover:text-red-700">×</button>
-//                         </div>
-//                       )}
-//                     </Draggable>
-//                   ))}
-//                   {provided.placeholder}
-//                 </div>
-//               )}
-//             </Droppable>
-//           </DragDropContext>
-//         </div>
-
-//         <button type="submit" disabled={saving} className={`col-span-2 ${saving ? "bg-gray-400" : "bg-green-600"} text-white py-2 rounded hover:bg-green-700 transition`}>
-//           {saving ? "Saving..." : editingId ? "Update Course" : "Add Course"}
-//         </button>
-//       </form>
-
-//       <h2 className="text-2xl font-bold mb-4">Courses</h2>
-//       {loadingCourses ? (
-//         <p>Loading courses...</p>
-//       ) : (
-//         <ul className="space-y-4">
-//           {courses.map((course) => {
-//             const courseId = course._id?.$oid || course.id;
-//             return (
-//               <li key={courseId} className="bg-white shadow-md p-4 rounded-lg flex flex-col md:flex-row md:justify-between md:items-center">
-//                 <div className="flex-1">
-//                   <h3 className="text-lg font-semibold">{course.title}</h3>
-//                   <p className="text-sm text-gray-700">{course.description}</p>
-//                   <p className="text-sm">Price: {course.price}</p>
-//                   <p className="text-sm">Mode: {course.mode}</p>
-//                   <p className="text-sm">Duration: {course.duration}</p>
-//                   <p className="text-sm">Status: {course.enrolled_status}</p>
-//                   <p className="text-sm">Modules: {(course.modules || []).join(", ")}</p>
-
-//                   {/* ✅ Progress Bar */}
-//                   <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
-//                     <div
-//                       className={`h-3 rounded-full ${course.progress >= 100 ? "bg-green-500" : "bg-blue-500"}`}
-//                       style={{ width: `${course.progress || 0}%` }}
-//                     ></div>
-//                   </div>
-//                   <p className="text-sm text-gray-500 mt-1">{course.progress || 0}% completed</p>
-//                 </div>
-
-//                 {course.image_url && <img src={course.image_url} width="120" alt={course.title} className="mt-2 md:mt-0 rounded" />}
-//                 <div className="mt-2 flex gap-2 md:mt-0">
-//                   <button onClick={() => handleEdit(course)} className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition">Edit</button>
-//                   <button onClick={() => handleDelete(course)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
-//                 </div>
-//               </li>
-//             );
-//           })}
-//         </ul>
-//       )}
-//     </div>
-//   );
-// }
-
-
-import React, { useState, useEffect } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { useAuthFetch } from "../../utils/authFetch";
-// 1. Import Toastify
+import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-// Import Icons
 import {
   FaPlus,
   FaTimes,
   FaEdit,
   FaTrash,
-  FaChevronDown,
-  FaChevronUp,
-  FaGripVertical,
   FaImage,
-  FaLayerGroup
+  FaLayerGroup,
+  FaListAlt,
+  FaBook,
+  FaLaptop
 } from "react-icons/fa";
 
-const apiUrl = `${import.meta.env.VITE_BASE_URI.replace(/\/$/, "")}/courses/`;
+import { useAuthFetch } from "../../utils/authFetch";
+import Categories from "./Categories";
+import SubCategories from "./SubCategories";
 
-// ✅ SAFE DISPLAY HELPER
-const toText = (value) => {
-  if (Array.isArray(value)) return value.join(", ");
-  if (typeof value === "string") return value;
-  return "-";
-};
+const BASE = import.meta.env.VITE_BASE_URI.replace(/\/$/, "");
+const COURSE_API = `${BASE}/courses/`;
+const SUB_CATEGORY_API = `${BASE}/sub-categories/`;
 
-export default function CoursesTableLayout() {
+export default function Courses() {
   const authFetch = useAuthFetch();
 
-  // --- STATE ---
+  const [activeView, setActiveView] = useState("courses");
   const [courses, setCourses] = useState([]);
-  const [loadingCourses, setLoadingCourses] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [subCategories, setSubCategories] = useState([]);
 
-  // Form State
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [mode, setMode] = useState([]);
-  const [duration, setDuration] = useState([]);
-  const [enrolledStatus, setEnrolledStatus] = useState("Open");
-  const [progress, setProgress] = useState(0);
-  const [modules, setModules] = useState([]);
-  const [newModule, setNewModule] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  // Accordion State
-  const [activeSection, setActiveSection] = useState("basic");
+  // Form Fields
+  const [subCategoryId, setSubCategoryId] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [duration, setDuration] = useState("");
+  const [image, setImage] = useState(null);
+  const [mode, setMode] = useState([]);
+  const [modules, setModules] = useState([""]);
 
-  // ------------------ FETCH ------------------
+  /* ---------------- FETCH ---------------- */
   const fetchCourses = async () => {
     try {
-      setLoadingCourses(true);
-      const res = await authFetch(apiUrl);
+      setLoading(true);
+      const res = await authFetch(COURSE_API);
       const data = await res.json();
       setCourses(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Failed to load courses");
     } finally {
-      setLoadingCourses(false);
+      setLoading(false);
+    }
+  };
+
+  const fetchSubCategories = async () => {
+    try {
+      const res = await authFetch(SUB_CATEGORY_API);
+      const data = await res.json();
+      setSubCategories(Array.isArray(data) ? data : []);
+    } catch {
+      toast.error("Failed to load sub categories");
     }
   };
 
   useEffect(() => {
-    fetchCourses();
-  }, []);
+    if (activeView === 'courses') {
+        fetchCourses();
+        fetchSubCategories();
+    }
+  }, [activeView]);
 
-  // ------------------ RESET ------------------
+  /* ---------------- HELPERS ---------------- */
+  const usedSubCategoryIds = courses
+    .map((c) => c.sub_category?.id)
+    .filter(Boolean);
+
+  const toggleMode = (value) => {
+    setMode((prev) =>
+      prev.includes(value)
+        ? prev.filter((v) => v !== value)
+        : [...prev, value]
+    );
+  };
+
+  const addModule = () => setModules((prev) => [...prev, ""]);
+
+  const removeModule = (index) => setModules((prev) => prev.filter((_, i) => i !== index));
+
+  const updateModule = (index, value) => {
+    setModules((prev) => {
+      const copy = [...prev];
+      copy[index] = value;
+      return copy;
+    });
+  };
+
   const resetForm = () => {
+    setSubCategoryId("");
     setTitle("");
     setDescription("");
-    setPrice("");
+    setDuration("");
     setMode([]);
-    setDuration([]);
-    setEnrolledStatus("Open");
-    setProgress(0);
-    setModules([]);
-    setNewModule("");
-    setImageFile(null);
-    setImagePreview(null);
+    setModules([""]);
+    setImage(null);
     setEditingId(null);
-    setActiveSection("basic");
   };
 
-  const openModal = (course = null) => {
-    if (course) {
-      // Edit Mode
-      const id = course._id?.$oid || course.id;
-      setEditingId(id);
-      setTitle(course.title);
-      setDescription(course.description);
-      setPrice(course.price);
-      setMode(Array.isArray(course.mode) ? course.mode : [course.mode]);
-      setDuration(Array.isArray(course.duration) ? course.duration : [course.duration]);
-      setEnrolledStatus(course.enrolled_status || "Open");
-      setProgress(course.progress || 0);
-      setModules((course.modules || []).map((m, i) => ({ id: `${i}-${Date.now()}`, name: m })));
-      setImagePreview(course.image_url || null);
-    } else {
-      // Create Mode
-      resetForm();
-    }
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    resetForm();
-  };
-
-  // ------------------ HANDLERS ------------------
-  const addModule = (e) => {
-    e?.preventDefault();
-    if (!newModule.trim()) return;
-    setModules([...modules, { id: Date.now().toString(), name: newModule.trim() }]);
-    setNewModule("");
-  };
-
-  const removeModule = (id) =>
-    setModules(modules.filter((m) => m.id !== id));
-
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-    const items = Array.from(modules);
-    const [moved] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, moved);
-    setModules(items);
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const toggleSelection = (list, setList, item) => {
-    if (list.includes(item)) setList(list.filter((x) => x !== item));
-    else setList([...list, item]);
-  };
-
-  // ------------------ SUBMIT ------------------
+  /* ---------------- SUBMIT (FIXED) ---------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSaving(true);
+
+    if (!subCategoryId || !title || !duration || mode.length === 0) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    // Safety Check: Allow duplicate sub-category ONLY if editing the same course
+    const existing = courses.find((c) => c.sub_category?.id === subCategoryId);
+    if (existing && existing.id !== editingId) {
+        toast.error("This sub-category already has a course assigned.");
+        return;
+    }
+
     try {
+      setSaving(true);
       const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("price", price);
-      formData.append("enrolled_status", enrolledStatus);
-      formData.append("progress", progress);
+
+      // ✅ FIX: Use 'sub_category' key (Backend expects this, not sub_category_id)
+      formData.append("sub_category", subCategoryId);
+
+      formData.append("title", title.trim());
+      formData.append("description", description.trim());
+      formData.append("duration", duration.trim());
 
       mode.forEach((m) => formData.append("mode", m));
-      duration.forEach((d) => formData.append("duration", d));
-      modules.forEach((m) => formData.append("modules", m.name));
-      if (imageFile) formData.append("image", imageFile);
 
-      const url = editingId ? `${apiUrl}${editingId}/` : apiUrl;
+      // Handle Modules
+      modules
+        .map((m) => typeof m === 'string' ? m.trim() : "")
+        .filter(Boolean)
+        .forEach((m) => formData.append("modules[]", m));
+
+      if (image) formData.append("image", image);
+
+      const url = editingId ? `${COURSE_API}${editingId}/` : COURSE_API;
+      // ✅ Use PUT for full update (matches your backend logs)
       const method = editingId ? "PUT" : "POST";
 
-      const res = await authFetch(url, { method, body: formData });
-      if (!res.ok) throw new Error("Save failed");
+      const res = await authFetch(url, {
+        method: method,
+        body: formData,
+      });
 
-      // Success Notification
-      toast.success(editingId ? "Course updated successfully!" : "New course created!");
+      if (!res.ok) {
+        const errData = await res.json();
+        console.error("Backend Error:", errData); // Check console for details
+        throw errData;
+      }
 
-      closeModal();
+      toast.success(editingId ? "Course updated" : "Course created");
+      resetForm();
+      setShowModal(false);
       fetchCourses();
     } catch (err) {
-      console.error(err);
-      toast.error("Error saving course. Please try again.");
+      // Show specific backend error if available
+      const msg = err?.sub_category?.[0] || err?.detail || "Operation failed";
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (course) => {
-    const id = course._id?.$oid || course.id;
-    if (!window.confirm(`Are you sure you want to delete "${course.title}"?`)) return;
+  /* ---------------- EDIT (ROBUST) ---------------- */
+  const handleEdit = (c) => {
+    setEditingId(c.id);
 
+    // ✅ Extract ID safely (handles both Object and String)
+    const scId = c.sub_category?.id || c.sub_category || "";
+    setSubCategoryId(scId);
+
+    setTitle(c.title || "");
+    setDescription(c.description || "");
+    setDuration(c.duration || "");
+    setMode(c.mode || []);
+
+    // ✅ Convert Modules to simple strings (prevents [object Object] error)
+    let safeModules = [""];
+    if (Array.isArray(c.modules) && c.modules.length > 0) {
+        safeModules = c.modules.map(m => {
+            if (typeof m === 'object' && m !== null) {
+                return m.title || m.name || JSON.stringify(m);
+            }
+            return m;
+        });
+    }
+    setModules(safeModules);
+
+    setImage(null);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this course?")) return;
     try {
-      await authFetch(`${apiUrl}${id}/`, { method: "DELETE" });
-      toast.success("Course deleted successfully");
+      const res = await authFetch(`${COURSE_API}${id}/`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      toast.success("Course deleted");
       fetchCourses();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete course");
     }
   };
 
-  // --- STYLES HELPER ---
-  const inputClass = "w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 transition-colors outline-none";
-  const labelClass = "block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2";
-
-  // ------------------ UI ------------------
+  /* ---------------- UI ---------------- */
   return (
-    <div className="space-y-6 relative">
-
-      {/* 2. Toast Container */}
+    <div className="space-y-8 min-h-screen bg-gray-50 pb-10">
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Courses Directory</h2>
-          <p className="text-slate-500 text-sm mt-1">Manage All Educational Programs From One Place.</p>
+      {/* --- TOP NAVIGATION TABS --- */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-20 px-6 pt-4">
+        <div className="flex gap-8">
+            {[
+                { id: "categories", label: "1. Categories", icon: FaLayerGroup },
+                { id: "subcategories", label: "2. Sub-Categories", icon: FaListAlt },
+                { id: "courses", label: "3. Courses", icon: FaBook }
+            ].map((tab) => (
+            <button
+                key={tab.id}
+                onClick={() => setActiveView(tab.id)}
+                className={`pb-4 text-sm font-bold uppercase tracking-wide transition-all border-b-4 flex items-center gap-2 ${
+                activeView === tab.id
+                ? "border-[#FFEA00] text-black"
+                : "border-transparent text-gray-400 hover:text-gray-600"
+                }`}
+            >
+                <tab.icon className={activeView === tab.id ? "text-black" : "text-gray-300"} />
+                {tab.label}
+            </button>
+            ))}
         </div>
-        <button
-          onClick={() => openModal()}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition flex items-center gap-2"
-        >
-          <FaPlus size={14} />
-          <span>Add Course</span>
-        </button>
       </div>
 
-      {/* Table Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-slate-500 uppercase font-semibold text-xs border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4">Title</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Price</th>
-                <th className="px-6 py-4">Mode / Duration</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {loadingCourses ? (
-                <tr><td colSpan="5" className="px-6 py-12 text-center text-slate-400">Loading data...</td></tr>
-              ) : courses.length === 0 ? (
-                <tr><td colSpan="5" className="px-6 py-12 text-center text-slate-400">No courses found.</td></tr>
-              ) : (
-                courses.map((course) => (
-                  <tr key={course._id?.$oid || course.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-lg bg-slate-100 flex-shrink-0 overflow-hidden border border-slate-200 flex items-center justify-center text-slate-300">
-                          {course.image_url ? (
-                            <img src={course.image_url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <FaImage size={20} />
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-bold text-slate-800 text-base">{course.title}</div>
-                          <div className="text-xs text-slate-500 truncate max-w-[200px]">{course.description}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                        course.enrolled_status === 'Open' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                        course.enrolled_status === 'Closed' ? 'bg-rose-50 text-rose-700 border-rose-200' :
-                        'bg-amber-50 text-amber-700 border-amber-200'
-                      }`}>
-                        {course.enrolled_status || 'Open'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-medium text-slate-700">
-                        {course.price ? `$${course.price}` : <span className="text-slate-400">Free</span>}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col gap-1 text-xs">
-                          <span className="flex items-center gap-1.5 text-slate-600">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                            {toText(course.mode)}
-                          </span>
-                          <span className="flex items-center gap-1.5 text-slate-500">
-                             <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                             {toText(course.duration)}
-                          </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                            onClick={() => openModal(course)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Edit"
-                        >
-                            <FaEdit />
-                        </button>
-                        <button
-                            onClick={() => handleDelete(course)}
-                            className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                            title="Delete"
-                        >
-                            <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* --- CONTENT CONTAINER --- */}
+      <div className="px-6 pt-6">
+
+        {/* VIEW 1: CATEGORIES */}
+        {activeView === "categories" && <Categories />}
+
+        {/* VIEW 2: SUB-CATEGORIES */}
+        {activeView === "subcategories" && <SubCategories />}
+
+        {/* VIEW 3: COURSES */}
+        {activeView === "courses" && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-gray-200 pb-6">
+                    <div>
+                        <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Course Management</h2>
+                        <p className="text-gray-500 text-sm mt-1">Create final courses under your sub-categories.</p>
+                    </div>
+                    <button
+                        onClick={() => { resetForm(); setShowModal(true); }}
+                        className="bg-black text-white px-6 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-gray-800 transition-colors flex items-center gap-2 shadow-lg shadow-gray-200"
+                    >
+                        <FaPlus size={12} /> Create Course
+                    </button>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                        <tr>
+                            <th className="px-6 py-4">Course Title</th>
+                            <th className="px-6 py-4">Path</th>
+                            <th className="px-6 py-4">Mode</th>
+                            <th className="px-6 py-4">Duration</th>
+                            <th className="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                        {loading ? (
+                            <tr><td colSpan="5" className="text-center py-10 text-gray-400">Loading courses...</td></tr>
+                        ) : courses.length === 0 ? (
+                            <tr><td colSpan="5" className="text-center py-10 text-gray-400">No courses found. Create one above.</td></tr>
+                        ) : (
+                            courses.map((c) => (
+                            <tr key={c.id} className="hover:bg-gray-50/50 transition-colors group">
+                                <td className="px-6 py-4 font-bold text-gray-900">{c.title}</td>
+                                <td className="px-6 py-4 text-gray-600">
+                                    <span className="text-xs font-bold text-gray-400 uppercase mr-1">{c.category?.name || "N/A"}</span>
+                                    <span className="text-gray-300 mx-1">/</span>
+                                    {c.sub_category?.name || "N/A"}
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="flex gap-1">
+                                        {Array.isArray(c.mode) && c.mode.map(m => (
+                                            <span key={m} className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${
+                                                m === 'Online' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-green-50 text-green-600 border-green-100'
+                                            }`}>
+                                                <FaLaptop size={8} /> {m}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 text-gray-600 font-medium">{c.duration}</td>
+                                <td className="px-6 py-4 text-right">
+                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => handleEdit(c)} className="p-2 text-gray-400 hover:text-black hover:bg-gray-100 rounded transition-colors" title="Edit"><FaEdit /></button>
+                                        <button onClick={() => handleDelete(c.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete"><FaTrash /></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        )}
       </div>
 
       {/* --- MODAL --- */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-
-            {/* Modal Header */}
-            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100">
-              <h2 className="text-lg font-bold text-slate-800">
-                {editingId ? "Edit Course Details" : "Create New Course"}
-              </h2>
-              <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 transition p-1 hover:bg-slate-100 rounded-full">
-                <FaTimes size={18} />
-              </button>
+      {activeView === "courses" && showModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center px-8 py-5 border-b border-gray-100 bg-gray-50/50">
+              <h3 className="font-bold text-lg text-gray-900">{editingId ? "Edit Course" : "Create Course"}</h3>
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-red-500 transition-colors"><FaTimes size={18} /></button>
             </div>
+            <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[80vh] overflow-y-auto">
 
-            {/* Modal Body (Scrollable) */}
-            <div className="overflow-y-auto p-6 space-y-4 flex-1 bg-slate-50/50">
-              <form id="courseForm" onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1 md:col-span-2">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Select Program (Sub-Category)</label>
+                    <select
+                        value={subCategoryId}
+                        onChange={(e) => setSubCategoryId(e.target.value)}
+                        className="w-full border border-gray-200 p-3 rounded-lg bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-black outline-none transition-all"
+                    >
+                        <option value="">-- Choose Sub-Category --</option>
+                        {subCategories.map((s) => {
+                            // Only disable if already used by ANOTHER course (not current one)
+                            const used = usedSubCategoryIds.includes(s.id) &&
+                                (!editingId || courses.find((c) => c.id === editingId)?.sub_category?.id !== s.id);
 
-                {/* 1. Basic Info Section */}
-                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                   <button
-                    type="button"
-                    onClick={() => setActiveSection(activeSection === 'basic' ? '' : 'basic')}
-                    className="w-full flex justify-between items-center p-4 bg-white hover:bg-slate-50 transition-colors font-semibold text-slate-700 text-sm"
-                   >
-                     <span className="flex items-center gap-2"><FaLayerGroup className="text-blue-500"/> Basic Information</span>
-                     {activeSection === 'basic' ? <FaChevronUp /> : <FaChevronDown />}
-                   </button>
+                            return (
+                                <option key={s.id} value={s.id} disabled={used}>
+                                    {s.category_name} / {s.name} {used ? "(Linked)" : ""}
+                                </option>
+                            );
+                        })}
+                    </select>
+                  </div>
 
-                   {activeSection === 'basic' && (
-                     <div className="p-4 pt-0 border-t border-slate-100 space-y-4 mt-2">
-                       <div>
-                         <label className={labelClass}>Course Title</label>
-                         <input required value={title} onChange={e => setTitle(e.target.value)} className={inputClass} placeholder="e.g. Masterclass in Design" />
-                       </div>
-                       <div>
-                         <label className={labelClass}>Description</label>
-                         <textarea rows="3" value={description} onChange={e => setDescription(e.target.value)} className={inputClass} placeholder="Brief summary..." />
-                       </div>
-                       <div className="grid grid-cols-2 gap-4">
-                         <div>
-                            <label className={labelClass}>Price ($)</label>
-                            <input type="number" value={price} onChange={e => setPrice(e.target.value)} className={inputClass} />
-                         </div>
-                         <div>
-                            <label className={labelClass}>Enrollment Status</label>
-                            <select value={enrolledStatus} onChange={e => setEnrolledStatus(e.target.value)} className={inputClass}>
-                              <option value="Open">Open</option>
-                              <option value="Closed">Closed</option>
-                              <option value="Coming Soon">Coming Soon</option>
-                            </select>
-                         </div>
-                       </div>
-                       {/* Image Upload */}
-                       <div>
-                          <label className={labelClass}>Course Image</label>
-                          <div className="flex items-center gap-4 mt-1">
-                            <div className="w-20 h-20 bg-slate-100 rounded-lg border border-slate-200 border-dashed flex items-center justify-center overflow-hidden">
-                              {imagePreview ? <img src={imagePreview} className="w-full h-full object-cover" /> : <FaImage className="text-slate-300" size={24} />}
-                            </div>
-                            <label className="cursor-pointer bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
-                                Upload Image
-                                <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                            </label>
-                          </div>
-                       </div>
-                     </div>
-                   )}
+                  <div className="space-y-1 md:col-span-2">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Course Title</label>
+                    <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Duration</label>
+                    <input value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none transition-all" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Mode</label>
+                    <div className="flex gap-2 h-[46px]">
+                        {["Online", "Offline"].map((m) => (
+                        <button type="button" key={m} onClick={() => toggleMode(m)} className={`flex-1 rounded-lg text-sm font-bold border transition-all ${mode.includes(m) ? "bg-black text-white border-black" : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"}`}>{m}</button>
+                        ))}
+                    </div>
+                  </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Description</label>
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="3" className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none resize-none" />
+              </div>
+
+              <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <div className="flex justify-between items-center"><label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Syllabus Modules</label><button type="button" onClick={addModule} className="text-xs font-bold text-blue-600 hover:underline">+ Add Module</button></div>
+                {modules.map((m, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <span className="text-xs font-bold text-gray-400 w-6 text-center">{index + 1}</span>
+                    <input value={m} onChange={(e) => updateModule(index, e.target.value)} className="flex-1 border border-gray-200 p-2 rounded focus:border-black outline-none text-sm" placeholder="Module Title" />
+                    {modules.length > 1 && <button type="button" onClick={() => removeModule(index)} className="p-2 text-gray-400 hover:text-red-500 transition-colors"><FaTimes size={12} /></button>}
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Cover Image</label>
+                <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-gray-400 transition-colors cursor-pointer relative bg-gray-50">
+                    <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    <FaImage className="mx-auto text-gray-300 mb-2" size={24} />
+                    <p className="text-sm text-gray-500 font-medium">{image ? image.name : "Click to upload course thumbnail"}</p>
                 </div>
+              </div>
 
-                {/* 2. Attributes Section */}
-                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                   <button
-                    type="button"
-                    onClick={() => setActiveSection(activeSection === 'settings' ? '' : 'settings')}
-                    className="w-full flex justify-between items-center p-4 bg-white hover:bg-slate-50 transition-colors font-semibold text-slate-700 text-sm"
-                   >
-                     <span className="flex items-center gap-2"><FaEdit className="text-purple-500"/> Settings & Attributes</span>
-                     {activeSection === 'settings' ? <FaChevronUp /> : <FaChevronDown />}
-                   </button>
-
-                   {activeSection === 'settings' && (
-                     <div className="p-4 pt-0 border-t border-slate-100 space-y-4 mt-2">
-                       <div>
-                          <label className={labelClass}>Mode</label>
-                          <div className="flex gap-2">
-                             {["Online", "Offline"].map(m => (
-                               <button key={m} type="button" onClick={() => toggleSelection(mode, setMode, m)}
-                                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                                    mode.includes(m)
-                                    ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200"
-                                    : "bg-white text-slate-600 border-slate-300 hover:border-slate-400"
-                                 }`}>
-                                 {m}
-                               </button>
-                             ))}
-                          </div>
-                       </div>
-                       <div>
-                          <label className={labelClass}>Duration</label>
-                          <div className="flex gap-2">
-                             {["Short-term", "Long-term"].map(d => (
-                               <button key={d} type="button" onClick={() => toggleSelection(duration, setDuration, d)}
-                                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                                    duration.includes(d)
-                                    ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-200"
-                                    : "bg-white text-slate-600 border-slate-300 hover:border-slate-400"
-                                 }`}>
-                                 {d}
-                               </button>
-                             ))}
-                          </div>
-                       </div>
-                       <div>
-                          <label className={labelClass}>Course Progress ({progress}%)</label>
-                          <input type="range" className="w-full mt-2 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" min="0" max="100" value={progress} onChange={e => setProgress(e.target.value)} />
-                       </div>
-                     </div>
-                   )}
-                </div>
-
-                {/* 3. Curriculum Section */}
-                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                   <button
-                    type="button"
-                    onClick={() => setActiveSection(activeSection === 'modules' ? '' : 'modules')}
-                    className="w-full flex justify-between items-center p-4 bg-white hover:bg-slate-50 transition-colors font-semibold text-slate-700 text-sm"
-                   >
-                     <div className="flex items-center gap-2">
-                        <span className="flex items-center gap-2"><FaLayerGroup className="text-emerald-500"/> Curriculum Modules</span>
-                        <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">{modules.length}</span>
-                     </div>
-                     {activeSection === 'modules' ? <FaChevronUp /> : <FaChevronDown />}
-                   </button>
-
-                   {activeSection === 'modules' && (
-                     <div className="p-4 pt-0 border-t border-slate-100 space-y-4 mt-2">
-                        <div className="flex gap-2">
-                          <input
-                            value={newModule}
-                            onChange={e => setNewModule(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && addModule(e)}
-                            placeholder="Type module name..."
-                            className={inputClass}
-                          />
-                          <button type="button" onClick={addModule} className="bg-slate-800 hover:bg-black text-white px-4 rounded-lg font-medium transition-colors">Add</button>
-                        </div>
-
-                        <DragDropContext onDragEnd={handleDragEnd}>
-                          <Droppable droppableId="modal-modules-list">
-                            {(provided) => (
-                              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
-                                {modules.map((m, index) => (
-                                  <Draggable key={m.id} draggableId={m.id} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div ref={provided.innerRef} {...provided.draggableProps}
-                                        className={`flex items-center justify-between p-3 rounded-lg border bg-white transition-shadow ${
-                                            snapshot.isDragging ? "shadow-lg border-blue-400 ring-1 ring-blue-100 z-50" : "border-slate-200"
-                                        }`}
-                                      >
-                                        <div className="flex items-center gap-3">
-                                          <div {...provided.dragHandleProps} className="text-slate-400 cursor-grab active:cursor-grabbing hover:text-slate-600">
-                                            <FaGripVertical />
-                                          </div>
-                                          <span className="text-sm font-medium text-slate-700">{m.name}</span>
-                                        </div>
-                                        <button type="button" onClick={() => removeModule(m.id)} className="text-slate-400 hover:text-rose-500 transition-colors">
-                                            <FaTrash size={14}/>
-                                        </button>
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
-                                {provided.placeholder}
-                              </div>
-                            )}
-                          </Droppable>
-                        </DragDropContext>
-                     </div>
-                   )}
-                </div>
-
-              </form>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-100 bg-white flex justify-end gap-3">
-              <button onClick={closeModal} className="px-5 py-2.5 text-slate-600 font-medium hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors text-sm">Cancel</button>
-              <button
-                onClick={handleSubmit}
-                disabled={saving}
-                className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-blue-200 text-sm"
-              >
-                {saving ? "Saving..." : editingId ? "Save Changes" : "Create Course"}
-              </button>
-            </div>
-
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <button type="button" onClick={() => setShowModal(false)} className="px-6 py-3 text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors">Cancel</button>
+                <button type="submit" disabled={saving} className="bg-[#FFEA00] text-black px-8 py-3 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-100">{saving ? "Saving..." : "Save Course"}</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

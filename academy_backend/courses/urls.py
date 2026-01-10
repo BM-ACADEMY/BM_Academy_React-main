@@ -1,30 +1,48 @@
-from django.urls import path, include
-from .views import CourseListCreateAPIView, CourseRetrieveUpdateDeleteView, CourseDetailAPIView, BannerListAPIView
-from .views import create_order, confirm_payment
-from . import views
 from django.urls import path
-from courses import views
+
+from .views import (
+    # Banners
+    # Category
+    CategoryListCreateAPIView,
+    CategoryDetailAPIView,
+    PublicCategoryListAPIView,
+    # SubCategory
+    SubCategoryListCreateAPIView,
+    SubCategoryDetailAPIView,
+    PublicSubCategoryListAPIView,
+    # Courses
+    CourseListCreateAPIView,
+    CourseDetailAPIView,
+    # Payments & Enrollment
+    create_order,
+    confirm_payment,
+    my_courses,
+    # Admin progress update
+    update_course_status,
+)
 
 urlpatterns = [
-    path('courses/', CourseListCreateAPIView.as_view(), name='api-course-list-create'),  # list endpoint
-    path('courses/<str:pk>/', CourseDetailAPIView.as_view(), name='api-course-detail'),  
-    path('banners/', BannerListAPIView.as_view(), name='banner-list'),
-    path("api/auth/", include("users.urls")),
-
-    # FIXED ROUTES
-    # courses/urls.py
-    path('courses/create_order/', create_order, name='create_order'),
-    path('courses/confirm_payment/', confirm_payment, name='confirm_payment'),
-    path('enroll-course/', views.enroll_course, name='enroll_course'),
-    path('my-courses/', views.my_courses, name='my_courses'),
-     # ✅ FIX: Add "courses/" prefix
-    path('courses/<str:course_id>/update-status/', views.update_course_status, name='update_course_status'),
+    # ------------------ Banner ------------------
+    # ------------------ Category ------------------
+    path("categories/", CategoryListCreateAPIView.as_view(), name="category-list-create"),
+    path("categories/<str:category_id>/", CategoryDetailAPIView.as_view()),
+    path("public/categories/", PublicCategoryListAPIView.as_view()),
+    # ------------------ SubCategory ------------------
+    path("sub-categories/", SubCategoryListCreateAPIView.as_view()),
+    path("sub-categories/<str:sub_category_id>/", SubCategoryDetailAPIView.as_view()),
+    path("public/sub-categories/", PublicSubCategoryListAPIView.as_view()),
+    # ------------------ Courses ------------------
+    path("courses/", CourseListCreateAPIView.as_view(), name="course-list-create"),
+    path("courses/<str:pk>/", CourseDetailAPIView.as_view(), name="course-detail"),
+    # ------------------ Payments ------------------
+    path("payments/create-order/", create_order, name="create-order"),
+    path("payments/confirm/", confirm_payment, name="confirm-payment"),
+    # ------------------ Enrollment ------------------
+    path("my-courses/", my_courses, name="my-courses"),
+    # ------------------ Admin / Progress ------------------
+    path(
+        "enrollments/<str:course_id>/status/",
+        update_course_status,
+        name="update-course-status",
+    ),
 ]
-
-
-
-
-
-
-
-

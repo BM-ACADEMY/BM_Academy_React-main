@@ -1,743 +1,790 @@
 from datetime import datetime, timedelta
+import os
+import razorpay
+from bson import ObjectId
+from rest_framework.permissions import AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.http import Http404
+from bson import ObjectId
+from django.conf import settings
+from django.http import Http404
+from django.core.files.storage import default_storage
 from django.utils.timezone import now
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.files.storage import default_storage
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Course
 from rest_framework.parsers import MultiPartParser, FormParser
-from django.http import Http404
-from django.conf import settings
-from django.core.files.storage import default_storage
-from datetime import datetime
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from .serializers import CourseSerializer
-from bson import ObjectId
 from rest_framework.exceptions import NotFound
-import os
-import json
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from bson import ObjectId
+from django.core.files.storage import default_storage
+from django.conf import settings
+from .models import Category, SubCategory
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
+from bson import ObjectId
+from django.core.files.storage import default_storage
+from django.conf import settings
+
+from .models import (
+    Category,
+    SubCategory,
+    Course,
+    Payment,
+    EnrolledCourse,
+)
+from .serializers import CourseSerializer
+from users.models import User
+from bson import ObjectId
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from bson import ObjectId
+from .models import Course, SubCategory
+
+
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.files.storage import default_storage
+
+
+class CategoryListCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get(self, request):
+        categories = Category.objects.order_by("-created_at")
+        return Response([{"id": str(c.id), "name": c.name, "image": c.image} for c in categories])
+
+    def post(self, request):
+        name = request.data.get("name", "").strip()
+        image = request.FILES.get("image")
+
+        if not name:
+            return Response({"name": ["This field is required"]}, status=400)
+
+        image_url = None
+        if image:
+            filename = default_storage.save(f"categories/{image.name}", image)
+            image_url = f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
+
+        category = Category(name=name, image=image_url)
+        category.save()
+
+        return Response(
+            {
+                "id": str(category.id),
+                "name": category.name,
+                "image": category.image,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class CategoryDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def put(self, request, category_id):
+        try:
+            category = Category.objects.get(id=ObjectId(category_id))
+        except Category.DoesNotExist:
+            return Response(
+                {"error": "Category not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:
+            return Response(
+                {"error": "Invalid category ID"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        name = request.data.get("name", "").strip()
+        image = request.FILES.get("image")
+
+        if not name:
+            return Response(
+                {"name": ["This field is required"]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 🔒 Prevent duplicate category name
+        if Category.objects.filter(name__iexact=name, id__ne=category.id).first():
+            return Response(
+                {"name": ["Category already exists"]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        category.name = name
+
+        # 🔄 Update image if provided
+        if image:
+            filename = default_storage.save(f"categories/{image.name}", image)
+            category.image = f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
+
+        category.save()
+
+        return Response(
+            {
+                "id": str(category.id),
+                "name": category.name,
+                "image": category.image,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def delete(self, request, category_id):
+        try:
+            category = Category.objects.get(id=ObjectId(category_id))
+        except Category.DoesNotExist:
+            return Response(
+                {"error": "Category not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:
+            return Response(
+                {"error": "Invalid category ID"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 🚫 Prevent delete if subcategories exist
+        if SubCategory.objects.filter(category=category).count() > 0:
+            return Response(
+                {"error": "Cannot delete category with sub-categories"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        category.delete()
+
+        return Response(
+            {"message": "Category deleted successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PublicCategoryListAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        categories = Category.objects.order_by("-created_at")
+        return Response(
+            [
+                {
+                    "id": str(c.id),
+                    "name": c.name,
+                    "image": c.image,
+                }
+                for c in categories
+            ]
+        )
+
+
+class SubCategoryListCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    # ✅ LIST
+    def get(self, request):
+        subs = SubCategory.objects.all().order_by("-created_at")
+
+        data = []
+        for s in subs:
+            data.append(
+                {
+                    "id": str(s.id),
+                    "name": s.name,
+                    "image": s.image,
+                    "language": s.language,
+                    "duration": s.duration,
+                    "mode": s.mode,
+                    "offer_label": s.offer_label,
+                    # ✅ PRICE FIELDS
+                    "price": s.price,
+                    "offer_percentage": s.offer_percentage,
+                    "is_free": s.is_free,
+                    "category_id": str(s.category.id),
+                    "category_name": s.category.name,
+                }
+            )
+
+        return Response(data)
+
+    # ✅ CREATE
+    def post(self, request):
+        category_id = request.data.get("category_id")
+        if not category_id:
+            return Response({"category_id": ["This field is required"]}, status=400)
+
+        try:
+            category = Category.objects.get(id=ObjectId(category_id))
+        except Exception:
+            return Response({"category_id": ["Invalid category id"]}, status=400)
+
+        name = request.data.get("name", "").strip()
+        if not name:
+            return Response({"name": ["This field is required"]}, status=400)
+
+        # ✅ PRICE PARSING (FIX)
+        try:
+            price = float(request.data.get("price", 0))
+        except ValueError:
+            return Response({"price": ["Invalid value"]}, status=400)
+
+        offer = request.data.get("offer_percentage")
+        offer = int(offer) if offer else None
+
+        is_free = request.data.get("is_free") == "true"
+
+        image_url = None
+        image_file = request.FILES.get("image")
+        if image_file:
+            filename = default_storage.save(f"sub_categories/{image_file.name}", image_file)
+            image_url = f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
+
+        sub = SubCategory(
+            category=category,
+            name=name,
+            image=image_url,
+            language=request.data.getlist("language"),
+            duration=request.data.get("duration"),
+            mode=request.data.getlist("mode"),
+            offer_label=request.data.get("offer_label"),
+            # ✅ SAVED CORRECTLY
+            price=price,
+            offer_percentage=offer,
+            is_free=is_free,
+        )
+        sub.save()
+
+        return Response(
+            {
+                "id": str(sub.id),
+                "name": sub.name,
+                "image": sub.image,
+            },
+            status=201,
+        )
+
+
+class SubCategoryDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    # ✏️ EDIT
+    def put(self, request, sub_category_id):
+        try:
+            sub = SubCategory.objects.get(id=ObjectId(sub_category_id))
+        except SubCategory.DoesNotExist:
+            return Response(
+                {"error": "SubCategory not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:
+            return Response(
+                {"error": "Invalid sub_category id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        name = request.data.get("name", "").strip()
+        category_id = request.data.get("category_id")
+        image_file = request.FILES.get("image")
+
+        if name:
+            sub.name = name
+
+        if category_id:
+            try:
+                category = Category.objects.get(id=ObjectId(category_id))
+                sub.category = category
+            except Category.DoesNotExist:
+                return Response({"category_id": ["Does not exist"]}, status=400)
+            except Exception:
+                return Response({"category_id": ["Invalid ID"]}, status=400)
+
+        if image_file:
+            filename = default_storage.save(
+                f"sub_categories/{image_file.name}", image_file
+            )
+            sub.image = f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
+
+        # optional fields
+        if "language" in request.data:
+            sub.language = request.data.getlist("language")
+
+        if "duration" in request.data:
+            sub.duration = request.data.get("duration")
+
+        if "mode" in request.data:
+            sub.mode = request.data.getlist("mode")
+
+        if "offer_label" in request.data:
+            sub.offer_label = request.data.get("offer_label")
+        # ✅ PRICE UPDATE
+        if "price" in request.data:
+            try:
+                sub.price = float(request.data.get("price"))
+            except ValueError:
+                return Response({"price": ["Invalid value"]}, status=400)
+
+        if "offer_percentage" in request.data:
+            try:
+                sub.offer_percentage = int(request.data.get("offer_percentage"))
+            except ValueError:
+                return Response({"offer_percentage": ["Invalid value"]}, status=400)
+
+        if "is_free" in request.data:
+            sub.is_free = str(request.data.get("is_free")).lower() in ["true", "1", "yes"]
+
+        sub.save()
+
+        return Response(
+            {
+                "id": str(sub.id),
+                "name": sub.name,
+                "image": sub.image,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    # 🗑️ DELETE (SAFE)
+    def delete(self, request, sub_category_id):
+        try:
+            sub = SubCategory.objects.get(id=ObjectId(sub_category_id))
+        except SubCategory.DoesNotExist:
+            return Response(
+                {"error": "SubCategory not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception:
+            return Response(
+                {"error": "Invalid sub_category id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 🚫 DO NOT DELETE IF COURSES EXIST
+        if Course.objects.filter(sub_category=sub).count() > 0:
+            return Response(
+                {
+                    "error": "Cannot delete sub category. Courses exist under it."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        sub.delete()
+
+        return Response(
+            {"message": "SubCategory deleted successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+class PublicSubCategoryListAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        category_id = request.query_params.get("category_id")
+
+        sub_categories = SubCategory.objects.order_by("-created_at")
+
+        # 🔹 Filter by category (client flow)
+        if category_id:
+            try:
+                sub_categories = sub_categories.filter(
+                    category=ObjectId(category_id)
+                )
+            except Exception:
+                return Response(
+                    {"error": "Invalid category_id"},
+                    status=400
+                )
+
+        return Response(
+            [
+                {
+                    "id": str(s.id),
+                    "name": s.name,
+                    "image": s.image,
+                    "category_id": str(s.category.id),
+                    "category_name": s.category.name,
+                    "mode": s.mode,
+                    "duration": s.duration,
+                    "offer_label": s.offer_label,
+                    "price": s.price,
+                    "offer_percentage": s.offer_percentage,
+                    "is_free": s.is_free,
+                }
+                for s in sub_categories
+            ]
+        )
 
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
+from bson import ObjectId
+from django.core.files.storage import default_storage
+from django.conf import settings
 
-class BannerListAPIView(APIView):
-    def get(self, request):
-        banners = [
-            {"title": "Banner 1", "description": "Desc 1", "image": "url1"},
-            {"title": "Banner 2", "description": "Desc 2", "image": "url2"},
-        ]
-        return Response(banners)
+from .models import Course, SubCategory
 
 
-# ----------------------- Course List / Create -----------------------
 class CourseListCreateAPIView(APIView):
     permission_classes = [AllowAny]
     parser_classes = [MultiPartParser, FormParser]
 
-    def get_full_image_url(self, image_file):
-        if not image_file:
-            return None
-        try:
-            filename = default_storage.save(f'courses/{image_file.name}', image_file)
-            if filename:
-                if settings.MEDIA_URL.startswith('/'):
-                    return f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
-                else:
-                    return f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
-        except Exception as e:
-            print(f"Error generating image URL: {e}")
-        return None
-
+    # =========================
+    # 🔹 LIST COURSES
+    # =========================
     def get(self, request):
+        sub_category_id = request.query_params.get("sub_category_id")
+
         try:
-            courses = Course.objects.all()
+            if sub_category_id:
+                sub_category = SubCategory.objects.get(id=ObjectId(sub_category_id))
+                courses = Course.objects.filter(sub_category=sub_category)
+            else:
+                courses = Course.objects.all()
+        except Exception:
+            return Response(
+                {"error": "Invalid sub_category_id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            range_param = request.query_params.get("range")
-            from_date = request.query_params.get("from")
-            to_date = request.query_params.get("to")
+        data = []
 
-            now_dt = now()
+        for c in courses:
+            category_data = None
+            sub_category_data = None
 
-            # 🔹 TODAY
-            if range_param == "today":
-                start = now_dt.replace(hour=0, minute=0, second=0, microsecond=0)
-                end = start + timedelta(days=1)
-                courses = courses.filter(created_at__gte=start, created_at__lt=end)
-
-            # 🔹 LAST 7 DAYS
-            elif range_param == "7":
-                courses = courses.filter(created_at__gte=now_dt - timedelta(days=7))
-
-            # 🔹 LAST 30 DAYS
-            elif range_param == "30":
-                courses = courses.filter(created_at__gte=now_dt - timedelta(days=30))
-
-            # 🔹 CUSTOM RANGE
-            elif from_date and to_date:
-                start = datetime.fromisoformat(from_date)
-                end = datetime.fromisoformat(to_date) + timedelta(days=1)
-                courses = courses.filter(created_at__gte=start, created_at__lt=end)
-
-            data = []
-            for course in courses:
-                data.append({
-                    "_id": {"$oid": str(course.id)},
-                    "title": course.title,
-                    "description": course.description,
-                    "mode": course.mode,
-                    "duration": course.duration,
-                    "price": float(course.price),
-                    "enrolled_status": course.enrolled_status,
-                    "modules": course.modules or [],
-                    "image_url": course.image_url,
-                    "created_at": {
-                        "$date": (
-                            course.created_at.isoformat() + "Z"
-                            if course.created_at
-                            else now_dt.isoformat() + "Z"
-                        )
+            try:
+                if c.sub_category:
+                    sub_category_data = {
+                        "id": str(c.sub_category.id),
+                        "name": c.sub_category.name,
+                        "price": c.sub_category.price,
+                        "offer_percentage": c.sub_category.offer_percentage,
+                        "is_free": c.sub_category.is_free,
                     }
-                })
 
-            return Response(data)
+                    if c.sub_category.category:
+                        category_data = {
+                            "id": str(c.sub_category.category.id),
+                            "name": c.sub_category.category.name,
+                        }
+            except Exception:
+                pass
 
-        except Exception as e:
-            print("❌ Course dashboard filter error:", e)
-            import traceback
-            traceback.print_exc()
-            return Response(
-                {"error": ["Failed to fetch courses"]},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-    def post(self, request):
-        try:
-            title = request.data.get("title", "").strip()
-            description = request.data.get("description", "").strip()
-
-            mode = (
-                request.data.getlist("mode")
-                if hasattr(request.data, "getlist")
-                else request.data.get("mode", [])
-            )
-
-            duration = (
-                request.data.getlist("duration")
-                if hasattr(request.data, "getlist")
-                else request.data.get("duration", [])
-            )
-
-            mode = [m.strip() for m in mode if m in ["Online", "Offline"]]
-            duration = [d.strip() for d in duration if d in ["Short-term", "Long-term"]]
-
-            if not mode:
-                return Response(
-                    {"mode": ["Select at least one mode"]}, status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if not duration:
-                return Response(
-                    {"duration": ["Select at least one duration"]},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            price_str = request.data.get("price", "0").strip()
-            enrolled_status = request.data.get("enrolled_status", "Open").strip()
-
-            modules = (
-                request.data.getlist("modules")
-                if hasattr(request.data, "getlist")
-                else request.data.get("modules", [])
-            )
-            modules = [str(m).strip() for m in modules if m]
-
-            try:
-                price = float(price_str)
-                if price < 0:
-                    return Response(
-                        {"price": ["Price cannot be negative"]}, status=status.HTTP_400_BAD_REQUEST
-                    )
-            except ValueError:
-                return Response(
-                    {"price": ["A valid number is required"]}, status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if not title:
-                return Response({"title": ["This field is required"]}, status=400)
-
-            if not description:
-                return Response({"description": ["This field is required"]}, status=400)
-
-            if enrolled_status not in ["Open", "Closed", "Coming Soon"]:
-                return Response(
-                    {"enrolled_status": ["Must be Open, Closed, or Coming Soon"]},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            image_file = request.FILES.get("image")
-            image_url = self.get_full_image_url(image_file) if image_file else None
-
-            course = Course(
-                title=title,
-                description=description,
-                mode=mode,
-                duration=duration,
-                price=price,
-                enrolled_status=enrolled_status,
-                modules=modules,
-                image_url=image_url,
-            )
-            course.save()
-
-            return Response(
+            data.append(
                 {
-                    "id": str(course.id),
-                    "title": course.title,
-                    "mode": course.mode,
-                    "duration": course.duration,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-
-        except Exception as e:
-            import traceback
-
-            traceback.print_exc()
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-# ----------------------- Course Detail / Update / Delete -----------------------
-class CourseDetailAPIView(APIView):
-    parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [AllowAny]
-
-    def get_object(self, pk):
-        try:
-            return Course.objects.get(id=pk)
-        except Course.DoesNotExist:
-            raise Http404
-
-    def get_full_image_url(self, image_file):
-        if not image_file:
-            return None
-        try:
-            filename = default_storage.save(f'courses/{image_file.name}', image_file)
-            if filename:
-                if settings.MEDIA_URL.startswith('/'):
-                    return f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
-                else:
-                    return f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
-        except Exception as e:
-            print(f"Error generating image URL: {e}")
-        return None
-
-    def get(self, request, pk):
-        try:
-            course = self.get_object(pk)
-            return Response({
-                "_id": {"$oid": str(course.id)},
-                "title": course.title,
-                "description": course.description,
-                "mode": course.mode,
-                "duration": course.duration,
-                "price": float(course.price),
-                "enrolled_status": course.enrolled_status,
-                "modules": course.modules,
-                "image_url": course.image_url,
-                "created_at": {"$date": course.created_at.isoformat() + "Z"}
-            })
-        except Http404:
-            return Response({'error': ['Course not found']}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            print(f"Error fetching course {pk}: {e}")
-            import traceback; traceback.print_exc()
-            return Response({'error': ['Failed to fetch course']}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def put(self, request, pk):
-        try:
-            course = self.get_object(pk)
-
-            title = request.data.get("title", course.title).strip()
-            description = request.data.get("description", course.description).strip()
-
-            # ------------------ Mode & Duration ------------------
-            mode = (
-                request.data.getlist("mode")
-                if hasattr(request.data, "getlist")
-                else request.data.get("mode", course.mode)
-            )
-
-            duration = (
-                request.data.getlist("duration")
-                if hasattr(request.data, "getlist")
-                else request.data.get("duration", course.duration)
-            )
-
-            # Normalize old data (string → list)
-            if isinstance(mode, str):
-                mode = [mode]
-
-            if isinstance(duration, str):
-                duration = [duration]
-
-            mode = [m.strip() for m in mode if m in ["Online", "Offline"]]
-            duration = [d.strip() for d in duration if d in ["Short-term", "Long-term"]]
-
-            if not mode:
-                return Response(
-                    {"mode": ["Select at least one mode"]}, status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if not duration:
-                return Response(
-                    {"duration": ["Select at least one duration"]},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # ------------------ Price & Status ------------------
-            price_str = request.data.get("price", str(course.price)).strip()
-
-            enrolled_status = request.data.get("enrolled_status", course.enrolled_status).strip()
-
-            # ------------------ Modules ------------------
-            modules = (
-                request.data.getlist("modules")
-                if hasattr(request.data, "getlist")
-                else request.data.get("modules", course.modules)
-            )
-            modules = [str(m).strip() for m in modules if m]
-
-            # ------------------ Price Validation ------------------
-            try:
-                price = float(price_str)
-                if price < 0:
-                    return Response(
-                        {"price": ["Price cannot be negative"]}, status=status.HTTP_400_BAD_REQUEST
-                    )
-            except ValueError:
-                return Response(
-                    {"price": ["A valid number is required"]}, status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # ------------------ Field Validation ------------------
-            if not title:
-                return Response(
-                    {"title": ["This field is required"]}, status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if not description:
-                return Response(
-                    {"description": ["This field is required"]}, status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if enrolled_status not in ["Open", "Closed", "Coming Soon"]:
-                return Response(
-                    {"enrolled_status": ["Must be Open, Closed, or Coming Soon"]},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # ------------------ Image Handling ------------------
-            image_file = request.FILES.get("image")
-            if image_file:
-                if course.image_url and course.image_url.startswith("http://127.0.0.1:8000/media/"):
-                    old_filename = course.image_url.replace("http://127.0.0.1:8000/media/", "")
-                    old_path = os.path.join(settings.MEDIA_ROOT, old_filename)
-                    if os.path.exists(old_path):
-                        os.remove(old_path)
-
-                course.image_url = self.get_full_image_url(image_file)
-
-            # ------------------ Update ------------------
-            course.title = title
-            course.description = description
-            course.mode = mode
-            course.duration = duration
-            course.price = price
-            course.enrolled_status = enrolled_status
-            course.modules = modules
-            course.save()
-
-            return Response(
-                {
-                    "_id": {"$oid": str(course.id)},
-                    "title": course.title,
-                    "description": course.description,
-                    "mode": course.mode,
-                    "duration": course.duration,
-                    "price": float(course.price),
-                    "enrolled_status": course.enrolled_status,
-                    "modules": course.modules,
-                    "image_url": course.image_url,
-                    "created_at": {"$date": course.created_at.isoformat() + "Z"},
+                    "id": str(c.id),
+                    "title": c.title,
+                    "description": c.description,
+                    "mode": c.mode,
+                    "duration": c.duration,
+                    "language": c.language,
+                    "modules": c.modules,
+                    "image_url": c.image_url,
+                    "category": category_data,
+                    "sub_category": sub_category_data,
                 }
             )
 
-        except Http404:
-            return Response({"error": ["Course not found"]}, status=status.HTTP_404_NOT_FOUND)
+        return Response(data, status=status.HTTP_200_OK)
 
-        except Exception as e:
-            print(f"Error updating course {pk}: {e}")
-            import traceback
+    # =========================
+    # 🔹 CREATE COURSE
+    # =========================
+    def post(self, request):
+        sub_category_id = request.data.get("sub_category_id")
 
-            traceback.print_exc()
-            return Response({"error": [str(e)]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if not sub_category_id:
+            return Response(
+                {"sub_category": ["Required"]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-    def delete(self, request, pk):
         try:
-            course = self.get_object(pk)
-            if course.image_url and course.image_url.startswith('http://127.0.0.1:8000/media/'):
-                filename = course.image_url.replace('http://127.0.0.1:8000/media/', '')
-                path = os.path.join(settings.MEDIA_ROOT, filename)
-                if os.path.exists(path): os.remove(path)
-            course.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Http404:
-            return Response({'error': ['Course not found']}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            print(f"Error deleting course {pk}: {e}")
-            import traceback; traceback.print_exc()
-            return Response({'error': ['Failed to delete course']}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            sub_category = SubCategory.objects.get(id=ObjectId(sub_category_id))
+        except Exception:
+            return Response(
+                {"sub_category": ["Invalid ID"]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 🚫 ONE COURSE PER SUB CATEGORY
+        if Course.objects.filter(sub_category=sub_category).first():
+            return Response(
+                {"sub_category": ["Only one course is allowed per sub category"]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        title = request.data.get("title", "").strip()
+        duration = request.data.get("duration")
+
+        if not title:
+            return Response({"title": ["Required"]}, status=400)
+
+        if not duration:
+            return Response({"duration": ["Required"]}, status=400)
+
+        mode = request.data.getlist("mode")
+        if not mode:
+            return Response({"mode": ["Select at least one"]}, status=400)
+
+        language = request.data.getlist("language")
+        modules = request.data.getlist("modules[]")
+
+        image_file = request.FILES.get("image")
+        image_url = None
+
+        if image_file:
+            filename = default_storage.save(f"courses/{image_file.name}", image_file)
+            image_url = f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
+
+        course = Course(
+            sub_category=sub_category,
+            title=title,
+            description=request.data.get("description"),
+            language=language,
+            duration=duration,
+            mode=[m.capitalize() for m in mode],
+            modules=modules,
+            image_url=image_url,
+        )
+
+        course.save()
+
+        return Response(
+            {"id": str(course.id)},
+            status=status.HTTP_201_CREATED,
+        )
 
 
-# ----------------------- Retrieve / Update / Delete (Serializer version) -----------------------
-class CourseRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
-    serializer_class = CourseSerializer
+class CourseDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
 
-    def get_object(self):
-        pk = self.kwargs.get('pk')
+    def get_object(self, pk):
         try:
             return Course.objects.get(id=ObjectId(pk))
         except Exception:
-            raise NotFound("Course not found")
+            raise Http404
 
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        data = request.data.copy()
+    def get(self, request, pk):
+        c = self.get_object(pk)
 
-        # ------------------ Modules ------------------
-        modules = data.getlist("modules") if hasattr(data, "getlist") else data.get("modules", [])
+        category_name = None
+        sub_category_data = None
 
-        if not isinstance(modules, list):
-            modules = [modules]
+        try:
+            if c.sub_category:
+                sub_category_data = {
+                    "id": str(c.sub_category.id),
+                    "name": c.sub_category.name,
+                    "price": c.sub_category.price,
+                    "offer_percentage": c.sub_category.offer_percentage,
+                    "is_free": c.sub_category.is_free,
+                }
 
-        # ------------------ Basic Fields ------------------
-        instance.title = data.get("title", instance.title)
-        instance.description = data.get("description", instance.description)
+                if c.sub_category.category:
+                    category_name = c.sub_category.category.name
+        except Exception:
+            pass  # broken DBRef protection
 
-        # ------------------ Mode & Duration ------------------
-        mode = data.getlist("mode") if hasattr(data, "getlist") else data.get("mode", instance.mode)
-
-        duration = (
-            data.getlist("duration")
-            if hasattr(data, "getlist")
-            else data.get("duration", instance.duration)
+        return Response(
+            {
+                "id": str(c.id),
+                "title": c.title,
+                "description": c.description,
+                "category": category_name,
+                "sub_category": sub_category_data,
+                "mode": c.mode,
+                "duration": c.duration,
+                "language": c.language,
+                "modules": c.modules,
+                "image_url": c.image_url,
+                "enrolled_status": c.enrolled_status,
+            }
         )
 
-        if isinstance(mode, str):
-            mode = [mode]
+    def put(self, request, pk):
+        c = self.get_object(pk)
 
-        if isinstance(duration, str):
-            duration = [duration]
+        # SAFE sub_category update
+        sub_category_id = request.data.get("sub_category_id")
+        if sub_category_id:
+            try:
+                sub_category = SubCategory.objects.get(id=ObjectId(sub_category_id))
 
-        instance.mode = [m for m in mode if m in ["Online", "Offline"]]
-        instance.duration = [d for d in duration if d in ["Short-term", "Long-term"]]
+                if Course.objects.filter(sub_category=sub_category).exclude(id=c.id).exists():
+                    return Response(
+                        {"sub_category": ["This sub category already has a course"]},
+                        status=400,
+                    )
 
-        # ------------------ Price & Status ------------------
-        instance.price = float(data.get("price", instance.price))
-        instance.enrolled_status = data.get("enrolled_status", instance.enrolled_status)
+                c.sub_category = sub_category
 
-        instance.modules = modules
+            except SubCategory.DoesNotExist:
+                return Response({"sub_category": ["Does not exist"]}, status=400)
+            except Exception:
+                return Response({"sub_category": ["Invalid ID"]}, status=400)
 
-        # ------------------ Image ------------------
-        if "image" in request.FILES:
-            instance.image_url = default_storage.save(
-                f'courses/{request.FILES["image"].name}', request.FILES["image"]
+        # ✅ COURSE FIELDS ONLY
+        c.title = request.data.get("title", c.title)
+        c.description = request.data.get("description", c.description)
+        c.language = request.data.getlist("language") or c.language
+        c.duration = request.data.get("duration", c.duration)
+        c.mode = request.data.getlist("mode") or c.mode
+        c.modules = request.data.getlist("modules") or c.modules
+
+        if request.FILES.get("image"):
+            filename = default_storage.save(
+                f"courses/{request.FILES['image'].name}",
+                request.FILES["image"],
             )
+            c.image_url = f"{settings.SITE_URL}{settings.MEDIA_URL}{filename}"
 
-        instance.save()
+        c.save()
+        return Response({"id": str(c.id)})
 
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
-
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from courses.models import Course, Payment, EnrolledCourse
-import razorpay
-from django.conf import settings
-
-client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    def delete(self, request, pk):
+        self.get_object(pk).delete()
+        return Response(status=204)
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_order(request):
-    try:
-        course_id = request.data.get("course_id")
-        user = request.user
+    course = Course.objects(id=request.data.get("course_id")).first()
+    if not course:
+        return Response({"error": "Course not found"}, status=404)
 
-        course = Course.objects(id=course_id).first()
-        if not course:
-            return Response({"error": "Course not found"}, status=404)
+    order = client.order.create(
+        {"amount": int(course.price * 100), "currency": "INR", "payment_capture": 1}
+    )
 
-        amount = int(course.price * 100)
-        order = client.order.create({
-            "amount": amount,
-            "currency": "INR",
-            "payment_capture": 1
-        })
+    Payment.objects.create(
+        user=str(request.user.id),
+        course_id=str(course.id),
+        razorpay_order_id=order["id"],
+        amount=course.price,
+        status="pending",
+    )
 
-        Payment.objects.create(
-            user=str(user.id),
-            course_id=str(course.id),
-            razorpay_order_id=order["id"],
-            amount=course.price,
-            status="pending",
-        )
+    return Response(order)
 
-        return Response({
-            "order_id": order["id"],
-            "amount": amount,
-            "currency": "INR",
-            "course_title": course.title
-        })
-
-    except Exception as e:
-        return Response({"error": str(e)}, status=500)
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def confirm_payment(request):
-    """
-    Verifies Razorpay payment and enrolls the user in the course
-    """
-    try:
-        payment_id = request.data.get("razorpay_payment_id")
-        order_id = request.data.get("razorpay_order_id")
-        signature = request.data.get("razorpay_signature")
-        user = request.user
+    payment = Payment.objects.filter(
+        razorpay_order_id=request.data.get("razorpay_order_id"), user=str(request.user.id)
+    ).first()
 
-        # Fetch payment record
-        payment = Payment.objects.filter(
-            razorpay_order_id=order_id,
-            user=str(user.id)
-        ).first()
+    if not payment:
+        return Response({"error": "Payment not found"}, status=404)
 
-        if not payment:
-            return Response({"error": "Payment record not found"}, status=404)
+    payment.status = "paid"
+    payment.save()
 
-        # Verify signature
-        params_dict = {
-            "razorpay_order_id": order_id,
-            "razorpay_payment_id": payment_id,
-            "razorpay_signature": signature,
-        }
+    course = Course.objects.get(id=payment.course_id)
 
-        try:
-            client.utility.verify_payment_signature(params_dict)
+    EnrolledCourse.objects.get_or_create(
+        user=request.user,
+        course=course,
+        payment_id=payment.razorpay_order_id,
+    )
 
-            # Mark payment as paid
-            payment.razorpay_payment_id = payment_id
-            payment.razorpay_signature = signature
-            payment.status = "paid"
-            payment.save()
-
-            # Fetch the Course object from MongoDB
-            try:
-                course = Course.objects.get(id=payment.course_id)
-            except Course.DoesNotExist:
-                return Response({"success": False, "error": "Course not found in enrollment step"}, status=404)
-
-            # Enroll user (only if not already enrolled)
-            if not EnrolledCourse.objects.filter(user=user, course_id=str(course.id)).exists():
-                EnrolledCourse.objects.create(user=user, course_id=str(course.id))
-
-            return Response({"success": True, "message": "Payment verified and enrolled successfully."})
-
-        except razorpay.errors.SignatureVerificationError:
-            payment.status = "failed"
-            payment.save()
-            return Response({"success": False, "error": "Payment verification failed"}, status=400)
-
-    except Exception as e:
-        return Response({"success": False, "error": str(e)}, status=500)
+    return Response({"success": True})
 
 
-# views.py
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from bson import ObjectId
-from .models import User, Course, EnrolledCourse
-from datetime import datetime
-
-# ----------------- Enroll a course -----------------
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def enroll_course(request):
-    # Use email from your auth token to fetch MongoDB user
-    user_email = request.user.email
-    course_id = request.data.get("course_id")
-    payment_id = request.data.get("payment_id")
-
-    if not course_id or not payment_id:
-        return Response({"success": False, "message": "Course ID or Payment ID missing."}, status=400)
-
-    # Fetch user from MongoDB
-    try:
-        user = User.objects.get(email=user_email)
-    except User.DoesNotExist:
-        return Response({"success": False, "message": "User not found."}, status=404)
-
-    # Fetch course from MongoDB
-    try:
-        course = Course.objects.get(id=ObjectId(course_id))
-    except Course.DoesNotExist:
-        return Response({"success": False, "message": "Course not found."}, status=404)
-    except Exception as e:
-        return Response({"success": False, "message": f"Invalid course ID: {str(e)}"}, status=400)
-
-    # Check if user already enrolled
-    if EnrolledCourse.objects(user=user, course=course).first():
-        return Response({"success": False, "message": "Already enrolled."})
-
-    # Create enrollment record
-    try:
-        EnrolledCourse.objects.create(
-            user=user,
-            course=course,
-            payment_id=payment_id,
-            enrolled_at=datetime.utcnow()
-        )
-    except Exception as e:
-        return Response({"success": False, "message": f"Failed to enroll: {str(e)}"}, status=500)
-
-    return Response({"success": True, "message": "Course enrolled successfully."})
-
-# ----------------- Get my courses -----------------
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def my_courses(request):
-    try:
-        user = request.user
-        enrolled_list = EnrolledCourse.objects.filter(user=user)
-        data = []
+    enrolled = EnrolledCourse.objects.filter(user=request.user)
+    return Response(
+        [
+            {
+                "id": str(e.course.id),
+                "title": e.course.title,
+                "progress": e.progress,
+                "status": e.status,
+            }
+            for e in enrolled
+        ]
+    )
 
-        for e in enrolled_list:
-            try:
-                course = e.course  # may raise DoesNotExist
-                data.append(
-                    {
-                        "id": str(course.id),
-                        "title": course.title,
-                        "description": course.description,
-                        "price": course.price,
-                        "image_url": course.image_url,
-                        "mode": course.mode,
-                        "duration": course.duration,
-                        "modules": course.modules,
-                        "payment_id": e.payment_id,
-                        "enrolled_at": e.enrolled_at,
-                        "status": "Completed" if e.progress >= 100 else "In Progress",
-                        "progress": e.progress,
-                    }
-                )
-            except Exception:
-                print(f"⚠️ Skipping missing course for enrollment {e.id}")
-                continue  # skip this record
-
-        return Response(data)
-    except Exception as e:
-        import traceback
-        print("❌ ERROR in my_courses:", traceback.format_exc())
-        return Response({"error": str(e)}, status=500)
-
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-from django.conf import settings
-import jwt
-from courses.models import EnrolledCourse
 
 @api_view(["PATCH"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def update_course_status(request, course_id):
     try:
-        # ✅ Verify token
-        auth_header = request.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return Response({"error": "Authorization token missing"}, status=401)
+        enrolled = EnrolledCourse.objects(id=ObjectId(course_id)).first()
+        if not enrolled:
+            return Response(
+                {"error": "Enrollment not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
-        token = auth_header.split(" ")[1]
-        try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        except jwt.ExpiredSignatureError:
-            return Response({"error": "Token has expired"}, status=401)
-        except jwt.InvalidTokenError:
-            return Response({"error": "Invalid token"}, status=401)
-
-        user_role = (payload.get("role") or "").lower()
-        user_email = payload.get("email")
-
-        if user_role != "admin" and user_email != "admin@gmail.com":
-            return Response({"error": "Only admins can update course status"}, status=403)
-
-        # ✅ Validate status
         new_status = request.data.get("status")
-        if not new_status:
-            return Response({"error": "Missing 'status' field"}, status=400)
 
         allowed_statuses = ["Not Started", "In Progress", "Completed"]
         if new_status not in allowed_statuses:
-            return Response({"error": "Invalid status value"}, status=400)
+            return Response(
+                {"error": "Invalid status value"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        # ✅ Fetch enrolled course
-        enrolled_course = EnrolledCourse.objects(id=course_id).first()
-        if not enrolled_course:
-            return Response({"error": "Enrolled course not found"}, status=404)
-
-        # ✅ Reset logic: Allow reset only once
-        if not hasattr(enrolled_course, "reset_locked"):
-            # Add field dynamically if not in model
-            enrolled_course.reset_locked = False
-
+        # 🔁 RESET LOGIC (only once)
         if new_status == "Not Started":
-            # 🟨 Prevent multiple resets
-            if getattr(enrolled_course, "reset_locked", False):
+            if enrolled.reset_locked:
                 return Response(
-                    {"error": "This course has already been reset once."},
-                    status=400
+                    {"error": "This course has already been reset once"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-
-            enrolled_course.progress = 0
-            enrolled_course.status = "Not Started"
-            enrolled_course.reset_locked = True  # lock further resets
+            enrolled.progress = 0
+            enrolled.status = "Not Started"
+            enrolled.reset_locked = True
 
         elif new_status == "In Progress":
-            # Allow admin to unlock after reset
-            enrolled_course.status = "In Progress"
-            if enrolled_course.progress == 0:
-                enrolled_course.progress = 10
-            enrolled_course.reset_locked = False  # optional: unlock reset again later
+            enrolled.status = "In Progress"
+            if enrolled.progress == 0:
+                enrolled.progress = 10
+            enrolled.reset_locked = False
 
         elif new_status == "Completed":
-            enrolled_course.status = "Completed"
-            enrolled_course.progress = 100
+            enrolled.status = "Completed"
+            enrolled.progress = 100
 
-        enrolled_course.save()
+        enrolled.save()
 
-        return Response({
-            "message": f"Course status updated to {new_status}",
-            "course_id": str(enrolled_course.id),
-            "status": new_status,
-            "progress": enrolled_course.progress,
-            "reset_locked": getattr(enrolled_course, "reset_locked", False)
-        }, status=200)
+        return Response(
+            {
+                "success": True,
+                "course_id": str(enrolled.id),
+                "status": enrolled.status,
+                "progress": enrolled.progress,
+                "reset_locked": enrolled.reset_locked,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     except Exception as e:
-        print("❌ ERROR in update_course_status:", e)
-        return Response({"error": str(e)}, status=500)
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

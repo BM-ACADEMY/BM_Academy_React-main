@@ -33,6 +33,8 @@ import DA from "./Routes/DA";
 import FSD from "./Routes/Fsd";
 import Webinar from "./Dashboard/Webinar/Webinar";
 import CertificatePreviewPage from "./components/Certificate/CertificatePreviewPage";
+import CategoriesRoutes from "./Routes/Categories";
+
 
 
 export const App = () => {
@@ -55,6 +57,8 @@ export const App = () => {
                 <Route path="/webinar/data-analyst" element={<DA />} />
                 <Route path="/webinar/digital-marketing" element={<DM />} />
                 <Route path="/webinar/fullstack-development" element={<FSD />} />
+                <Route path="/categories/*" element={<CategoriesRoutes />} />
+
 
 
 

@@ -7,6 +7,8 @@ import Users from "./Components/Pages/Users";
 import Certificate from "./Components/Pages/Certificate";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import Blog from "./Components/Pages/Blog";
+import Categories from "./Components/Pages/Categories";
+import SubCategories from "./Components/Pages/SubCategories";
 
 function App() {
   return (
@@ -41,6 +43,31 @@ function App() {
             </ProtectedRoute>
           }
         />
+        
+        {/* Categories */}
+<Route
+  path="/categories"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <Categories />
+      </Layout>
+    </ProtectedRoute>
+  }
+/>
+
+{/* Sub Categories */}
+<Route
+  path="/sub-categories"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <SubCategories />
+      </Layout>
+    </ProtectedRoute>
+  }
+/>
+
 
         {/* Users */}
         <Route

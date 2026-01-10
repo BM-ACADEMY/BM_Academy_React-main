@@ -18,7 +18,6 @@ const HomeRoutes = () => {
             <WelcomeBanner />
             <HeroSection />
             <TrendingCourses />
-
             <CEOsMessage />
             <WhyChooseUs />
             <Testimonials />
