@@ -40,8 +40,6 @@ export default function Courses() {
   const [duration, setDuration] = useState("");
   const [image, setImage] = useState(null);
   const [mode, setMode] = useState([]);
-
-  // ✅ Initialize with one empty string so the input box appears
   const [modules, setModules] = useState([""]);
 
   /* ---------------- FETCH ---------------- */
@@ -63,7 +61,6 @@ export default function Courses() {
     try {
       const res = await authFetch(SUB_CATEGORY_API);
       const data = await res.json();
-      // Handle different API response structures
       const items = Array.isArray(data) ? data : (data.data || data.results || []);
       setSubCategories(items);
     } catch {
@@ -79,7 +76,6 @@ export default function Courses() {
   }, [activeView]);
 
   /* ---------------- HELPERS ---------------- */
-  // Safe ID Extractor
   const getSafeId = (item) => {
       if (!item) return null;
       if (typeof item !== 'object') return item;
@@ -96,10 +92,7 @@ export default function Courses() {
     );
   };
 
-  // ✅ FIXED: Module State Helpers
-  const addModule = () => {
-    setModules([...modules, ""]);
-  };
+  const addModule = () => setModules([...modules, ""]);
 
   const removeModule = (index) => {
     const newModules = [...modules];
@@ -119,12 +112,12 @@ export default function Courses() {
     setDescription("");
     setDuration("");
     setMode([]);
-    setModules([""]); // Always reset to one empty input
+    setModules([""]);
     setImage(null);
     setEditingId(null);
   };
 
-  /* ---------------- SUBMIT (FIXED FOR MODULES) ---------------- */
+  /* ---------------- SUBMIT (THE FIX) ---------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -137,7 +130,8 @@ export default function Courses() {
       setSaving(true);
       const formData = new FormData();
 
-      // Basic Fields
+      // ✅ 1. Append Data
+      // Matches backend error 'sub_category'
       formData.append("sub_category", String(subCategoryId));
       formData.append("title", title.trim());
       formData.append("description", description.trim());
@@ -145,16 +139,9 @@ export default function Courses() {
 
       mode.forEach((m) => formData.append("mode", m));
 
-      // ✅ FIXED: Module Logic
-      // 1. Filter out completely empty strings to avoid sending blank data
-      // 2. Trim whitespace
-      // 3. Append with key "modules" (Standard Django)
       const validModules = modules
         .map(m => String(m).trim())
         .filter(m => m.length > 0);
-
-      // Debug: Check console to ensure modules are captured
-      console.log("Submitting Modules:", validModules);
 
       validModules.forEach((m) => {
           formData.append("modules", m);
@@ -165,14 +152,41 @@ export default function Courses() {
       const url = editingId ? `${COURSE_API}${editingId}/` : COURSE_API;
       const method = editingId ? "PUT" : "POST";
 
-      const res = await authFetch(url, {
+      // ✅ 2. GET TOKEN MANUALLY (Bypassing useAuthFetch)
+      // Check localStorage for where your token is stored
+      let token = localStorage.getItem("token") ||
+                  localStorage.getItem("access_token") ||
+                  localStorage.getItem("jwt");
+
+      // If token is inside a 'user' object string, parse it
+      if (!token) {
+          const userStr = localStorage.getItem("user");
+          if (userStr) {
+              try {
+                  const userObj = JSON.parse(userStr);
+                  token = userObj.token || userObj.access_token;
+              } catch (e) {}
+          }
+      }
+
+      // ✅ 3. PREPARE HEADERS (WITHOUT Content-Type)
+      const headers = {};
+      if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      // ✅ 4. NATIVE FETCH REQUEST
+      // We do NOT set 'Content-Type'. The browser sets it to 'multipart/form-data' automatically.
+      const res = await fetch(url, {
         method: method,
         body: formData,
+        headers: headers
       });
 
       if (!res.ok) {
         const errData = await res.json();
         console.error("Backend Error:", errData);
+        // Pass the error to the catch block
         throw new Error(JSON.stringify(errData));
       }
 
@@ -187,6 +201,7 @@ export default function Courses() {
           if (parsed.sub_category) msg = `Sub-Category: ${parsed.sub_category[0]}`;
           else if (parsed.modules) msg = `Modules: ${parsed.modules[0]}`;
           else if (parsed.detail) msg = parsed.detail;
+          else if (parsed.non_field_errors) msg = parsed.non_field_errors[0];
       } catch (e) {
           msg = err.message;
       }
@@ -199,17 +214,22 @@ export default function Courses() {
   /* ---------------- EDIT ---------------- */
   const handleEdit = (c) => {
     setEditingId(getSafeId(c));
-    setSubCategoryId(getSafeId(c.sub_category) || "");
+
+    // Handle SubCategory ID Extraction
+    let scId = "";
+    if (c.sub_category) {
+        scId = (typeof c.sub_category === 'object') ? (c.sub_category.id || c.sub_category._id) : c.sub_category;
+    }
+    setSubCategoryId(scId || "");
+
     setTitle(c.title || "");
     setDescription(c.description || "");
     setDuration(c.duration || "");
     setMode(c.mode || []);
 
-    // ✅ FIXED: Safely load existing modules
     let safeModules = [""];
     if (Array.isArray(c.modules) && c.modules.length > 0) {
         safeModules = c.modules.map(m => {
-            // If it's an object {title: "A"}, get "A". If string "A", get "A".
             if (typeof m === 'object' && m !== null) {
                 return m.title || m.name || JSON.stringify(m);
             }
@@ -359,8 +379,20 @@ export default function Courses() {
                         {subCategories.map((s) => {
                             const sId = getSafeId(s);
                             const currentSubCatId = editingId ? getSafeId(courses.find(c => getSafeId(c) === editingId)?.sub_category) : null;
-                            const used = usedSubCategoryIds.includes(sId) && String(sId) !== String(currentSubCatId);
-                            return <option key={sId} value={sId} disabled={used}>{s.category_name ? `${s.category_name} / ` : ""}{s.name} {used ? "(Linked)" : ""}</option>;
+                            const used =
+  editingId &&
+  usedSubCategoryIds.includes(sId) &&
+  String(sId) !== String(currentSubCatId);
+
+
+                            return (
+                                <option key={sId} value={sId} disabled={used}>
+  {s.category_name ? `${s.category_name} / ` : ""}
+  {s.name}
+  {used ? " (Linked)" : ""}
+</option>
+
+                            );
                         })}
                     </select>
                   </div>
@@ -390,7 +422,7 @@ export default function Courses() {
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="3" className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none resize-none" />
               </div>
 
-              {/* ✅ FIXED: Modules Inputs */}
+              {/* Modules Inputs */}
               <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <div className="flex justify-between items-center"><label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Syllabus Modules</label><button type="button" onClick={addModule} className="text-xs font-bold text-blue-600 hover:underline">+ Add Module</button></div>
                 {modules.map((m, index) => (

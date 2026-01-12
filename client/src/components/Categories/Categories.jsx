@@ -52,12 +52,7 @@ const Categories = () => {
                     </span>
                 </h2>
             </div>
-            <button
-                onClick={() => navigate('/courses')}
-                className="hidden md:flex items-center gap-2 px-6 py-3 bg-[#111111] text-white font-bold uppercase tracking-wider text-sm hover:bg-[#FFEA00] hover:text-black transition-all duration-300 shadow-lg border border-black"
-            >
-                View All <ArrowRight size={16} />
-            </button>
+            
         </div>
 
         {/* GRID: OVERLAY TILES */}

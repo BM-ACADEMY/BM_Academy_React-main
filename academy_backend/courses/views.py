@@ -509,8 +509,7 @@ class CourseListCreateAPIView(APIView):
     # 🔹 CREATE COURSE
     # =========================
     def post(self, request):
-        sub_category_id = request.data.get("sub_category_id")
-
+        sub_category_id = request.data.get("sub_category")
         if not sub_category_id:
             return Response(
                 {"sub_category": ["Required"]},

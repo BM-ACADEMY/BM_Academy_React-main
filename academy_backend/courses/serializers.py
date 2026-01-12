@@ -49,8 +49,6 @@ class CourseSerializer(serializers.Serializer):
     language = serializers.ListField(child=serializers.CharField())
     duration = serializers.CharField()
     mode = serializers.ListField(child=serializers.CharField())
-    price = serializers.FloatField()
-    offer_percentage = serializers.IntegerField(required=False)
     modules = serializers.ListField(child=serializers.CharField(), required=False)
     image_url = serializers.CharField(required=False)
 
