@@ -153,7 +153,7 @@ const Categories = () => {
       <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-gray-200 pb-6 px-1">
         <div>
             <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Category Management</h2>
-            <p className="text-gray-500 text-sm mt-1">Organize your courses into broad topics.</p>
+            <p className="text-gray-500 text-sm mt-1">Organize Your Courses Into Broad Topics.</p>
         </div>
 
         <button

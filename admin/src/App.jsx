@@ -43,7 +43,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
+
         {/* Categories */}
 <Route
   path="/categories"

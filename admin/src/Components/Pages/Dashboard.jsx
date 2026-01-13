@@ -170,27 +170,43 @@ export default function Dashboard() {
              Dashboard Overview
           </h2>
           <p className="text-gray-500 font-medium mt-2 max-w-lg">
-            Track your platform's performance, manage courses, and oversee user activity in real-time.
+            Track Your Platform’s Performance, Manage Courses, and Oversee User Activity in Real Time.
           </p>
         </div>
 
         {/* Filter Controls */}
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto relative z-10">
+            {/* UPDATED: Custom Date Picker with FROM / TO labels */}
             {filterType === "custom" && (
-                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-                    <input
-                        type="date"
-                        value={customStartDate}
-                        onChange={(e) => setCustomStartDate(e.target.value)}
-                        className="bg-transparent text-sm font-bold text-gray-700 outline-none"
-                    />
-                    <span className="text-gray-400 font-bold">-</span>
-                    <input
-                        type="date"
-                        value={customEndDate}
-                        onChange={(e) => setCustomEndDate(e.target.value)}
-                        className="bg-transparent text-sm font-bold text-gray-700 outline-none"
-                    />
+                <div className="flex items-center gap-4 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
+                    {/* FROM INPUT */}
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
+                          From
+                        </span>
+                        <input
+                            type="date"
+                            value={customStartDate}
+                            onChange={(e) => setCustomStartDate(e.target.value)}
+                            className="bg-transparent text-sm font-bold text-gray-700 outline-none uppercase cursor-pointer"
+                        />
+                    </div>
+
+                    {/* SEPARATOR */}
+                    <div className="w-px h-4 bg-gray-300"></div>
+
+                    {/* TO INPUT */}
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
+                          To
+                        </span>
+                        <input
+                            type="date"
+                            value={customEndDate}
+                            onChange={(e) => setCustomEndDate(e.target.value)}
+                            className="bg-transparent text-sm font-bold text-gray-700 outline-none uppercase cursor-pointer"
+                        />
+                    </div>
                 </div>
             )}
 
@@ -230,7 +246,7 @@ export default function Dashboard() {
           icon={FaBook}
           label="Active Courses"
           value={stats.courses}
-          trend="Published Content"
+          trend="Published Courses"
         />
         <StatCard
           icon={FaUsers}
@@ -240,9 +256,9 @@ export default function Dashboard() {
         />
         <StatCard
           icon={FaCertificate}
-          label="Certificates"
+          label="Certificates Issued"
           value={stats.certificates}
-          trend="Issued to date"
+          trend="Total Issued"
         />
       </div>
 
@@ -260,9 +276,7 @@ export default function Dashboard() {
                     {filterType === "all" ? "Yearly Overview" : "Filtered Data View"}
                 </p>
             </div>
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <FaEllipsisH className="text-gray-400" />
-            </button>
+            
           </div>
 
           {/* Visual Bar Chart */}
@@ -306,7 +320,7 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 gap-4 relative z-10 flex-1">
             <QuickAction to="/categories" label="Add Category" icon={FaLayerGroup} />
-            <QuickAction to="/subcategories" label="Add Sub-Category" icon={FaListAlt} />
+            <QuickAction to="/sub-categories" label="Add Sub-Category" icon={FaListAlt} />
             <QuickAction to="/courses" label="Create Course" icon={FaBook} />
             <QuickAction to="/certificates" label="Issue Certificate" icon={FaCertificate} />
           </div>

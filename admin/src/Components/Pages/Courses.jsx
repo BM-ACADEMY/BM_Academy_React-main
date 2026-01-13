@@ -291,7 +291,7 @@ export default function Courses() {
                 <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-gray-200 pb-6">
                     <div>
                         <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Course Management</h2>
-                        <p className="text-gray-500 text-sm mt-1">Create final courses under your sub-categories.</p>
+                        <p className="text-gray-500 text-sm mt-1">Create Final Courses Under Your Sub-Categories.</p>
                     </div>
                     <button
                         onClick={() => { resetForm(); setShowModal(true); }}

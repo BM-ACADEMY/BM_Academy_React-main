@@ -194,6 +194,29 @@ class CertificateViewSet(viewsets.ViewSet):
 
         return Response({"data": data}, status=200)
 
+    # ---------------------------------------------------------
+    # DELETE CERTIFICATE
+    # ---------------------------------------------------------
+    def destroy(self, request, pk=None):
+        # 'pk' here will be the certificate_id from the URL (e.g. BMACERT-2026-XXXX)
+
+        # 1. Find the certificate by its custom string ID
+        cert = Certificate.objects(certificate_id=pk).first()
+
+        # 2. If not found, check if 'pk' is a MongoDB ObjectId (fallback)
+        if not cert and ObjectId.is_valid(pk):
+            cert = Certificate.objects(id=ObjectId(pk)).first()
+
+        # 3. If still not found, return 404
+        if not cert:
+            return Response({"error": "Certificate not found"}, status=404)
+
+        # 4. Delete and return success
+        cert.delete()
+        return Response(
+            {"message": "Certificate deleted successfully"}, status=status.HTTP_204_NO_CONTENT
+        )
+
 
 # ---------------------------------------------------------
 # VERIFY CERTIFICATE (public)

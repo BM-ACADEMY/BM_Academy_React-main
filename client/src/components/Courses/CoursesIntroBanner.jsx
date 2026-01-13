@@ -63,12 +63,7 @@ const CoursesIntroBannerV4 = () => {
             Expert-Led Courses Designed to Take You from <span className="text-black font-bold">Beginner</span> to <span className="text-black font-bold">Hired Professional</span>.
           </p>
 
-          <button
-             onClick={() => navigate('/courses')}
-             className="hidden md:inline-flex items-center gap-3 px-8 py-4 bg-[#111111] text-white font-bold uppercase tracking-wider hover:bg-[#FFEA00] hover:text-black transition-all duration-300 shadow-xl"
-          >
-            View All Courses <FaArrowRight />
-          </button>
+          
         </div>
 
         {/* --- RIGHT CONTENT (Cards) --- */}

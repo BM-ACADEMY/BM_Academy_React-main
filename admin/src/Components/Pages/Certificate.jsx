@@ -87,7 +87,15 @@ export default function Certificate() {
         course_id: formData.course,
       });
       toast.success("Certificate issued successfully!");
-      setCertificates((prev) => [res.data.data, ...prev]);
+
+      // FIX: Map backend response 'name/course' to table 'user_name/course_name'
+      const newCert = {
+        ...res.data.data,
+        user_name: res.data.data.name,
+        course_name: res.data.data.course
+      };
+
+      setCertificates((prev) => [newCert, ...prev]);
       setFormData({ user: "", course: "" });
     } catch {
       toast.error("Failed to issue certificate");
@@ -105,15 +113,14 @@ export default function Certificate() {
     try {
       const res = await API.post("/certificates/manual/", manual);
       toast.success("Manual certificate created!");
-      // Add the new cert to the list (adapting structure if needed)
+
       setCertificates((prev) => [
         {
-          id: res.data.id || Date.now(), // Fallback if ID is missing in response
           certificate_id: res.data.certificate_id,
           user_name: res.data.name,
           course_name: res.data.course,
           certificate_type: res.data.certificate_type,
-          issue_date: new Date(),
+          issue_date: res.data.issued_date, // Use backend returned date
         },
         ...prev,
       ]);
@@ -126,14 +133,16 @@ export default function Certificate() {
   };
 
   // ✅ FIXED DELETE HANDLER
-  const handleDelete = async (id) => {
+  const handleDelete = async (certificate_id) => {
     if (!window.confirm("Are you sure you want to delete this certificate?")) return;
 
     try {
-      // Using the database ID (integer) instead of the string ID
-      await API.delete(`/certificates/${id}/`);
+      // 1. Send DELETE request using the STRING ID (e.g. BMACERT-2026-...)
+      await API.delete(`/certificates/${certificate_id}/`);
 
-      setCertificates((prev) => prev.filter((c) => c.id !== id));
+      // 2. Update UI: Filter by certificate_id (not id)
+      setCertificates((prev) => prev.filter((c) => c.certificate_id !== certificate_id));
+
       toast.success("Certificate deleted");
     } catch (err) {
       console.error(err);
@@ -146,23 +155,21 @@ export default function Certificate() {
     toast.info("ID Copied!", { autoClose: 1000 });
   };
 
-  // ✅ NEW DOWNLOAD HANDLER (No child ref dependency)
+  // ✅ DOWNLOAD HANDLER
   const handleDownloadPdf = async () => {
     const element = certificateRef.current;
     if (!element) return toast.error("Preview not loaded");
 
     setDownloading(true);
     try {
-        // 1. Capture the element as a canvas
         const canvas = await html2canvas(element, {
-            scale: 2, // Higher scale for better quality
-            useCORS: true, // Handle cross-origin images
+            scale: 2,
+            useCORS: true,
             backgroundColor: "#ffffff"
         });
 
-        // 2. Convert to PDF
         const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("l", "mm", "a4"); // Landscape, mm, A4
+        const pdf = new jsPDF("l", "mm", "a4");
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
 
@@ -190,7 +197,7 @@ export default function Certificate() {
       <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-gray-200 pb-6 px-1">
         <div>
             <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Certificate Center</h2>
-            <p className="text-gray-500 text-sm mt-1">Issue, manage, and verify student credentials.</p>
+            <p className="text-gray-500 text-sm mt-1">Issue, Manage, and Verify Student Certificates.</p>
         </div>
       </div>
 
@@ -278,7 +285,7 @@ export default function Certificate() {
                             type="date"
                             value={manual.issued_date}
                             onChange={(e) => setManual({ ...manual, issued_date: e.target.value })}
-                            className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none"
+                            className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none uppercase"
                         />
                     </div>
 
@@ -373,9 +380,9 @@ export default function Certificate() {
                             <FaFilePdf size={16} />
                         </button>
 
-                        {/* ✅ DELETE BUTTON */}
+                        {/* DELETE BUTTON - Correctly passing certificate_id */}
                         <button
-                            onClick={() => handleDelete(cert.id)} // Using standard integer ID
+                            onClick={() => handleDelete(cert.certificate_id)}
                             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                             title="Delete"
                         >
