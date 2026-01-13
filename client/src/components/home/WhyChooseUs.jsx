@@ -50,15 +50,13 @@ const WhyChooseUs = () => {
 
       <div className="container mx-auto px-6 lg:px-12 relative z-10">
 
-        {/* --- HEADER --- */}
+        {/* --- HEADER (UPDATED) --- */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-slate-700 mb-6">
-            <span className="h-2 w-2 rounded-full bg-[#FFEA00]"></span>
-            <span className="text-[#FFEA00] font-bold uppercase tracking-widest text-xs">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white uppercase tracking-wider drop-shadow-md">
               Why Choose BM Academy
-            </span>
-          </div>
-
+            </h2>
+            {/* Optional: Yellow underline for style */}
+            <div className="w-24 h-1 bg-[#FFEA00] mx-auto mt-4 rounded-full"></div>
         </div>
 
         {/* --- CARDS GRID --- */}

@@ -15,16 +15,28 @@ export default function CoursesSection() {
       overview: "Crack competitive government exams with expert coaching, current affairs updates, and mock test practice.",
       learn: [
         "Syllabus-wise coaching (Maths, GS, Tamil, GK)",
+        "Daily Current Affairs + Test Series",
+        "Exam Strategies + Time Management",
         "TNPSC Group 2, Group 4, VAO",
         "SSC CHSL, CGL, MTS",
         "Bank PO, Clerk (IBPS/SBI)",
         "RRB NTPC & Group D",
-        "Daily Current Affairs + Test Series",
-        "Exam Strategies + Time Management",
       ],
-      duration: "6 Months (Fast-track: 3 Months)",
+      // VERSION 2: Badge/Pill Style for Fast-track
+      duration: (
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Main Duration: Larger & Darker */}
+          <span className="text-lg font-extrabold text-slate-900 leading-none">
+            6 Months
+          </span>
+          {/* Secondary: Styled as a Badge */}
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide bg-slate-100 text-slate-600 border border-slate-200">
+            Fast-track: 3 Months
+          </span>
+        </div>
+      ),
       outcomes: [
-        "Crack State & Central Govt. Exams",
+        "Prepare to Crack State & Central Govt. Exams",
         "Expert Faculty Support",
         "Daily/Weekly Tests",
         "Free SACT Career Test & SAT Scholarship",
@@ -32,7 +44,7 @@ export default function CoursesSection() {
       faq: [
         {
           q: "Can I take this course online?",
-          a: "Yes, both offline and live online batches are available.",
+          a: "Yes, we offer both live online and offline batches.",
         },
       ],
     },
@@ -40,15 +52,20 @@ export default function CoursesSection() {
       icon: <FaUserTie size={24} />,
       title: "Soft Skills & Interview Prep",
       subtitle: "Job readiness & communication mastery",
-      overview: "Build confidence and communication skills for job readiness.",
+      overview: "Build confidence and strong communication skills for job readiness.",
       learn: [
         "Resume Writing",
         "Group Discussion Practice",
         "Interview Techniques (HR + Tech)",
-        "Email, Workplace Etiquette",
+        "Email & Workplace Etiquette",
         "English & Tamil Mixed Training",
       ],
-      duration: "3 Weeks",
+      // Consistency: Large bold text for this one too
+      duration: (
+        <span className="text-lg font-extrabold text-slate-900 leading-none">
+          3 Weeks
+        </span>
+      ),
       outcomes: [
         "Face job interviews confidently",
         "Build strong resumes and LinkedIn profiles",
@@ -57,7 +74,7 @@ export default function CoursesSection() {
       faq: [
         {
           q: "Is this useful for college students?",
-          a: "Yes, this course is ideal for freshers and working professionals.",
+          a: "Yes, this course is ideal for college students, freshers, and working professionals.",
         },
       ],
     },
@@ -180,17 +197,19 @@ export default function CoursesSection() {
                       </div>
                     </div>
 
-                    {/* Footer / Duration */}
+                    {/* Footer / Duration (UPDATED ALIGNMENT) */}
                     <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t border-gray-100 gap-4">
-                       <div className="text-sm font-medium text-gray-500">
-                          <span className="text-[#111111] font-bold">Duration:</span> {course.duration}
-                       </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[#111111] font-bold text-sm uppercase tracking-wider">Duration:</span>
+                          {/* Rendering the new badge-style JSX */}
+                          {course.duration}
+                        </div>
 
-                       <a href="tel:+919876543210" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto px-6 py-3 rounded-lg bg-[#FFEA00] text-black font-bold uppercase text-xs tracking-wider shadow-md hover:bg-black hover:text-[#FFEA00] transition-all duration-300">
-                           Talk to a Counselor
-                        </button>
-                       </a>
+                        <a href="tel:+919876543210" className="w-full sm:w-auto">
+                         <button className="w-full sm:w-auto px-6 py-3 rounded-lg bg-[#FFEA00] text-black font-bold uppercase text-xs tracking-wider shadow-md hover:bg-black hover:text-[#FFEA00] transition-all duration-300">
+                            Talk to a Counselor
+                         </button>
+                        </a>
                     </div>
 
                   </div>
@@ -200,9 +219,8 @@ export default function CoursesSection() {
           })}
         </div>
 
-        {/* --- BOTTOM PROMO CARD (Dark Theme) --- */}
+        {/* --- BOTTOM PROMO CARD --- */}
         <div className="mt-16 bg-[#111111] rounded-2xl p-8 md:p-12 text-center relative overflow-hidden group">
-          {/* Decorative Glow */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFEA00] opacity-10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
 
           <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-4 relative z-10">

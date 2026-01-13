@@ -34,6 +34,8 @@ import FSD from "./Routes/Fsd";
 import Webinar from "./Dashboard/Webinar/Webinar";
 import CertificatePreviewPage from "./components/Certificate/CertificatePreviewPage";
 import CategoriesRoutes from "./Routes/Categories";
+import FloatingWhatsAppButton from './components/home/FloatingWhatsAppButton';
+
 
 
 
@@ -81,7 +83,9 @@ export const App = () => {
                 <Route path="/verify" element={<Certificateroutes />} />
                 <Route path="/certificate-preview" element={<CertificatePreviewPage />} />
                 <Route path="/payments/*" element={<PaymentRoutes />} />
+
               </Routes>
+              <FloatingWhatsAppButton />
               <Footer />
             </>
           }

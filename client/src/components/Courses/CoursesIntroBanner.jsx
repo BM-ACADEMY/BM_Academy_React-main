@@ -60,7 +60,7 @@ const CoursesIntroBannerV4 = () => {
             </span>
           </h2>
           <p className="text-gray-600 text-lg font-medium leading-relaxed mb-8">
-            Expert-led courses designed to take you from <span className="text-black font-bold">beginner</span> to <span className="text-black font-bold">hired professional</span>.
+            Expert-Led Courses Designed to Take You from <span className="text-black font-bold">Beginner</span> to <span className="text-black font-bold">Hired Professional</span>.
           </p>
 
           <button

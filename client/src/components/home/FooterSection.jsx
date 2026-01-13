@@ -21,7 +21,10 @@ const Footer = () => {
       icon: FaFacebookF,
       link: "https://www.facebook.com/people/BM-Academy/61566753898165/"
     },
-
+    {
+      icon: FaInstagram,
+      link: "https://www.instagram.com/bmacademypondy?igsh=ZTI3NG55a3FlaW04"
+    },
     {
       icon: FaLinkedinIn,
       link: "https://www.linkedin.com/company/bm-academypondy/about/?viewAsMember=true"
