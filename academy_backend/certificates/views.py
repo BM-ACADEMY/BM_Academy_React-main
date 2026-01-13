@@ -6,7 +6,6 @@ from rest_framework.decorators import api_view, action, authentication_classes, 
 from rest_framework.permissions import AllowAny
 from bson import ObjectId
 from django.conf import settings
-from datetime import datetime
 from dateutil import parser as date_parser
 from .models import Certificate
 from courses.models import Course as MongoCourse
@@ -18,11 +17,16 @@ import os
 
 
 # ---------------------------------------------------------
-#  UTILITY: CREATE UNIQUE CERTIFICATE ID
+#  UTILITY: CREATE UNIQUE CERTIFICATE ID BASED ON ISSUE YEAR
 # ---------------------------------------------------------
-def generate_certificate_id():
-    year = datetime.utcnow().year
+def generate_certificate_id(target_date=None):
+    # If a specific date is provided, use that year. Otherwise, use current year.
+    if target_date:
+        year = target_date.year
+    else:
+        year = datetime.utcnow().year
 
+    # Find the last certificate created for THIS specific year
     last_cert = (
         Certificate.objects(certificate_id__startswith=f"BMACERT-{year}-")
         .order_by("-certificate_id")
@@ -30,6 +34,7 @@ def generate_certificate_id():
     )
 
     if last_cert:
+        # Extract the number part and increment
         last_number = int(last_cert.certificate_id.split("-")[-1])
         next_number = last_number + 1
     else:
@@ -52,7 +57,11 @@ class CertificateViewSet(viewsets.ViewSet):
         if not user_id or not course_id:
             return Response({"error": "user_id and course_id are required"}, status=400)
 
-        certificate_id = generate_certificate_id()
+        # For auto-issue, we use the current time
+        current_time = datetime.utcnow()
+
+        # Generate ID based on current time
+        certificate_id = generate_certificate_id(current_time)
 
         # Fetch user
         user = MongoUser.objects(id=ObjectId(user_id)).first()
@@ -67,7 +76,7 @@ class CertificateViewSet(viewsets.ViewSet):
             user_id=str(user_id),
             course_id=str(course_id),
             certificate_id=certificate_id,
-            issue_date=datetime.utcnow(),
+            issue_date=current_time,
         ).save()
 
         # Return info (React generates PDF)
@@ -79,7 +88,7 @@ class CertificateViewSet(viewsets.ViewSet):
                     "name": user_name,
                     "course": course_title,
                     "certificate_type": "Course",
-                    "issued_date": datetime.utcnow().strftime("%Y-%m-%d"),
+                    "issued_date": current_time.strftime("%Y-%m-%d"),
                 },
             },
             status=201,
@@ -98,19 +107,23 @@ class CertificateViewSet(viewsets.ViewSet):
     def manual_certificate(self, request):
         name = request.data.get("name")
         course = request.data.get("course")
-        issued_date = request.data.get("issued_date")
+        issued_date_str = request.data.get("issued_date")
         certificate_type = request.data.get("certificate_type", "Course")
 
         if not name or not course:
             return Response({"error": "name and course are required"}, status=400)
 
-        certificate_id = generate_certificate_id()
-
-        # Convert date
+        # 1. Parse the Issue Date FIRST
         try:
-            issued_dt = date_parser.parse(issued_date) if issued_date else datetime.utcnow()
+            if issued_date_str:
+                issued_dt = date_parser.parse(issued_date_str)
+            else:
+                issued_dt = datetime.utcnow()
         except:
             issued_dt = datetime.utcnow()
+
+        # 2. Generate ID using the PARSED DATE (so Year matches)
+        certificate_id = generate_certificate_id(issued_dt)
 
         # Save in DB
         Certificate(
@@ -214,7 +227,8 @@ class CertificateViewSet(viewsets.ViewSet):
         # 4. Delete and return success
         cert.delete()
         return Response(
-            {"message": "Certificate deleted successfully"}, status=status.HTTP_204_NO_CONTENT
+            {"message": "Certificate deleted successfully"},
+            status=status.HTTP_204_NO_CONTENT
         )
 
 
@@ -248,10 +262,6 @@ def verify_certificate(request, certificate_id):
             "issuedDate": cert.issue_date.strftime("%d %B %Y"),
         }
     )
-
-import os
-from django.http import FileResponse, Http404
-
 
 @api_view(["GET"])
 @authentication_classes([])
