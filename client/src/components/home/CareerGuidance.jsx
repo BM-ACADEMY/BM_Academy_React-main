@@ -85,7 +85,7 @@ const SACTBanner = () => {
 
               {/* Item 4 */}
               <li className="flex items-center gap-4">
-                <div className="p-2 bg-green-50 rounded-full text-green-600 shrink-0 flex items-center justify-center">
+                <div className="p-2 bg-yellow-50 rounded-full text-[#d4c300] shrink-0 flex items-center justify-center">
                   <FaCheckCircle size={20} />
                 </div>
                 <span className="text-gray-700 font-medium text-lg leading-snug">

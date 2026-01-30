@@ -1,10 +1,10 @@
+// File: admin/src/Components/Pages/Certificate.jsx
+
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-
+// Removed html2canvas and jsPDF imports from here (logic moved to child)
 import {
   FaAward,
   FaUserGraduate,
@@ -48,7 +48,7 @@ export default function Certificate() {
   const [manualLoading, setManualLoading] = useState(false);
 
   // Preview State
-  const certificateRef = useRef(null); // Ref for the certificate element
+  const certificateRef = useRef(null); // This now points to the Child Component
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState(null);
   const [downloading, setDownloading] = useState(false);
@@ -88,7 +88,6 @@ export default function Certificate() {
       });
       toast.success("Certificate issued successfully!");
 
-      // FIX: Map backend response 'name/course' to table 'user_name/course_name'
       const newCert = {
         ...res.data.data,
         user_name: res.data.data.name,
@@ -120,7 +119,7 @@ export default function Certificate() {
           user_name: res.data.name,
           course_name: res.data.course,
           certificate_type: res.data.certificate_type,
-          issue_date: res.data.issued_date, // Use backend returned date
+          issue_date: res.data.issued_date,
         },
         ...prev,
       ]);
@@ -132,17 +131,12 @@ export default function Certificate() {
     }
   };
 
-  // ✅ FIXED DELETE HANDLER
   const handleDelete = async (certificate_id) => {
     if (!window.confirm("Are you sure you want to delete this certificate?")) return;
 
     try {
-      // 1. Send DELETE request using the STRING ID (e.g. BMACERT-2026-...)
       await API.delete(`/certificates/${certificate_id}/`);
-
-      // 2. Update UI: Filter by certificate_id (not id)
       setCertificates((prev) => prev.filter((c) => c.certificate_id !== certificate_id));
-
       toast.success("Certificate deleted");
     } catch (err) {
       console.error(err);
@@ -155,26 +149,15 @@ export default function Certificate() {
     toast.info("ID Copied!", { autoClose: 1000 });
   };
 
-  // ✅ DOWNLOAD HANDLER
+  // ✅ FIXED DOWNLOAD HANDLER
+  // Delegates logic to the child component via Ref
   const handleDownloadPdf = async () => {
-    const element = certificateRef.current;
-    if (!element) return toast.error("Preview not loaded");
+    if (!certificateRef.current) return toast.error("Preview not loaded");
 
     setDownloading(true);
     try {
-        const canvas = await html2canvas(element, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#ffffff"
-        });
-
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("l", "mm", "a4");
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`Certificate_${previewData.name.replace(/\s+/g, '_')}.pdf`);
+        // Calls the method exposed by useImperativeHandle in Child
+        await certificateRef.current.downloadPdf();
         toast.success("Download started!");
     } catch (err) {
         console.error("PDF Error:", err);
@@ -193,7 +176,7 @@ export default function Certificate() {
     <div className="space-y-8 min-h-screen bg-gray-50 pb-10">
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* --- HEADER --- */}
+      {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-gray-200 pb-6 px-1">
         <div>
             <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Certificate Center</h2>
@@ -202,14 +185,12 @@ export default function Certificate() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-
-        {/* --- 1. AUTO GENERATOR --- */}
+        {/* 1. AUTO GENERATOR */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center gap-3">
                 <div className="p-2 bg-black text-white rounded-lg"><FaUserGraduate /></div>
                 <h3 className="font-bold text-gray-900">Auto Issue</h3>
             </div>
-
             <div className="p-6 space-y-5">
                 <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Select Student</label>
@@ -222,7 +203,6 @@ export default function Certificate() {
                         {users.map((user) => (<option key={user.id} value={user.id}>{user.name || user.email}</option>))}
                     </select>
                 </div>
-
                 <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Select Completed Course</label>
                     <select
@@ -235,7 +215,6 @@ export default function Certificate() {
                         {enrolledCourses.map((course) => (<option key={course.id} value={course.id}>{course.title}</option>))}
                     </select>
                 </div>
-
                 <button
                     onClick={handleIssue}
                     disabled={loading || !formData.course}
@@ -246,13 +225,12 @@ export default function Certificate() {
             </div>
         </div>
 
-        {/* --- 2. MANUAL GENERATOR --- */}
+        {/* 2. MANUAL GENERATOR */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center gap-3">
                 <div className="p-2 bg-black text-white rounded-lg"><FaSignature /></div>
                 <h3 className="font-bold text-gray-900">Manual Generator</h3>
             </div>
-
             <div className="p-6 space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-1 md:col-span-2">
@@ -265,7 +243,6 @@ export default function Certificate() {
                             placeholder="e.g. John Doe"
                         />
                     </div>
-
                     <div className="space-y-1">
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Type</label>
                         <select
@@ -278,7 +255,6 @@ export default function Certificate() {
                             <option value="Internship">Internship</option>
                         </select>
                     </div>
-
                     <div className="space-y-1">
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Issue Date</label>
                         <input
@@ -288,7 +264,6 @@ export default function Certificate() {
                             className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none uppercase"
                         />
                     </div>
-
                     <div className="space-y-1 md:col-span-2">
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Course Title</label>
                         <input
@@ -300,7 +275,6 @@ export default function Certificate() {
                         />
                     </div>
                 </div>
-
                 <button
                     onClick={handleManualIssue}
                     disabled={manualLoading}
@@ -312,7 +286,7 @@ export default function Certificate() {
         </div>
       </div>
 
-      {/* --- HISTORY TABLE --- */}
+      {/* HISTORY TABLE */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
             <h3 className="font-bold text-gray-900 flex items-center gap-2">
@@ -320,7 +294,6 @@ export default function Certificate() {
             </h3>
             <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold">Total: {certificates.length}</span>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">
@@ -358,11 +331,8 @@ export default function Certificate() {
                   </td>
                   <td className="px-6 py-4 text-gray-600">{cert.course_name || cert.manual_course}</td>
                   <td className="px-6 py-4 text-gray-500 text-xs font-medium">{new Date(cert.issue_date).toLocaleDateString()}</td>
-
-                  {/* ACTIONS */}
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                        {/* View Button */}
                         <button
                             onClick={() => {
                                 setPreviewData({
@@ -379,8 +349,6 @@ export default function Certificate() {
                         >
                             <FaFilePdf size={16} />
                         </button>
-
-                        {/* DELETE BUTTON - Correctly passing certificate_id */}
                         <button
                             onClick={() => handleDelete(cert.certificate_id)}
                             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
@@ -429,16 +397,17 @@ export default function Certificate() {
               </div>
             </div>
 
-            {/* Preview Body with REF */}
+            {/* Preview Body - CHANGED: Ref moved inside */}
             <div className="flex-1 bg-gray-900 rounded-b-xl overflow-hidden flex justify-center items-center relative p-8">
-               <div ref={certificateRef} className="shadow-2xl">
-                   <CertificatePreview
+               <div className="shadow-2xl">
+                    <CertificatePreview
+                      ref={certificateRef} // ✅ FIX: Ref attached here, not on the div
                       name={previewData.name}
                       course={previewData.course}
                       issued_date={previewData.issued_date}
                       certificate_type={previewData.certificate_type}
                       certificate_id={previewData.certificate_id}
-                   />
+                    />
                </div>
             </div>
           </div>

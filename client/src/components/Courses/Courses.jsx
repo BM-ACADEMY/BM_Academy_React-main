@@ -185,7 +185,7 @@ export default function CoursesSection() {
 
                         <div className="bg-gray-50 p-4 rounded-lg">
                            <h4 className="font-bold text-[#111111] text-sm mb-2 flex items-center gap-2">
-                             <FaQuestionCircle className="text-gray-400" /> FAQ
+                             <FaQuestionCircle className="text-[#FFEA00]" /> FAQ
                            </h4>
                            {course.faq.map((f, idx) => (
                               <div key={idx} className="text-sm">
