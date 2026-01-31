@@ -189,8 +189,8 @@ const CertificatePreview = forwardRef(
                 {issued_date && (
                   <div style={{
                       position: "absolute",
-                      bottom: "-40%",   // Same height as ID
-                      right: "50px",   // Adjust right position
+                      bottom: "-41%",   // Same height as ID
+                      right: "40px",   // Adjust right position
                       width: "250px",   // Width of the dotted area
                       textAlign: "center",
                       fontSize: "16px",
