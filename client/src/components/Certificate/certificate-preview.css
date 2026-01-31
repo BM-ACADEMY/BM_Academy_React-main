@@ -1,9 +1,18 @@
+/* Import Montserrat (Closest match to Garet) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
 .cert-root {
   width: 1123px;
   height: 794px;
   position: relative;
+  background-color: white;
+  overflow: hidden;
+  /* GLOBAL FONT FIX */
+  font-family: 'Montserrat', sans-serif;
+  color: #1a1a1a;
 }
 
+/* Background Image Layer */
 .cert-bg {
   width: 100%;
   height: 100%;
@@ -13,50 +22,23 @@
   z-index: 1;
 }
 
-.cert-text {
-  position: absolute;
-  width: 100%;
+/* Text Container */
+.cert-content {
+  position: relative;
+  z-index: 10;
   text-align: center;
-  z-index: 5;
-  font-family: "Times New Roman", serif;
+  /* Adjust this padding if text is too high/low */
+  padding-top: 330px;
 }
-.cert-id {
-  bottom: 90px;          /* 👈 moves it UP from bottom */
-  font-size: 16px;
-  font-weight: 600;
-  text-align: center;
-  color: #111;
+
+/* --- THE "GARET" LOOK --- */
+.heavy-text {
+  font-weight: 700 !important;
+  letter-spacing: 1px; /* Wide geometric look */
+}
+
+.regular-text {
+  font-weight: 500;
   letter-spacing: 0.5px;
-}
-
-
-.line1 {
-  top: 330px;
-  font-size: 24px;
-}
-
-.line2a {
-  top: 380px;
-  font-size: 22px;
-}
-
-.line2b {
-  top: 420px;
-  font-size: 32px;
-  font-weight: bold;
-}
-
-.line3 {
-  top: 470px;
-  font-size: 28px;
-}
-
-.issued {
-  top: 550px;
-  font-size: 20px;
-}
-
-/* Buttons should always stay above certificate */
-.preview-btn {
-  z-index: 9999 !important;
+  color: #444;
 }

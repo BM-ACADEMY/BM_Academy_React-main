@@ -343,6 +343,13 @@ export default function Certificate() {
                                 issued_date: new Date(cert.issue_date).toLocaleDateString(),
                                 });
                                 setPreviewOpen(true);
+
+setTimeout(async () => {
+  if (certificateRef.current) {
+    await certificateRef.current.generatePdfPreview();
+  }
+}, 0);
+
                             }}
                             className="p-2 text-gray-400 hover:text-black hover:bg-gray-100 rounded transition-colors"
                             title="View Certificate"

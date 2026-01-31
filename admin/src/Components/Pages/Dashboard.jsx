@@ -6,35 +6,16 @@ import {
   FaCertificate,
   FaArrowRight,
   FaChartLine,
-  FaEllipsisH,
   FaLayerGroup,
   FaListAlt,
-  FaCalendarAlt,
-  FaPlus,
-  FaFilter,
-  FaGraduationCap
+  FaFilter
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
 import { Link } from "react-router-dom";
 
-/* ---------------- API SETUP ---------------- */
-const API = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URI,
-  headers: { "Content-Type": "application/json" },
-});
-
-API.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// ✅ FIX: Import the central API with the logout logic
+import API from "../../api";
 
 export default function Dashboard() {
   const [rawData, setRawData] = useState({
@@ -63,6 +44,7 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         setLoading(true);
+        // This will now automatically handle 401 errors (logout)
         const [catRes, subRes, couRes, useRes, cerRes] = await Promise.all([
           API.get("/public/categories/"),
           API.get("/sub-categories/"),
@@ -89,7 +71,10 @@ export default function Dashboard() {
         });
       } catch (err) {
         console.error(err);
-        toast.error("Failed to load dashboard data");
+        // Only show toast if it wasn't a 401 (because 401 redirects)
+        if (err.response?.status !== 401) {
+             toast.error("Failed to load dashboard data");
+        }
       } finally {
         setLoading(false);
       }
@@ -176,7 +161,7 @@ export default function Dashboard() {
 
         {/* Filter Controls */}
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto relative z-10">
-            {/* UPDATED: Custom Date Picker with FROM / TO labels */}
+            {/* Custom Date Picker with FROM / TO labels */}
             {filterType === "custom" && (
                 <div className="flex items-center gap-4 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
                     {/* FROM INPUT */}
@@ -276,7 +261,7 @@ export default function Dashboard() {
                     {filterType === "all" ? "Yearly Overview" : "Filtered Data View"}
                 </p>
             </div>
-            
+
           </div>
 
           {/* Visual Bar Chart */}
