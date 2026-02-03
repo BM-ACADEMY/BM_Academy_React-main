@@ -140,7 +140,7 @@ const CertificatePreview = forwardRef(
                 className="cert-content"
                 style={{
                   position: "absolute",
-                  top: "10px",
+                  top: "7px",
                   left: "0",
                   width: "100%",
                   textAlign: "center",
@@ -173,7 +173,7 @@ const CertificatePreview = forwardRef(
                   <div style={{
                       position: "absolute",
                       bottom: "-40%",   // Adjust height to sit on the dotted line
-                      left: "80px",    // Adjust left position
+                      left: "95px",    // Adjust left position
                       width: "250px",   // Width of the dotted area
                       textAlign: "center",
                       fontSize: "18px",
@@ -189,8 +189,8 @@ const CertificatePreview = forwardRef(
                 {issued_date && (
                   <div style={{
                       position: "absolute",
-                      bottom: "-41%",   // Same height as ID
-                      right: "40px",   // Adjust right position
+                      bottom: "-40%",   // Same height as ID
+                      right: "35px",   // Adjust right position
                       width: "250px",   // Width of the dotted area
                       textAlign: "center",
                       fontSize: "18px",
