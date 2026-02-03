@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// Removed html2canvas and jsPDF imports from here (logic moved to child)
 import {
   FaAward,
   FaUserGraduate,
@@ -48,7 +47,7 @@ export default function Certificate() {
   const [manualLoading, setManualLoading] = useState(false);
 
   // Preview State
-  const certificateRef = useRef(null); // This now points to the Child Component
+  const certificateRef = useRef(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState(null);
   const [downloading, setDownloading] = useState(false);
@@ -110,8 +109,16 @@ export default function Certificate() {
     }
     setManualLoading(true);
     try {
-      const res = await API.post("/certificates/manual/", manual);
-      toast.success("Manual certificate created!");
+      // ✅ IMPROVEMENT: Ensure type is never empty
+      const payload = {
+        ...manual,
+        certificate_type: manual.certificate_type || "Course"
+      };
+
+      const res = await API.post("/certificates/manual/", payload);
+
+      // ✅ IMPROVEMENT: Show the new ID in the success message
+      toast.success(`Generated: ${res.data.certificate_id}`);
 
       setCertificates((prev) => [
         {
@@ -125,6 +132,7 @@ export default function Certificate() {
       ]);
       setManual({ name: "", course: "", issued_date: "", certificate_type: "" });
     } catch (err) {
+      console.error(err);
       toast.error("Failed to create manual certificate");
     } finally {
       setManualLoading(false);
@@ -149,14 +157,11 @@ export default function Certificate() {
     toast.info("ID Copied!", { autoClose: 1000 });
   };
 
-  // ✅ FIXED DOWNLOAD HANDLER
-  // Delegates logic to the child component via Ref
   const handleDownloadPdf = async () => {
     if (!certificateRef.current) return toast.error("Preview not loaded");
 
     setDownloading(true);
     try {
-        // Calls the method exposed by useImperativeHandle in Child
         await certificateRef.current.downloadPdf();
         toast.success("Download started!");
     } catch (err) {
@@ -250,7 +255,7 @@ export default function Certificate() {
                             onChange={(e) => setManual({ ...manual, certificate_type: e.target.value })}
                             className="w-full border border-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-black outline-none bg-white"
                         >
-                            <option value="">-- Select --</option>
+                            <option value="">-- Select (Default: Course) --</option>
                             <option value="Course">Course</option>
                             <option value="Internship">Internship</option>
                         </select>
@@ -315,7 +320,7 @@ export default function Certificate() {
                         onClick={() => copyToClipboard(cert.certificate_id)}
                         title="Copy ID"
                     >
-                        <span className="font-mono text-xs font-bold text-gray-600">{cert.certificate_id?.substring(0, 8)}...</span>
+                        <span className="font-mono text-xs font-bold text-gray-600">{cert.certificate_id?.substring(0, 11)}...</span>
                         <FaCopy className="text-gray-400 text-xs" />
                     </div>
                   </td>
@@ -344,12 +349,11 @@ export default function Certificate() {
                                 });
                                 setPreviewOpen(true);
 
-setTimeout(async () => {
-  if (certificateRef.current) {
-    await certificateRef.current.generatePdfPreview();
-  }
-}, 0);
-
+                                setTimeout(async () => {
+                                    if (certificateRef.current) {
+                                        // Trigger preview logic if needed in child
+                                    }
+                                }, 0);
                             }}
                             className="p-2 text-gray-400 hover:text-black hover:bg-gray-100 rounded transition-colors"
                             title="View Certificate"
@@ -404,11 +408,11 @@ setTimeout(async () => {
               </div>
             </div>
 
-            {/* Preview Body - CHANGED: Ref moved inside */}
+            {/* Preview Body */}
             <div className="flex-1 bg-gray-900 rounded-b-xl overflow-hidden flex justify-center items-center relative p-8">
                <div className="shadow-2xl">
                     <CertificatePreview
-                      ref={certificateRef} // ✅ FIX: Ref attached here, not on the div
+                      ref={certificateRef}
                       name={previewData.name}
                       course={previewData.course}
                       issued_date={previewData.issued_date}
