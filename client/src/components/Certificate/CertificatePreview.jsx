@@ -173,7 +173,7 @@ const CertificatePreview = forwardRef(
                   <div style={{
                       position: "absolute",
                       bottom: "-45%",   // ADJUSTED HEIGHT FOR NEW TEMPLATE
-                      left: "80px",    // LEFT POSITION
+                      left: "95px",    // LEFT POSITION
                       width: "250px",
                       textAlign: "center",
                       fontSize: "18px",
@@ -190,7 +190,7 @@ const CertificatePreview = forwardRef(
                   <div style={{
                       position: "absolute",
                       bottom: "-45%",   // ADJUSTED HEIGHT FOR NEW TEMPLATE
-                      right: "45px",   // RIGHT POSITION
+                      right: "35px",   // RIGHT POSITION
                       width: "250px",
                       textAlign: "center",
                       fontSize: "18px",
