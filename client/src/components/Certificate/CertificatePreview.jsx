@@ -140,7 +140,7 @@ const CertificatePreview = forwardRef(
                 className="cert-content"
                 style={{
                   position: "absolute",
-                  top: "10px",
+                  top: "55px",
                   left: "0",
                   width: "100%",
                   textAlign: "center",
@@ -172,11 +172,11 @@ const CertificatePreview = forwardRef(
                 {certificate_id && (
                   <div style={{
                       position: "absolute",
-                      bottom: "-55%",   // ADJUSTED HEIGHT FOR NEW TEMPLATE
-                      left: "100px",    // LEFT POSITION
+                      bottom: "-45%",   // ADJUSTED HEIGHT FOR NEW TEMPLATE
+                      left: "80px",    // LEFT POSITION
                       width: "250px",
                       textAlign: "center",
-                      fontSize: "16px",
+                      fontSize: "18px",
                       fontWeight: "bold",
                       color: "#333",
                       fontFamily: "Arial, sans-serif"
@@ -189,11 +189,11 @@ const CertificatePreview = forwardRef(
                 {issued_date && (
                   <div style={{
                       position: "absolute",
-                      bottom: "-55%",   // ADJUSTED HEIGHT FOR NEW TEMPLATE
-                      right: "50px",   // RIGHT POSITION
+                      bottom: "-45%",   // ADJUSTED HEIGHT FOR NEW TEMPLATE
+                      right: "45px",   // RIGHT POSITION
                       width: "250px",
                       textAlign: "center",
-                      fontSize: "16px",
+                      fontSize: "18px",
                       fontWeight: "bold",
                       color: "#333",
                       fontFamily: "Arial, sans-serif"

@@ -173,10 +173,10 @@ const CertificatePreview = forwardRef(
                   <div style={{
                       position: "absolute",
                       bottom: "-40%",   // Adjust height to sit on the dotted line
-                      left: "100px",    // Adjust left position
+                      left: "80px",    // Adjust left position
                       width: "250px",   // Width of the dotted area
                       textAlign: "center",
-                      fontSize: "16px",
+                      fontSize: "18px",
                       fontWeight: "bold",
                       color: "#333",
                       fontFamily: "Arial, sans-serif"
@@ -193,7 +193,7 @@ const CertificatePreview = forwardRef(
                       right: "40px",   // Adjust right position
                       width: "250px",   // Width of the dotted area
                       textAlign: "center",
-                      fontSize: "16px",
+                      fontSize: "18px",
                       fontWeight: "bold",
                       color: "#333",
                       fontFamily: "Arial, sans-serif"

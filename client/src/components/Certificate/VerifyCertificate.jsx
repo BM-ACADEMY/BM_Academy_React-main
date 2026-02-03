@@ -81,7 +81,7 @@ export default function VerifyCertificate() {
               type="text"
               value={certificateId}
               onChange={(e) => setCertificateId(e.target.value)}
-              placeholder="Enter ID (e.g., BM-CERT-2024)"
+              placeholder="Enter ID (e.g., BM-DM-2024)"
               className="w-full border-2 border-gray-200 bg-gray-50 rounded-lg pl-10 pr-4 py-4 focus:ring-0 focus:border-[#FFEA00] focus:bg-white outline-none text-[#111111] font-bold transition-all placeholder-gray-400"
               disabled={loading}
             />
